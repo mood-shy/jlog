@@ -1,0 +1,29 @@
+local:
+  address: ${localAddress:} #有些获取到的ip不能用，需要手工配worker的地址
+thread:
+  count: ${threadCount:8}
+queue:
+  maxSize: ${queueSize:16384}
+  preDbSize: ${preDbSize:10000}
+#etcd的地址，如有多个用逗号分隔
+config:
+  mdc: ${mdc:default}
+  server: ${etcdServer:http://127.0.0.1:2379} #etcd的地址，重要！！！
+  workerPath: ${workerPath:default} #该worker放到哪个path下，譬如放/app1下，则该worker只能被app1使用，不会为其他client提供服务
+server:
+  port: 8080
+#ck信息，自行修改
+clickhouse:
+  url: jdbc:clickhouse://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:8123}
+  db: ${DB_NAME:test}
+  username: ${MYSQL_USER:test}
+  password: ${MYSQL_PASS:test}
+  batchSize: ${BATCH_SIZE:5000}
+  poolSize: ${POOL_SIZE:5}
+  insertInterval: ${INSERT_INTERVAL:5}
+  nodeNumber: ${NODE_NUMBER:15}
+log:
+  batchSize: ${BATCH_SIZE:5000}
+  poolSize: ${POOL_SIZE:2}
+  insertInterval: ${INSERT_INTERVAL:5}
+  preDbSize: ${preDbSize:10000}
