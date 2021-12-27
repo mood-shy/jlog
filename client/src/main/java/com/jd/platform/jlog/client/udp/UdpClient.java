@@ -27,43 +27,6 @@ import java.util.List;
  * @date 2021-08-10
  */
 public class UdpClient {
-//
-//    public static void main(String[] args) {
-//        //1.NioEventLoopGroup是执行者
-//        NioEventLoopGroup group = new NioEventLoopGroup();
-//        //2.启动器
-//        Bootstrap bootstrap = new Bootstrap();
-//        //3.配置启动器
-//        bootstrap.group(group)                         //3.1指定group
-//                .channel(NioDatagramChannel.class)     //3.2指定channel
-//                .handler(new ChannelInitializer<NioDatagramChannel>() {
-//                    @Override
-//                    protected void initChannel(NioDatagramChannel nioDatagramChannel) {
-//                        //3.4在pipeline中加入编码器，和解码器（用来处理返回的消息）
-//                        nioDatagramChannel.pipeline().addLast(new MyUdpEncoder());
-//                    }
-//                });
-//        try {
-//            //4.bind并返回一个channel
-//            Channel channel = bootstrap.bind(8888).sync().channel();
-//            for (int i = 0; i < 1000; i++) {
-//                TimeUnit.MILLISECONDS.sleep(1);
-//
-//                TracerBean tracerBean = new TracerBean();
-//                tracerBean.setTracerObject(i);
-//                //5.发送数据
-//                channel.writeAndFlush(tracerBean);
-//                System.out.println("Send msg-" + i);
-//            }
-//
-//            //6.等待channel的close
-//            channel.closeFuture().sync();
-//            //7.关闭group
-//            group.shutdownGracefully();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     /**
      * 大日志即超过6w行
