@@ -1,7 +1,6 @@
 package com.jd.platform.jlog.dashboard;
 
 import com.jd.platform.jlog.dashboard.utils.TaskUtil;
-import com.jd.ump.profiler.proxy.Profiler;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +52,6 @@ public class Starter {
 
     @PostConstruct
     public void start() {
-        Profiler.registerJVMInfo("userTracer_dashboard_jvm");
-
 //        logger.info("interval", interval);
 //        logger.info("repeat", repeat);
 //        logger.info("cpuOn", cpuOn);
