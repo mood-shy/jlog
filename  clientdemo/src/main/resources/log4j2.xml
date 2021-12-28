@@ -6,26 +6,26 @@
         <Console name="CONSOLE" target="SYSTEM_OUT">
             <PatternLayout pattern="[%7r] %6p - %30.30c - %m \n"/>
         </Console>
-        <RollingRandomAccessFile name="ServerSide" fileName="/tmp/Logs/serverside.log" filePattern="/tmp/Logs/serverside.%d{yyyy-MM-dd}.log">
+        <RollingRandomAccessFile name="ServerSide" fileName="${log-dir}/serverside.log" filePattern="${log-dir}/serverside.%d{yyyy-MM-dd}.log">
             <PatternLayout pattern="%d [%7r] %6p - %30.30c - %m \n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
             </Policies>
             <DefaultRolloverStrategy>
-                <Delete basePath="/tmp/Logs/" maxDepth="1">
+                <Delete basePath="${log-dir}" maxDepth="1">
                     <IfFileName glob="serverside.*.log" />
                     <IfLastModified age="5d" />
                 </Delete>
             </DefaultRolloverStrategy>
         </RollingRandomAccessFile>
 
-        <RollingRandomAccessFile name="requestLog" fileName="/tmp/Logs/request.log" filePattern="/tmp/Logs/request.%d{yyyy-MM-dd}.log">
+        <RollingRandomAccessFile name="requestLog" fileName="${log-dir}/request.log" filePattern="${log-dir}/request.%d{yyyy-MM-dd}.log">
             <PatternLayout pattern="%d [%7r] %6p - %30.30c - %m \n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
             </Policies>
             <DefaultRolloverStrategy>
-                <Delete basePath="/tmp/Logs/" maxDepth="1">
+                <Delete basePath="${log-dir}" maxDepth="1">
                     <IfFileName glob="request.*.log" />
                     <IfLastModified age="5d" />
                 </Delete>
