@@ -8,15 +8,12 @@ import com.jd.platform.jlog.clientdemo.config.UserConstant;
 import com.jd.platform.jlog.common.config.IConfigCenter;
 import com.jd.platform.jlog.common.model.TracerBean;
 import com.jd.platform.jlog.common.utils.IdWorker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
