@@ -1,5 +1,6 @@
 package com.jd.platform.jlog.clientdemo.web;
 
+import com.jd.platform.jlog.client.udp.UdpSender;
 import com.jd.platform.jlog.common.model.TracerBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

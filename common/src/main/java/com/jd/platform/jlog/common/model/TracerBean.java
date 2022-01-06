@@ -1,6 +1,7 @@
 package com.jd.platform.jlog.common.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +31,19 @@ public class TracerBean implements Serializable {
      */
     private List<Map<String, Object>> tracerObject;
 
+    /**
+     * 构造方法1
+     */
+    public TracerBean(long createTime) {
+        this.createTime = createTime;
+        this.tracerObject = new ArrayList<>();
+        this.costTime = (int)(System.currentTimeMillis() - createTime);
+    }
+
+    /**
+     * 构造方法2
+     */
+    public TracerBean() {}
 
     @Override
     public String toString() {

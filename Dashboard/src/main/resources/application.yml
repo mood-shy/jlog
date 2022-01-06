@@ -24,10 +24,3 @@ clickhouse:
   batchSize: ${BATCH_SIZE:5000}
   poolSize: ${POOL_SIZE:5}
   insertInterval: ${INSERT_INTERVAL:5}
-
-
-
-fake:
-  cpuon: ${FAKE_ON:1}
-  interval: ${FAKE_INTERVAL:125}
-  repeat: ${FAKE_REPEAT:100000}

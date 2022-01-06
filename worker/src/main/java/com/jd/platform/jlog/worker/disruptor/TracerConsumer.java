@@ -1,19 +1,20 @@
 package com.jd.platform.jlog.worker.disruptor;
 
 import cn.hutool.core.date.DateUtil;
+import com.jd.platform.jlog.common.consumer.TracerConsumerExt;
 import com.jd.platform.jlog.common.model.RunLogMessage;
 import com.jd.platform.jlog.common.model.TracerBean;
 import com.jd.platform.jlog.common.model.TracerData;
-import com.jd.platform.jlog.common.utils.FastJsonUtils;
 import com.jd.platform.jlog.common.utils.ProtostuffUtils;
 import com.jd.platform.jlog.common.utils.ZstdUtils;
 import com.jd.platform.jlog.worker.store.TracerLogToDbStore;
 import com.jd.platform.jlog.worker.store.TracerModelToDbStore;
 import com.lmax.disruptor.WorkHandler;
-import io.netty.util.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +28,15 @@ import java.util.concurrent.atomic.LongAdder;
  * @version 1.0
  * @date 2021-08-24
  */
+@Component
 public class TracerConsumer implements WorkHandler<OneTracer> {
+
+    /**
+     * 入库处理
+     */
+    @Resource
+    private List<TracerConsumerExt> consumerExtList;
+
     /**
      * 已消费完毕的总数量
      */
@@ -116,70 +125,14 @@ public class TracerConsumer implements WorkHandler<OneTracer> {
      * 处理filter里处理的出入参
      */
     private void dealFilterModel(TracerBean tracerBean) {
-        List<Map<String, Object>> mapList = tracerBean.getTracerObject();
-        Map<String, Object> requestMap = mapList.get(0);
+        Map<String, Object> map = new HashMap<>(16);
 
-        long tracerId = requestMap.get("tracerId") == null ? 0 : Long.valueOf(requestMap.get("tracerId").toString());
-        //filter的出入参
-        Map<String, Object> responseMap = mapList.get(mapList.size() - 1);
-
-        byte[] responseBytes = "default".getBytes();
-        if (responseMap.get("response") != null) {
-            responseBytes = (byte[]) responseMap.get("response");
+        //处理入库数据
+        for (TracerConsumerExt consumerExt: consumerExtList) {
+            if (!consumerExt.dealFilterModelMap(tracerBean, map)) {
+                break;
+            }
         }
-
-        Map<String, Object> map = new HashMap<>();
-        //jsf的是用户自己设置的request入参，http的是从httpRequest读取的
-        if (requestMap.get("wholeRequest") == null) {
-            map.put("requestContent", FastJsonUtils.collectToString(requestMap));
-        } else {
-            map.put("requestContent", requestMap.get("wholeRequest"));
-        }
-
-        //此处做了一个base64编码，否则原编码直接进去，取出来后是String，直接getBytes后无法用Zstd解压
-        map.put("responseContent", responseBytes);
-        map.put("createTime", DateUtil.formatDateTime(new Date(tracerBean.getCreateTime())));
-        map.put("costTime", tracerBean.getCostTime());
-
-
-        map.put("tracerId", tracerId);
-
-        String pin = requestMap.get("pin") == null ? "" : requestMap.get("pin").toString();
-        map.put("pin", pin);
-
-        String uri = requestMap.get("uri") == null ? "" : requestMap.get("uri").toString();
-        map.put("uri", uri);
-
-        //appName
-        String appName = requestMap.get("appName") == null ? "" : requestMap.get("appName").toString();
-        map.put("appName", appName);
-
-        String openudid = requestMap.get("openudid") == null ? "" : requestMap.get("openudid").toString();
-
-        if (StringUtil.isNullOrEmpty(openudid)) {
-            String uuid = requestMap.get("uuid") == null ? "" : requestMap.get("uuid").toString();
-            map.put("uuid", uuid);
-        } else {
-            map.put("uuid", openudid);
-        }
-
-        String client = requestMap.get("client") == null ? "" : requestMap.get("client").toString();
-        int clientType = 0;
-        if ("apple".equals(client)) {
-            clientType = 2;
-        } else if ("android".equals(client)) {
-            clientType = 1;
-        }
-        map.put("clientType", clientType);
-        String clientVersion = requestMap.get("clientVersion") == null ? "" : requestMap.get("clientVersion").toString();
-        map.put("clientVersion", clientVersion);
-
-        String userIp = requestMap.get("ip") == null ? "" : requestMap.get("ip").toString();
-        map.put("userIp", userIp);
-        String serverIp = requestMap.get("serverIp") == null ? "" : requestMap.get("serverIp").toString();
-        map.put("serverIp", serverIp);
-
-        map.put("intoDbTime", DateUtil.formatDateTime(new Date(tracerBean.getCreateTime())));
 
         tracerModelToDbStore.offer(map);
     }

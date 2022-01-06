@@ -1,11 +1,11 @@
 package com.jd.platform.jlog.clientdemo.config;
 
 import com.jd.platform.jlog.client.TracerClientStarter;
-import com.jd.platform.jlog.client.filter.UserFilter;
+import com.jd.platform.jlog.clientdemo.interceptor.UserInterceptor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.annotation.PostConstruct;
 
@@ -17,7 +17,7 @@ import javax.annotation.PostConstruct;
  * @date 2021-12-27
  */
 @Configuration
-public class DemoConfig {
+public class DemoConfig implements WebMvcConfigurer {
 
     @Value("${config.server}")
     private String etcdServer;
@@ -30,15 +30,8 @@ public class DemoConfig {
         tracerClientStarter.startPipeline();
     }
 
-    @Bean
-    public FilterRegistrationBean urlFilter() {
-        FilterRegistrationBean registration = new FilterRegistrationBean();
-        UserFilter userFilter = new UserFilter();
-
-        registration.setFilter(userFilter);
-        registration.addUrlPatterns("/*");
-        registration.setName("UserTraceFilter");
-        registration.setOrder(1);
-        return registration;
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new UserInterceptor()).addPathPatterns("/*");
     }
 }
