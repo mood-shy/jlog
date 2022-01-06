@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 抓取入参
  * @author shenkaiwen5
  * @version 1.0
  * @date 2022-01-06

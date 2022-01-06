@@ -1,6 +1,7 @@
 package com.jd.platform.jlog.clientdemo.interceptor;
 
 
+import com.jd.platform.jlog.client.etcd.EtcdConfigFactory;
 import com.jd.platform.jlog.client.tracerholder.TracerHolder;
 import com.jd.platform.jlog.client.udp.UdpSender;
 import com.jd.platform.jlog.clientdemo.config.UserConstant;
@@ -31,17 +32,10 @@ import java.util.Random;
 public class UserInterceptor implements HandlerInterceptor {
 
     /**
-     * 配置中心
-     */
-    @Resource
-    private IConfigCenter iConfigCenter;
-    /**
      * 出入参记录拓展点
      */
     @Autowired
     private List<TracerBeanAttrExt> tracerBeanAttrExtList;
-
-    private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -79,7 +73,8 @@ public class UserInterceptor implements HandlerInterceptor {
      */
     private boolean tracerPercent() {
         try {
-            Integer percent = Integer.valueOf(iConfigCenter.get("tracer.percent"));
+            IConfigCenter configCenter = EtcdConfigFactory.configCenter();
+            Integer percent = Integer.valueOf(configCenter.get(UserConstant.TRACER_PERCENT));
             //设置随机数
             Random random = new Random();
             //1-100之间

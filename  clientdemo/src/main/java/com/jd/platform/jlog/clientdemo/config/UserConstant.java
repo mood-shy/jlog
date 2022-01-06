@@ -11,4 +11,12 @@ public interface UserConstant {
      * 出入参记录对象
      */
     String START_TIME = "startTime";
+    /**
+     * 拦截器比例
+     */
+    String TRACER_PERCENT = "tracer.percent";
+    /**
+     * 用户定制入库查询索引字段
+     */
+    String INSERT_DB_FIELD = "insert_db_field";
 }
