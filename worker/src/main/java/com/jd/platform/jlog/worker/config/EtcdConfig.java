@@ -2,6 +2,7 @@ package com.jd.platform.jlog.worker.config;
 
 import com.jd.platform.jlog.common.config.IConfigCenter;
 import com.jd.platform.jlog.common.config.etcd.JdEtcdBuilder;
+import com.jd.platform.jlog.common.config.zookeeper.ZkBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +26,8 @@ public class EtcdConfig {
     public IConfigCenter client() {
         logger.info("etcd address : " + etcdServer);
         //连接多个时，逗号分隔
-        return JdEtcdBuilder.build(etcdServer);
+        //return JdEtcdBuilder.build(etcdServer);
+        return ZkBuilder.build(etcdServer);
     }
 
 }

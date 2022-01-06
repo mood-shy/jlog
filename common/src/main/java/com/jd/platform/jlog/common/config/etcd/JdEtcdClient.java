@@ -12,8 +12,10 @@ import com.ibm.etcd.client.lease.PersistentLease;
 import com.ibm.etcd.client.lock.LockClient;
 import com.jd.platform.jlog.common.config.IConfigCenter;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -119,6 +121,14 @@ public class JdEtcdClient implements IConfigCenter {
     public List<KeyValue> getPrefix(String key) {
         RangeResponse rangeResponse = kvClient.get(ByteString.copyFromUtf8(key)).asPrefix().sync();
         return rangeResponse.getKvsList();
+    }
+
+    @Override
+    public List<String> getPrefixKey(String key) {
+        RangeResponse rangeResponse = kvClient.get(ByteString.copyFromUtf8(key)).asPrefix().sync();
+        return rangeResponse.getKvsList().stream().map(
+                kv -> kv.getKey().toStringUtf8()
+        ).collect(Collectors.toList());
     }
 
     @Override
