@@ -24,6 +24,11 @@
             <version>2.4</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.32</version>
+        </dependency>
         <!--线程池传参-->
         <dependency>
             <groupId>com.alibaba</groupId>
