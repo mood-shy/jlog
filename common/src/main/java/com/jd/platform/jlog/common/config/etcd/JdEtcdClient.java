@@ -117,11 +117,11 @@ public class JdEtcdClient implements IConfigCenter {
         return keyValues.get(0);
     }
 
-    @Override
-    public List<KeyValue> getPrefix(String key) {
-        RangeResponse rangeResponse = kvClient.get(ByteString.copyFromUtf8(key)).asPrefix().sync();
-        return rangeResponse.getKvsList();
-    }
+//    @Override
+//    public List<KeyValue> getPrefix(String key) {
+//        RangeResponse rangeResponse = kvClient.get(ByteString.copyFromUtf8(key)).asPrefix().sync();
+//        return rangeResponse.getKvsList();
+//    }
 
     @Override
     public List<String> getPrefixKey(String key) {

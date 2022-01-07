@@ -70,10 +70,6 @@ public class ZKClient implements IConfigCenter {
         return null;
     }
 
-    @Override
-    public List<KeyValue> getPrefix(String key) {
-        return null;
-    }
 
     @Override
     public List<String> getPrefixKey(String key) {
