@@ -50,8 +50,10 @@ public class EtcdStarter {
         scheduledExecutorService.scheduleAtFixedRate(() -> {
 
             try {
-                configCenter.putAndGrant(buildKey(), buildValue(), 8);
-                configCenter.putAndGrant(buildSecondKey(), buildValue(), 8);
+                //configCenter.putAndGrant(buildKey(), buildValue(), 8);
+                //configCenter.putAndGrant(buildSecondKey(), buildValue(), 8);
+                configCenter.put(buildKey(), buildValue());
+                configCenter.put(buildSecondKey(), buildValue());
             } catch (Exception e) {
                 //do nothing
                 e.printStackTrace();

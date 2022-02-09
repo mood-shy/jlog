@@ -45,10 +45,9 @@ public interface IConfigCenter {
     String get(String key);
 
     /**
-     * 获取指定前缀的所有key-value
+     * 获取指定前缀的所有key
      */
-    List<KeyValue> getPrefix(String key);
-
+    List<String> getPrefixKey(String key);
     /**
      * 监听key
      */

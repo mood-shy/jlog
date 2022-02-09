@@ -57,27 +57,27 @@ public class EtcdStarter {
     private void fetch() {
         IConfigCenter configCenter = EtcdConfigFactory.configCenter();
         //获取所有worker的ip
-        List<KeyValue> keyValues = null;
+        List<String> keys = null;
         try {
             //如果设置了机房属性，则拉取同机房的worker。如果同机房没worker，则拉取所有
             if (Context.MDC != null) {
                 String mdc = parseMdc(Context.MDC);
-                keyValues = configCenter.getPrefix(Constant.WORKER_PATH + Context.APP_NAME + "/" + mdc);
+                keys = configCenter.getPrefixKey(Constant.WORKER_PATH + Context.APP_NAME + "/" + mdc);
             }
-            if (CollectionUtil.isEmpty(keyValues)) {
-                keyValues = configCenter.getPrefix(Constant.WORKER_PATH + Context.APP_NAME);
+            if (CollectionUtil.isEmpty(keys)) {
+                keys = configCenter.getPrefixKey(Constant.WORKER_PATH + Context.APP_NAME);
             }
 
             //全是空，给个警告
-            if (CollectionUtil.isEmpty(keyValues)) {
+            if (CollectionUtil.isEmpty(keys)) {
                 logger.warn("very important warn !!! workers ip info is null!!!");
             }
 
             List<String> addresses = new ArrayList<>();
-            if (keyValues != null) {
-                for (KeyValue keyValue : keyValues) {
+            if (keys != null) {
+                for (String key : keys) {
                     //value里放的是ip地址
-                    String ipPort = keyValue.getValue().toStringUtf8();
+                    String ipPort = configCenter.get(key);
                     addresses.add(ipPort);
                 }
             }
