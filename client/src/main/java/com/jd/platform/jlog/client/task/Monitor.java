@@ -1,10 +1,12 @@
-package com.jd.platform.jlog.client.etcd;
+package com.jd.platform.jlog.client.task;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.ibm.etcd.api.KeyValue;
+import com.alibaba.nacos.api.exception.NacosException;
 import com.jd.platform.jlog.client.Context;
 import com.jd.platform.jlog.client.mdc.Mdc;
 import com.jd.platform.jlog.client.worker.WorkerInfoHolder;
+import com.jd.platform.jlog.common.config.ConfigCenterEnum;
+import com.jd.platform.jlog.common.config.ConfigCenterFactory;
 import com.jd.platform.jlog.common.config.IConfigCenter;
 import com.jd.platform.jlog.common.constant.Constant;
 import io.grpc.StatusRuntimeException;
@@ -18,13 +20,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * etcd连接管理器
- *
- * @author wuweifeng
- * @version 1.0
- * @date 2021-08-13
+ * @author tangbohu
+ * @version 1.0.0
+ * @ClassName Watchdog.java
+ * @Description TODO
+ * @createTime 2022年02月12日 10:20:00
  */
-public class EtcdStarter {
+public class Monitor {
     /**
      * logger
      */
@@ -35,7 +37,7 @@ public class EtcdStarter {
      * 监听workerIp地址变化
      */
     public void start() {
-        fetchWorkerInfo();
+        //fetchWorkerInfo();
     }
 
     /**
@@ -55,7 +57,7 @@ public class EtcdStarter {
      * 从配置中心获取worker的ip集合
      */
     private void fetch() {
-        IConfigCenter configCenter = EtcdConfigFactory.configCenter();
+        IConfigCenter configCenter = ConfigCenterFactory.getClient(ConfigCenterEnum.ETCD);
         //获取所有worker的ip
         List<String> keys = null;
         try {
@@ -77,7 +79,12 @@ public class EtcdStarter {
             if (keys != null) {
                 for (String key : keys) {
                     //value里放的是ip地址
-                    String ipPort = configCenter.get(key);
+                    String ipPort = null;
+                    try {
+                        ipPort = configCenter.get(key);
+                    } catch (NacosException e) {
+                        e.printStackTrace();
+                    }
                     addresses.add(ipPort);
                 }
             }

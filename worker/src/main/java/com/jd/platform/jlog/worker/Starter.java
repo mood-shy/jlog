@@ -1,6 +1,6 @@
 package com.jd.platform.jlog.worker;
 
-import com.jd.platform.jlog.worker.config.EtcdStarter;
+import com.jd.platform.jlog.worker.config.CenterStarter;
 import com.jd.platform.jlog.worker.store.TracerLogToDbStore;
 import com.jd.platform.jlog.worker.store.TracerModelToDbStore;
 import com.jd.platform.jlog.worker.udp.UdpServer;
@@ -42,7 +42,7 @@ public class Starter {
      * etcd启动器
      */
     @Resource
-    private EtcdStarter etcdStarter;
+    private CenterStarter centerStarter;
 
     @PostConstruct
     public void start() {
@@ -58,7 +58,7 @@ public class Starter {
         tracerLogToDbStore.beginIntoDb();
 
         //上报自己ip到配置中心
-        etcdStarter.uploadSelfInfo();
+        centerStarter.uploadSelfInfo();
     }
 
 }

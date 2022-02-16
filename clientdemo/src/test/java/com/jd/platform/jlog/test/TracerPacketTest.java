@@ -7,10 +7,6 @@ import com.jd.platform.jlog.common.model.TracerBean;
 import com.jd.platform.jlog.common.utils.IpUtils;
 import com.jd.platform.jlog.common.utils.ZstdUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -22,11 +18,11 @@ import java.util.*;
  * @version 1.0
  * @date 2021-12-27
  */
-@SpringBootTest(classes = ClientDemoApplication.class)
-@RunWith(SpringRunner.class)
+//@SpringBootTest(classes = ClientDemoApplication.class)
+//@RunWith(SpringRunner.class)
 public class TracerPacketTest {
 
-    @Test
+    //@Test
     public void testSendUdp() {
         TracerBean tracerBean = new TracerBean();
         List<Map<String, Object>> tracerObject = new ArrayList<>();

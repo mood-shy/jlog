@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  * @date 2021-08-12
  */
 @Component
-public class EtcdStarter {
+public class CenterStarter {
     /**
      * 该worker为哪个app服务
      */

@@ -20,14 +20,14 @@ import java.io.PrintWriter;
 import java.util.*;
 
 /**
- * UserFilter
+ * HttpFilter
  * http://blog.chinaunix.net/uid-20783755-id-4729930.html
  *
  * @author wuweifeng
  * @version 1.0
  * @date 2021-08-16
  */
-public class UserFilter implements Filter {
+public class HttpFilter implements Filter {
     /**
      * 获取切量百分比的
      */
@@ -38,11 +38,11 @@ public class UserFilter implements Filter {
     /**
      * 传入百分比实现类
      */
-    public UserFilter(ITracerPercent iTracerPercent) {
+    public HttpFilter(ITracerPercent iTracerPercent) {
         this.iTracerPercent = iTracerPercent;
     }
 
-    public UserFilter() {
+    public HttpFilter() {
         iTracerPercent = new DefaultTracerPercentImpl();
     }
 

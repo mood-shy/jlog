@@ -1,11 +1,14 @@
 package com.jd.platform.jlog.client;
 
-import com.jd.platform.jlog.client.etcd.EtcdConfigFactory;
-import com.jd.platform.jlog.client.etcd.EtcdStarter;
+import com.jd.platform.jlog.client.task.Monitor;
 import com.jd.platform.jlog.client.mdc.Mdc;
 import com.jd.platform.jlog.client.udp.HttpSender;
 import com.jd.platform.jlog.client.udp.UdpClient;
 import com.jd.platform.jlog.client.udp.UdpSender;
+import com.jd.platform.jlog.common.config.ConfigCenterFactory;
+import com.jd.platform.jlog.common.model.CenterConfig;
+import com.jd.platform.jlog.common.model.TagConfig;
+import com.jd.platform.jlog.common.model.TagHandler;
 
 /**
  * TracerClientStarter
@@ -15,13 +18,16 @@ import com.jd.platform.jlog.client.udp.UdpSender;
  */
 public class TracerClientStarter {
     /**
-     * etcd地址
-     */
-    private String etcdServer;
-    /**
      * 机房
      */
     private Mdc mdc;
+
+
+    private CenterConfig centerConfig;
+
+
+    private TagConfig tagConfig;
+
 
     /**
      * TracerClientStarter
@@ -35,8 +41,9 @@ public class TracerClientStarter {
 
     public static class Builder {
         private String appName;
-        private String etcdServer;
         private Mdc mdc;
+        private CenterConfig centerConfig;
+        private TagConfig tagConfig;
 
         public Builder() {
         }
@@ -51,16 +58,21 @@ public class TracerClientStarter {
             return this;
         }
 
-        public Builder setEtcdServer(String etcdServer) {
-            this.etcdServer = etcdServer;
+        public Builder setCenterConfig(CenterConfig centerConfig) {
+            this.centerConfig = centerConfig;
+            return this;
+        }
+
+        public Builder setTagConfig(TagConfig tagConfig) {
+            this.tagConfig = tagConfig;
             return this;
         }
 
         public TracerClientStarter build() {
             TracerClientStarter tracerClientStarter = new TracerClientStarter(appName);
-            tracerClientStarter.etcdServer = etcdServer;
+            tracerClientStarter.centerConfig = centerConfig;
+            tracerClientStarter.tagConfig = tagConfig;
             tracerClientStarter.mdc = mdc;
-
             return tracerClientStarter;
         }
     }
@@ -68,14 +80,15 @@ public class TracerClientStarter {
     /**
      * 启动监听etcd
      */
-    public void startPipeline() {
+    public void startPipeline() throws Exception {
         //设置ConfigCenter
-        EtcdConfigFactory.buildConfigCenter(etcdServer);
+        ConfigCenterFactory.buildConfigCenter(centerConfig);
+        System.out.println("tagconfig"+tagConfig.getDelimiter());
+        TagHandler.buildTag(tagConfig);
 
         Context.MDC = mdc;
 
-        EtcdStarter starter = new EtcdStarter();
-        //与etcd相关的监听都开启
+        Monitor starter = new Monitor();
         starter.start();
 
         UdpClient udpClient = new UdpClient();

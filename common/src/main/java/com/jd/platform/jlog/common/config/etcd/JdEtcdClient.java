@@ -3,21 +3,17 @@ package com.jd.platform.jlog.common.config.etcd;
 import cn.hutool.core.collection.CollectionUtil;
 import com.google.protobuf.ByteString;
 import com.ibm.etcd.api.KeyValue;
-import com.ibm.etcd.api.LeaseGrantResponse;
 import com.ibm.etcd.api.RangeResponse;
+import com.ibm.etcd.client.EtcdClient;
 import com.ibm.etcd.client.KvStoreClient;
 import com.ibm.etcd.client.kv.KvClient;
 import com.ibm.etcd.client.lease.LeaseClient;
-import com.ibm.etcd.client.lease.PersistentLease;
 import com.ibm.etcd.client.lock.LockClient;
 import com.jd.platform.jlog.common.config.IConfigCenter;
+import com.jd.platform.jlog.common.model.CenterConfig;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
+import java.util.Map;
 
 /**
  * etcd客户端
@@ -27,10 +23,12 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class JdEtcdClient implements IConfigCenter {
 
+
     private KvClient kvClient;
     private LeaseClient leaseClient;
     private LockClient lockClient;
 
+    public JdEtcdClient() {}
 
     public JdEtcdClient(KvStoreClient kvStoreClient) {
         this.kvClient = kvStoreClient.getKvClient();
@@ -39,28 +37,10 @@ public class JdEtcdClient implements IConfigCenter {
     }
 
 
-    public LeaseClient getLeaseClient() {
-        return leaseClient;
-    }
-
-    public void setLeaseClient(LeaseClient leaseClient) {
-        this.leaseClient = leaseClient;
-    }
-
-    public KvClient getKvClient() {
-        return kvClient;
-    }
-
-    public void setKvClient(KvClient kvClient) {
-        this.kvClient = kvClient;
-    }
-
-    public LockClient getLockClient() {
-        return lockClient;
-    }
-
-    public void setLockClient(LockClient lockClient) {
-        this.lockClient = lockClient;
+    @Override
+    public IConfigCenter buildClient(CenterConfig config){
+        String etcdServer = config.getEtcdServer();
+        return new JdEtcdClient(EtcdClient.forEndpoints(etcdServer).withPlainText().build());
     }
 
     @Override
@@ -69,38 +49,9 @@ public class JdEtcdClient implements IConfigCenter {
     }
 
     @Override
-    public void put(String key, String value, long leaseId) {
-        kvClient.put(ByteString.copyFromUtf8(key), ByteString.copyFromUtf8(value), leaseId).sync();
-    }
-
-    @Override
-    public void revoke(long leaseId) {
-        leaseClient.revoke(leaseId);
-    }
-
-    @Override
-    public long putAndGrant(String key, String value, long ttl) {
-        LeaseGrantResponse lease = leaseClient.grant(ttl).sync();
-        put(key, value, lease.getID());
-        return lease.getID();
-    }
-
-    @Override
-    public long setLease(String key, long leaseId) {
-        kvClient.setLease(ByteString.copyFromUtf8(key), leaseId);
-        return leaseId;
-    }
-
-    @Override
-    public void delete(String key) {
-        kvClient.delete(ByteString.copyFromUtf8(key)).sync();
-    }
-
-    @Override
     public String get(String key) {
         RangeResponse rangeResponse = kvClient.get(ByteString.copyFromUtf8(key)).sync();
         List<KeyValue> keyValues = rangeResponse.getKvsList();
-
         if (CollectionUtil.isEmpty(keyValues)) {
             return null;
         }
@@ -108,68 +59,13 @@ public class JdEtcdClient implements IConfigCenter {
     }
 
     @Override
-    public KeyValue getKv(String key) {
-        RangeResponse rangeResponse = kvClient.get(ByteString.copyFromUtf8(key)).sync();
-        List<KeyValue> keyValues = rangeResponse.getKvsList();
-        if (CollectionUtil.isEmpty(keyValues)) {
-            return null;
-        }
-        return keyValues.get(0);
-    }
+    public void delete(String key) {
 
-//    @Override
-//    public List<KeyValue> getPrefix(String key) {
-//        RangeResponse rangeResponse = kvClient.get(ByteString.copyFromUtf8(key)).asPrefix().sync();
-//        return rangeResponse.getKvsList();
-//    }
+    }
 
     @Override
     public List<String> getPrefixKey(String key) {
-        RangeResponse rangeResponse = kvClient.get(ByteString.copyFromUtf8(key)).asPrefix().sync();
-        return rangeResponse.getKvsList().stream().map(
-                kv -> kv.getKey().toStringUtf8()
-        ).collect(Collectors.toList());
+        return null;
     }
 
-    @Override
-    public KvClient.WatchIterator watch(String key) {
-        return kvClient.watch(ByteString.copyFromUtf8(key)).start();
-    }
-
-    @Override
-    public KvClient.WatchIterator watchPrefix(String key) {
-        return kvClient.watch(ByteString.copyFromUtf8(key)).asPrefix().start();
-    }
-
-    @Override
-    public long keepAlive(String key, String value, int frequencySecs, int minTtl) throws Exception {
-        //minTtl秒租期，每frequencySecs秒续约一下
-        PersistentLease lease = leaseClient.maintain().leaseId(System.currentTimeMillis()).keepAliveFreq(frequencySecs).minTtl(minTtl).start();
-        long newId = lease.get(3L, SECONDS);
-        put(key, value, newId);
-        return newId;
-    }
-
-    @Override
-    public long buildAliveLease(int frequencySecs, int minTtl) throws Exception {
-        PersistentLease lease = leaseClient.maintain().leaseId(System.currentTimeMillis()).keepAliveFreq(frequencySecs).minTtl(minTtl).start();
-
-        return lease.get(3L, SECONDS);
-    }
-
-    @Override
-    public long buildNormalLease(long ttl) {
-        LeaseGrantResponse lease = leaseClient.grant(ttl).sync();
-        return lease.getID();
-    }
-
-    @Override
-    public long timeToLive(long leaseId) {
-        try {
-            return leaseClient.ttl(leaseId).get().getTTL();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-            return 0L;
-        }
-    }
 }

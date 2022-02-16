@@ -1,5 +1,11 @@
 package com.jd.platform.jlog.common.constant;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.nacos.common.utils.StringUtils;
+
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * 常量工具类Constant
  *
@@ -24,4 +30,29 @@ public class Constant {
      * 当客户端要删除某个key时，就往etcd里赋值这个value，设置1秒过期，就算删除了
      */
     public static String DEFAULT_DELETE_VALUE = "#[DELETE]#";
+
+
+
+    public static int TAG_NORMAL_KEY_MAX_LEN = 20;
+
+    public static String TAG_NORMAL_KEY = "normal";
+
+    public static final Set<String> SPECIAL_CHAR = new HashSet<String>() {
+        {
+            add("*");
+            add(".");
+            add("?");
+            add("+");
+            add("$");
+            add("^");
+            add("[");
+            add("]");
+            add("(");
+            add(")");
+            add("{");
+            add("}");
+            add("|");
+        }
+    };
+
 }

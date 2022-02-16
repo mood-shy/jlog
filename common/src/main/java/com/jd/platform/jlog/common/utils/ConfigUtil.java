@@ -1,0 +1,67 @@
+package com.jd.platform.jlog.common.utils;
+
+import com.alibaba.nacos.common.utils.StringUtils;
+import com.jd.platform.jlog.common.config.ConfigCenterEnum;
+import com.jd.platform.jlog.common.constant.Constant;
+import com.jd.platform.jlog.common.model.CenterConfig;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.concurrent.ThreadLocalRandom;
+
+/**
+ * @author tangbohu
+ * @version 1.0.0
+ * @ClassName ConfigUtil.java
+ * @Description TODO
+ * @createTime 2022年02月13日 21:40:00
+ */
+public class ConfigUtil {
+
+
+    private static final String SERVER_SUFFIX = "Server";
+
+    public static final ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
+
+
+
+    public static String escapeExprSpecialWord(String str) {
+
+        if(str != null && str.length() > 0){
+            for (String s : Constant.SPECIAL_CHAR) {
+                if (str.contains(s)) {
+                    str = str.replace(s, "\\" + s);
+                }
+            }
+        }
+        return str;
+    }
+
+
+    public static ConfigCenterEnum getCenter(CenterConfig config) throws Exception {
+        Class<?> clz = config.getClass();
+        Field[] fields = clz.getDeclaredFields();
+
+        for (Field field : fields) {
+            Method m = clz.getMethod("get" + getMethodName(field.getName()));
+            String val = (String)m.invoke(config);
+            if (val != null) {
+                for (ConfigCenterEnum center : ConfigCenterEnum.values()) {
+                    String fd = field.getName().replace(SERVER_SUFFIX, "");
+                    if(center.name().equals(fd.toUpperCase())){
+                        return center;
+                    }
+                }
+            }
+        }
+        throw new Exception("Configuration center cannot be found");
+    }
+
+
+    private static String getMethodName(String fieldName) {
+        byte[] items = fieldName.getBytes();
+        items[0] = (byte) ((char) items[0] - 'a' + 'A');
+        return new String(items);
+    }
+}

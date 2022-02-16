@@ -56,11 +56,6 @@
             <version>1.5.0-4</version>
         </dependency>
         <dependency>
-            <groupId>com.jd.ump</groupId>
-            <artifactId>profiler</artifactId>
-            <version>6.2.13</version>
-        </dependency>
-        <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>1.2.70</version>

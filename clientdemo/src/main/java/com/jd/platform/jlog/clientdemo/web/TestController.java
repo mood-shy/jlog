@@ -1,5 +1,9 @@
 package com.jd.platform.jlog.clientdemo.web;
 
+import com.alibaba.nacos.api.exception.NacosException;
+import com.jd.platform.jlog.common.config.ConfigCenterEnum;
+import com.jd.platform.jlog.common.config.ConfigCenterFactory;
+import com.jd.platform.jlog.common.config.IConfigCenter;
 import com.jd.platform.jlog.common.model.TracerBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,13 +26,28 @@ public class TestController {
     private static Logger RequestLog = LoggerFactory.getLogger("RequestLog");
 
     @RequestMapping("/index")
-    public Object index() {
+    public Object index() throws NacosException {
         TracerBean tracerBean = new TracerBean();
         tracerBean.setTracerId("11111");
 
+        IConfigCenter client = ConfigCenterFactory.getClient(ConfigCenterEnum.ETCD);
+        try{
+            client.put("/test","val1");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        String val = ConfigCenterFactory.getClient(ConfigCenterEnum.ETCD).get("/test");
+        System.out.println("val ===>   "+val);
         RequestLog.info("哈哈哈哈哈哈");
 
         return tracerBean;
+    }
+
+    @RequestMapping("/log")
+    public Object log() throws NacosException {
+        RequestLog.info("|tag3=val3||tag4=val4||这是随便的log|");
+        return 1;
     }
 
 }

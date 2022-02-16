@@ -1,5 +1,6 @@
 package com.jd.platform.jlog.clientdemo;
 
+import org.apache.catalina.filters.RequestFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -14,6 +15,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ClientDemoApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ClientDemoApplication.class, args);
+        try {
+            SpringApplication.run(ClientDemoApplication.class, args);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 }

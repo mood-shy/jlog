@@ -1,9 +1,11 @@
 package com.jd.platform.jlog.common.config.zookeeper;
 
-import com.ibm.etcd.api.KeyValue;
-import com.ibm.etcd.client.kv.KvClient;
+
 import com.jd.platform.jlog.common.config.IConfigCenter;
+import com.jd.platform.jlog.common.model.CenterConfig;
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
 
@@ -18,8 +20,26 @@ public class ZKClient implements IConfigCenter {
 
     private CuratorFramework curator;
 
+    public ZKClient() {}
+
     public ZKClient(CuratorFramework curatorFramework) {
         this.curator = curatorFramework;
+    }
+
+
+    @Override
+    public IConfigCenter buildClient(CenterConfig config) {
+        String zkServer = config.getZkServer();
+        CuratorFramework client = CuratorFrameworkFactory.builder().connectString(zkServer)
+                // 连接超时时间
+                .sessionTimeoutMs(10000)
+                // 会话超时时间
+                .connectionTimeoutMs(10000)
+                // 刚开始重试间隔为1秒，之后重试间隔逐渐增加，最多重试不超过三次
+                .retryPolicy(new ExponentialBackoffRetry(1000, 3))
+                .build();
+        client.start();
+        return new ZKClient(client);
     }
 
     @Override
@@ -35,35 +55,16 @@ public class ZKClient implements IConfigCenter {
 
     }
 
-    @Override
-    public void put(String key, String value, long leaseId) {
 
-    }
 
     @Override
-    public void revoke(long leaseId) {
-
-    }
-
-    @Override
-    public long putAndGrant(String key, String value, long ttl) {
-        return 0;
-    }
-
-    @Override
-    public long setLease(String key, long leaseId) {
-        return 0;
-    }
-
-    @Override
-    public void delete(String key) {
-
-    }
+    public void delete(String key) { }
 
     @Override
     public String get(String key) {
         try {
-            return curator.getData().forPath(key).toString();
+            byte[] bt = curator.getData().forPath(key);
+            return new String(bt, "utf-8");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -81,38 +82,5 @@ public class ZKClient implements IConfigCenter {
         return null;
     }
 
-    @Override
-    public KvClient.WatchIterator watch(String key) {
-        return null;
-    }
 
-    @Override
-    public KvClient.WatchIterator watchPrefix(String key) {
-        return null;
-    }
-
-    @Override
-    public long keepAlive(String key, String value, int frequencySecs, int minTtl) throws Exception {
-        return 0;
-    }
-
-    @Override
-    public long buildAliveLease(int frequencySecs, int minTtl) throws Exception {
-        return 0;
-    }
-
-    @Override
-    public long buildNormalLease(long ttl) {
-        return 0;
-    }
-
-    @Override
-    public long timeToLive(long leaseId) {
-        return 0;
-    }
-
-    @Override
-    public KeyValue getKv(String key) {
-        return null;
-    }
 }

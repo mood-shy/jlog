@@ -1,12 +1,15 @@
 package com.jd.platform.jlog.clientdemo.config;
 
 import com.jd.platform.jlog.client.TracerClientStarter;
-import com.jd.platform.jlog.client.filter.UserFilter;
-import org.springframework.beans.factory.annotation.Value;
+import com.jd.platform.jlog.client.filter.HttpFilter;
+import com.jd.platform.jlog.common.model.CenterConfig;
+import com.jd.platform.jlog.common.model.TagConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
+import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 
 /**
@@ -16,24 +19,48 @@ import javax.annotation.PostConstruct;
  * @version 1.0
  * @date 2021-12-27
  */
-@Configuration
+@Component
+@ConfigurationProperties(prefix = "jlog")
 public class DemoConfig {
 
-    @Value("${config.server}")
-    private String etcdServer;
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
+    private CenterConfig centerConfig;
+    private TagConfig tagConfig ;
+
+    public CenterConfig getCenterConfig() {
+        return centerConfig;
+    }
+
+    public void setCenterConfig(CenterConfig centerConfig) {
+        this.centerConfig = centerConfig;
+    }
+
+    public TagConfig getTagConfig() {
+        return tagConfig;
+    }
+
+    public void setTagConfig(TagConfig tagConfig) {
+        this.tagConfig = tagConfig;
+    }
 
     @PostConstruct
-    public void begin() {
+    public void begin() throws Exception {
+
         TracerClientStarter tracerClientStarter = new TracerClientStarter.Builder()
                 .setAppName("demo")
-                .setEtcdServer(etcdServer).build();
+                .setCenterConfig(centerConfig)
+                .setTagConfig(tagConfig)
+                .build();
+        logger.info("init centerConfig",centerConfig);
+        logger.info("init tagConfig",tagConfig);
         tracerClientStarter.startPipeline();
     }
 
     @Bean
     public FilterRegistrationBean urlFilter() {
         FilterRegistrationBean registration = new FilterRegistrationBean();
-        UserFilter userFilter = new UserFilter();
+        HttpFilter userFilter = new HttpFilter();
 
         registration.setFilter(userFilter);
         registration.addUrlPatterns("/*");
