@@ -1,8 +1,8 @@
 package com.jd.platform.jlog.worker.store;
 
-import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Queues;
 import com.jd.platform.jlog.common.utils.AsyncPool;
+import com.jd.platform.jlog.common.utils.CollectionUtil;
 import com.jd.platform.jlog.worker.db.Db;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

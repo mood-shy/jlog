@@ -17,6 +17,7 @@
         <module>clientlogback</module>
         <module>Dashboard</module>
         <module>clientdemo</module>
+        <module>config</module>
     </modules>
 
     <properties>

@@ -1,4 +1,4 @@
-package com.jd.platform.jlog.clientdemo.config;
+package com.jd.platform.jlog.clientdemo.appender;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -9,7 +9,7 @@ import com.jd.platform.jlog.client.log.LogExceptionStackTrace;
 import com.jd.platform.jlog.client.tracerholder.TracerHolder;
 import com.jd.platform.jlog.client.udp.UdpSender;
 import com.jd.platform.jlog.common.model.RunLogMessage;
-import com.jd.platform.jlog.common.model.TagHandler;
+import com.jd.platform.jlog.common.tag.TagHandler;
 import org.slf4j.helpers.MessageFormatter;
 
 import java.util.Map;
@@ -61,10 +61,10 @@ public class TracerLogbackAppender extends AppenderBase<ILoggingEvent> {
 
         String formattedMessage = getMessage(loggingEvent);
         logMessage.setContent(formattedMessage);
-        Map<String, Object> map = TagHandler.extract(formattedMessage);
+      /*  Map<String, Object> map = TagHandler.extractLogTag(formattedMessage);
         if(map != null){
             System.out.println("Logback tag map =>> "+ JSON.toJSONString(map));
-        }
+        }*/
         return logMessage;
     }
 

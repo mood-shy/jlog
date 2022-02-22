@@ -1,8 +1,8 @@
 package com.jd.platform.jlog.worker.config;
 
-import com.jd.platform.jlog.common.config.IConfigCenter;
 import com.jd.platform.jlog.common.constant.Constant;
 import com.jd.platform.jlog.common.utils.IpUtils;
+import com.jd.platform.jlog.core.ConfiguratorFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -35,11 +35,7 @@ public class CenterStarter {
      */
     @Value("${config.mdc}")
     private String mdc;
-    /**
-     * configCenter
-     */
-    @Resource
-    private IConfigCenter configCenter;
+
 
     /**
      * 上报自己的ip到配置中心
@@ -50,10 +46,8 @@ public class CenterStarter {
         scheduledExecutorService.scheduleAtFixedRate(() -> {
 
             try {
-                //configCenter.putAndGrant(buildKey(), buildValue(), 8);
-                //configCenter.putAndGrant(buildSecondKey(), buildValue(), 8);
-                configCenter.put(buildKey(), buildValue());
-                configCenter.put(buildSecondKey(), buildValue());
+                ConfiguratorFactory.getInstance().putConfig(buildKey(), buildValue());
+                ConfiguratorFactory.getInstance().putConfig(buildSecondKey(), buildValue());
             } catch (Exception e) {
                 //do nothing
                 e.printStackTrace();

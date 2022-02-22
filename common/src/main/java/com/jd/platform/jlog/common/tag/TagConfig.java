@@ -1,4 +1,4 @@
-package com.jd.platform.jlog.common.model;
+package com.jd.platform.jlog.common.tag;
 
 import java.io.Serializable;
 import java.util.List;
@@ -7,7 +7,6 @@ import java.util.List;
  * @author tangbohu
  * @version 1.0.0
  * @ClassName TagConfig.java
- * @Description TODO
  * @createTime 2022年02月13日 22:35:00
  */
 public class TagConfig implements Serializable {

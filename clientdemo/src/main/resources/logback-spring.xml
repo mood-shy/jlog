@@ -16,7 +16,7 @@
         </encoder>
     </appender>
 
-    <appender name="tracerLogAppender" class="com.jd.platform.jlog.clientdemo.config.TracerLogbackAppender">
+    <appender name="tracerLogAppender" class="com.jd.platform.jlog.clientdemo.appender.TracerLogbackAppender">
     </appender>
 
     <!--输出到文件-->

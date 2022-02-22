@@ -1,12 +1,14 @@
 package com.jd.platform.jlog.clientdemo.web;
 
-import com.alibaba.nacos.api.exception.NacosException;
-import com.jd.platform.jlog.common.config.ConfigCenterEnum;
-import com.jd.platform.jlog.common.config.ConfigCenterFactory;
-import com.jd.platform.jlog.common.config.IConfigCenter;
+
 import com.jd.platform.jlog.common.model.TracerBean;
+import com.jd.platform.jlog.core.Configurator;
+import com.jd.platform.jlog.core.ConfiguratorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,18 +28,18 @@ public class TestController {
     private static Logger RequestLog = LoggerFactory.getLogger("RequestLog");
 
     @RequestMapping("/index")
-    public Object index() throws NacosException {
+    public Object index()  {
         TracerBean tracerBean = new TracerBean();
         tracerBean.setTracerId("11111");
 
-        IConfigCenter client = ConfigCenterFactory.getClient(ConfigCenterEnum.ETCD);
+        Configurator configurator = ConfiguratorFactory.getInstance();
         try{
-            client.put("/test","val1");
+            configurator.putConfig("/test","val1");
         }catch (Exception e){
             e.printStackTrace();
         }
 
-        String val = ConfigCenterFactory.getClient(ConfigCenterEnum.ETCD).get("/test");
+        String val = configurator.getConfig("/test");
         System.out.println("val ===>   "+val);
         RequestLog.info("哈哈哈哈哈哈");
 
@@ -45,9 +47,19 @@ public class TestController {
     }
 
     @RequestMapping("/log")
-    public Object log() throws NacosException {
+    public Object log() {
         RequestLog.info("|tag3=val3||tag4=val4||这是随便的log|");
         return 1;
     }
+
+
+    @PostMapping(value = "/test", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Object test(@RequestBody TestReq req) {
+
+
+        return 1;
+    }
+
+
 
 }

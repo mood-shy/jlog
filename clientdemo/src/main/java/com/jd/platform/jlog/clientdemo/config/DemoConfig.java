@@ -2,8 +2,7 @@ package com.jd.platform.jlog.clientdemo.config;
 
 import com.jd.platform.jlog.client.TracerClientStarter;
 import com.jd.platform.jlog.client.filter.HttpFilter;
-import com.jd.platform.jlog.common.model.CenterConfig;
-import com.jd.platform.jlog.common.model.TagConfig;
+import com.jd.platform.jlog.common.tag.TagConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -25,16 +24,7 @@ public class DemoConfig {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    private CenterConfig centerConfig;
     private TagConfig tagConfig ;
-
-    public CenterConfig getCenterConfig() {
-        return centerConfig;
-    }
-
-    public void setCenterConfig(CenterConfig centerConfig) {
-        this.centerConfig = centerConfig;
-    }
 
     public TagConfig getTagConfig() {
         return tagConfig;
@@ -49,11 +39,9 @@ public class DemoConfig {
 
         TracerClientStarter tracerClientStarter = new TracerClientStarter.Builder()
                 .setAppName("demo")
-                .setCenterConfig(centerConfig)
                 .setTagConfig(tagConfig)
                 .build();
-        logger.info("init centerConfig",centerConfig);
-        logger.info("init tagConfig",tagConfig);
+        logger.info("初始化tagConfig: {}",tagConfig);
         tracerClientStarter.startPipeline();
     }
 

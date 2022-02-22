@@ -1,13 +1,6 @@
 package com.jd.platform.jlog.common.utils;
 
-import com.alibaba.nacos.common.utils.StringUtils;
-import com.jd.platform.jlog.common.config.ConfigCenterEnum;
 import com.jd.platform.jlog.common.constant.Constant;
-import com.jd.platform.jlog.common.model.CenterConfig;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -38,6 +31,7 @@ public class ConfigUtil {
         return str;
     }
 
+/*
 
     public static ConfigCenterEnum getCenter(CenterConfig config) throws Exception {
         Class<?> clz = config.getClass();
@@ -57,6 +51,7 @@ public class ConfigUtil {
         }
         throw new Exception("Configuration center cannot be found");
     }
+*/
 
 
     private static String getMethodName(String fieldName) {

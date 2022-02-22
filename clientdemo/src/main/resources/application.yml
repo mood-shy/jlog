@@ -1,21 +1,10 @@
-#etcd的地址，如有多个用逗号分隔
+serverAddr: 101.42.242.201:2181
 jlog:
   center-config:
     center: etcd
     etcdServer: ${etcdServer:http://127.0.0.1:2379} #etcd的地址，重要！！！
     nacosServer: 101.42.242.201:8848
     zkServer: 101.42.242.201:2181
-  tag-config:
-    reqTags:
-      - tag1
-      - tag2
-    logTags:
-      - tag3
-      - tag4
-    regex: ""
-    delimiter: "|"
-    join: =
-
 
 
 server:

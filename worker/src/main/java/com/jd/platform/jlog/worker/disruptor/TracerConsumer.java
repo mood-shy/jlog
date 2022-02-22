@@ -1,6 +1,5 @@
 package com.jd.platform.jlog.worker.disruptor;
 
-import cn.hutool.core.date.DateUtil;
 import com.jd.platform.jlog.common.model.RunLogMessage;
 import com.jd.platform.jlog.common.model.TracerBean;
 import com.jd.platform.jlog.common.model.TracerData;
@@ -105,7 +104,7 @@ public class TracerConsumer implements WorkHandler<OneTracer> {
             map.put("threadName", runLogMessage.getThreadName());
             map.put("methodName", runLogMessage.getMethodName());
             map.put("logLevel", runLogMessage.getLogLevel());
-            map.put("createTime", DateUtil.formatDateTime(new Date(runLogMessage.getCreateTime())));
+         //   map.put("createTime", DateUtil.formatDateTime(new Date(runLogMessage.getCreateTime())));
             map.put("content", runLogMessage.getContent());
             tracerLogToDbStore.offer(map);
         }
@@ -138,7 +137,7 @@ public class TracerConsumer implements WorkHandler<OneTracer> {
 
         //此处做了一个base64编码，否则原编码直接进去，取出来后是String，直接getBytes后无法用Zstd解压
         map.put("responseContent", responseBytes);
-        map.put("createTime", DateUtil.formatDateTime(new Date(tracerBean.getCreateTime())));
+     //   map.put("createTime", DateUtil.formatDateTime(new Date(tracerBean.getCreateTime())));
         map.put("costTime", tracerBean.getCostTime());
 
 
@@ -179,7 +178,7 @@ public class TracerConsumer implements WorkHandler<OneTracer> {
         String serverIp = requestMap.get("serverIp") == null ? "" : requestMap.get("serverIp").toString();
         map.put("serverIp", serverIp);
 
-        map.put("intoDbTime", DateUtil.formatDateTime(new Date(tracerBean.getCreateTime())));
+  //      map.put("intoDbTime", DateUtil.formatDateTime(new Date(tracerBean.getCreateTime())));
 
         tracerModelToDbStore.offer(map);
     }

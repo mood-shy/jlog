@@ -1,6 +1,5 @@
 package com.jd.platform.jlog.worker.controller;
 
-import cn.hutool.core.date.DateUtil;
 import com.jd.platform.jlog.worker.db.Db;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,12 +31,12 @@ public class UserController {
         Map<String, Object> map0 = new HashMap<>();
         map0.put("clientType", 1);
         map0.put("pin", "abcd");
-        map0.put("createTime", DateUtil.formatDateTime(new Date()));
+       // map0.put("createTime", DateUtil.formatDateTime(new Date()));
 
         Map<String, Object> map1 = new HashMap<>();
         map1.put("clientType", 1);
         map1.put("pin", "abcd");
-        map1.put("createTime", DateUtil.formatDateTime(new Date()));
+      //  map1.put("createTime", DateUtil.formatDateTime(new Date()));
 
         datas.add(map0);
         datas.add(map1);

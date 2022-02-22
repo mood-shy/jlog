@@ -5,6 +5,7 @@ import com.jd.platform.jlog.client.percent.DefaultTracerPercentImpl;
 import com.jd.platform.jlog.client.percent.ITracerPercent;
 import com.jd.platform.jlog.client.tracerholder.TracerHolder;
 import com.jd.platform.jlog.client.udp.UdpSender;
+import com.jd.platform.jlog.common.tag.TagHandler;
 import com.jd.platform.jlog.common.model.TracerBean;
 import com.jd.platform.jlog.common.utils.IdWorker;
 import com.jd.platform.jlog.common.utils.IpUtils;
@@ -150,16 +151,12 @@ public class HttpFilter implements Filter {
                                 long tracerId, String uri) {
         //request的各个入参
         Map<String, String[]> params = servletRequest.getParameterMap();
-        //将request信息保存
-        Map<String, Object> requestMap = new HashMap<>(params.size());
-        for (String key : params.keySet()) {
-            requestMap.put(key, params.get(key)[0]);
-        }
-        requestMap.put("appName", Context.APP_NAME);
-        requestMap.put("serverIp", IpUtils.getIp());
-        requestMap.put("tracerId", tracerId);
-        requestMap.put("uri", uri);
-        tracerObject.add(requestMap);
+        Map<String, Object> extMap = new HashMap<>(params.size());
+        extMap.put("appName", Context.APP_NAME);
+        extMap.put("serverIp", IpUtils.getIp());
+        extMap.put("tracerId", tracerId);
+        extMap.put("uri", uri);
+        tracerObject.add(TagHandler.extractReqTag(params, extMap));
     }
 
     @Override

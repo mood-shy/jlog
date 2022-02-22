@@ -1,20 +1,18 @@
 package com.jd.platform.jlog.client.task;
 
-import cn.hutool.core.collection.CollectionUtil;
-import com.alibaba.nacos.api.exception.NacosException;
+
 import com.jd.platform.jlog.client.Context;
 import com.jd.platform.jlog.client.mdc.Mdc;
 import com.jd.platform.jlog.client.worker.WorkerInfoHolder;
-import com.jd.platform.jlog.common.config.ConfigCenterEnum;
-import com.jd.platform.jlog.common.config.ConfigCenterFactory;
-import com.jd.platform.jlog.common.config.IConfigCenter;
 import com.jd.platform.jlog.common.constant.Constant;
-import io.grpc.StatusRuntimeException;
+import com.jd.platform.jlog.core.Configurator;
+import com.jd.platform.jlog.core.ConfiguratorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -27,10 +25,8 @@ import java.util.concurrent.TimeUnit;
  * @createTime 2022年02月12日 10:20:00
  */
 public class Monitor {
-    /**
-     * logger
-     */
-    private Logger logger = LoggerFactory.getLogger(getClass());
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(Monitor.class);
 
     /**
      * 开始获取workerIp地址并保存</>
@@ -47,8 +43,12 @@ public class Monitor {
         ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         //开启拉取etcd的worker信息，如果拉取失败，则定时继续拉取
         scheduledExecutorService.scheduleAtFixedRate(() -> {
-            logger.info("trying to connect to etcd and fetch worker info");
-            fetch();
+            LOGGER.info("trying to connect to etcd and fetch worker info");
+            try {
+                fetch();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
         }, 0, 30, TimeUnit.SECONDS);
     }
@@ -56,44 +56,32 @@ public class Monitor {
     /**
      * 从配置中心获取worker的ip集合
      */
-    private void fetch() {
-        IConfigCenter configCenter = ConfigCenterFactory.getClient(ConfigCenterEnum.ETCD);
+    private void fetch() throws Exception {
+        Configurator configurator = ConfiguratorFactory.getInstance();
         //获取所有worker的ip
-        List<String> keys = null;
+        Map<String, String> keyVal = null;
         try {
             //如果设置了机房属性，则拉取同机房的worker。如果同机房没worker，则拉取所有
             if (Context.MDC != null) {
                 String mdc = parseMdc(Context.MDC);
-                keys = configCenter.getPrefixKey(Constant.WORKER_PATH + Context.APP_NAME + "/" + mdc);
+                keyVal = configurator.getConfigByPrefix(Constant.WORKER_PATH + Context.APP_NAME + "/" + mdc);
             }
-            if (CollectionUtil.isEmpty(keys)) {
-                keys = configCenter.getPrefixKey(Constant.WORKER_PATH + Context.APP_NAME);
+            if (keyVal == null || keyVal.size() == 0) {
+                keyVal = configurator.getConfigByPrefix(Constant.WORKER_PATH + Context.APP_NAME);
             }
 
             //全是空，给个警告
-            if (CollectionUtil.isEmpty(keys)) {
-                logger.warn("very important warn !!! workers ip info is null!!!");
+            if (keyVal == null || keyVal.size() == 0) {
+                LOGGER.warn("very important warn !!! workers ip info is null!!!");
+                return;
             }
 
             List<String> addresses = new ArrayList<>();
-            if (keys != null) {
-                for (String key : keys) {
-                    //value里放的是ip地址
-                    String ipPort = null;
-                    try {
-                        ipPort = configCenter.get(key);
-                    } catch (NacosException e) {
-                        e.printStackTrace();
-                    }
-                    addresses.add(ipPort);
-                }
-            }
-
+            keyVal.forEach( (k ,v)-> addresses.add(v));
             //将对应的worker保存下来
             WorkerInfoHolder.mergeAndConnectNew(addresses);
-        } catch (StatusRuntimeException ex) {
-            //etcd连不上
-            logger.error("etcd connected fail. Check the etcd address!!!");
+        } catch (Exception ex) {
+            LOGGER.error("config server connected fail. Check the config address!!!");
         }
 
     }

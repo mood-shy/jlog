@@ -1,14 +1,21 @@
 package com.jd.platform.jlog.client;
 
-import com.jd.platform.jlog.client.task.Monitor;
+
+import com.alibaba.fastjson.JSON;
 import com.jd.platform.jlog.client.mdc.Mdc;
+import com.jd.platform.jlog.client.task.Monitor;
 import com.jd.platform.jlog.client.udp.HttpSender;
 import com.jd.platform.jlog.client.udp.UdpClient;
 import com.jd.platform.jlog.client.udp.UdpSender;
-import com.jd.platform.jlog.common.config.ConfigCenterFactory;
-import com.jd.platform.jlog.common.model.CenterConfig;
-import com.jd.platform.jlog.common.model.TagConfig;
-import com.jd.platform.jlog.common.model.TagHandler;
+import com.jd.platform.jlog.common.tag.TagConfig;
+import com.jd.platform.jlog.common.tag.TagHandler;
+import com.jd.platform.jlog.common.utils.FastJsonUtils;
+import com.jd.platform.jlog.core.Configurator;
+import com.jd.platform.jlog.core.ConfiguratorFactory;
+import com.jd.platform.jlog.zk.ZkConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * TracerClientStarter
@@ -17,15 +24,19 @@ import com.jd.platform.jlog.common.model.TagHandler;
  * @date 2021-08-13
  */
 public class TracerClientStarter {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(ZkConfigurator.class);
+
+
     /**
      * 机房
      */
     private Mdc mdc;
 
-
-    private CenterConfig centerConfig;
-
-
+    /**
+     * 如果直接配置在app.properties/yaml等主配置文件
+     * 可以用ConfigurationProperties直接获取有值对象
+     */
     private TagConfig tagConfig;
 
 
@@ -42,7 +53,6 @@ public class TracerClientStarter {
     public static class Builder {
         private String appName;
         private Mdc mdc;
-        private CenterConfig centerConfig;
         private TagConfig tagConfig;
 
         public Builder() {
@@ -58,11 +68,6 @@ public class TracerClientStarter {
             return this;
         }
 
-        public Builder setCenterConfig(CenterConfig centerConfig) {
-            this.centerConfig = centerConfig;
-            return this;
-        }
-
         public Builder setTagConfig(TagConfig tagConfig) {
             this.tagConfig = tagConfig;
             return this;
@@ -70,7 +75,6 @@ public class TracerClientStarter {
 
         public TracerClientStarter build() {
             TracerClientStarter tracerClientStarter = new TracerClientStarter(appName);
-            tracerClientStarter.centerConfig = centerConfig;
             tracerClientStarter.tagConfig = tagConfig;
             tracerClientStarter.mdc = mdc;
             return tracerClientStarter;
@@ -78,14 +82,13 @@ public class TracerClientStarter {
     }
 
     /**
-     * 启动监听etcd
+     * 启动监听
      */
-    public void startPipeline() throws Exception {
-        //设置ConfigCenter
-        ConfigCenterFactory.buildConfigCenter(centerConfig);
-        System.out.println("tagconfig"+tagConfig.getDelimiter());
-        TagHandler.buildTag(tagConfig);
+    public void startPipeline() {
+        // 校验和设置
+        checkAndSetTagConfig();
 
+        TagHandler.build(tagConfig);
         Context.MDC = mdc;
 
         Monitor starter = new Monitor();
@@ -99,5 +102,29 @@ public class TracerClientStarter {
 
         //开启大对象http发送
         HttpSender.uploadToWorker();
+    }
+
+
+    /**
+     * 如果未赋值，从配置器获取，底层是Properties
+     */
+    private void checkAndSetTagConfig(){
+        if(tagConfig != null){
+            LOGGER.info("从主配置获取的tagConfig", tagConfig.toString());
+            return;
+        }
+        Configurator configurator = ConfiguratorFactory.getInstance();
+        String reqTag = configurator.getConfig("reqTags");
+        String logTag = configurator.getConfig("logTags");
+        String regex = configurator.getConfig("regex");
+        String delimiter = configurator.getConfig("delimiter");
+        String join = configurator.getConfig("join");
+        tagConfig = TagConfig.Builder.aTagConfig().reqTags(FastJsonUtils.toList(reqTag, String.class))
+                .logTags(FastJsonUtils.toList(logTag, String.class))
+                .regex(regex).delimiter(delimiter).join(join).build();
+        LOGGER.info("从配置器获取的tagConfig:{}", tagConfig.toString());
+        configurator.addConfigListener("jLog.properties");
+        configurator.removeConfigListener("jLog.properties");
+
     }
 }

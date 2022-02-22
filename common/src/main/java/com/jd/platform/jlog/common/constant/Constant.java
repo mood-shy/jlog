@@ -1,8 +1,5 @@
 package com.jd.platform.jlog.common.constant;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.nacos.common.utils.StringUtils;
-
 import java.util.HashSet;
 import java.util.Set;
 
