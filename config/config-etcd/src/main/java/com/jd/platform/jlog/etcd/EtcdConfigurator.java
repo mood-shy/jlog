@@ -1,25 +1,27 @@
 package com.jd.platform.jlog.etcd;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
+import com.alibaba.fastjson.JSON;
 import com.google.protobuf.ByteString;
 import com.ibm.etcd.api.KeyValue;
 import com.ibm.etcd.api.RangeResponse;
 import com.ibm.etcd.client.EtcdClient;
 import com.jd.platform.jlog.common.utils.CollectionUtil;
+import com.jd.platform.jlog.common.utils.StringUtil;
 import com.jd.platform.jlog.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
- * @author didi
+ * @author tangbohu
+ * @version 1.0.0
+ * @desc 参考log4J
+ * @ClassName EtcdConfigurator.java
+ * @createTime 2022年02月21日 21:46:00
  */
 public class EtcdConfigurator implements Configurator {
 
@@ -30,13 +32,26 @@ public class EtcdConfigurator implements Configurator {
     static volatile EtcdClient client;
 
     private static final Configurator FILE_CONFIG = ConfiguratorFactory.base;
-    private static final String SERVER_ADDR_KEY = "serverAddr";
+
     private ConcurrentMap<String, ConfigChangeListener> configListenerMap = new ConcurrentHashMap<>(8);
+
+    private static final String SERVER_ADDR_KEY = "serverAddr";
+
+    private static final String ROOT = "/jLog";
+
+    private static final String PROPERTIES_PATH = "/properties";
+
+    private static Properties PROPERTIES = new Properties();
+
 
 
     private EtcdConfigurator() {
         LOGGER.info("开始构建etcd客户端, serverAddr:{}",FILE_CONFIG.getConfig(SERVER_ADDR_KEY));
         client = EtcdClient.forEndpoints(FILE_CONFIG.getConfig(SERVER_ADDR_KEY,2000L)).withPlainText().build();
+        String val = getConfig(ROOT + PROPERTIES_PATH);
+        if(StringUtil.isNotBlank(val)){
+            PROPERTIES.putAll((Map)JSON.parse(val));
+        }
     }
 
 
@@ -87,18 +102,19 @@ public class EtcdConfigurator implements Configurator {
     @Override
     public boolean removeConfig(String key) {
         client.getKvClient().delete(ByteString.copyFromUtf8(key)).sync();
-        return false;
+        return true;
     }
 
 
     @Override
     public boolean removeConfig(String key, long timeoutMills) {
         client.getKvClient().delete(ByteString.copyFromUtf8(key)).timeout(timeoutMills).sync();
-        return false;
+        return true;
     }
 
     @Override
     public void addConfigListener(String key) {
+        System.out.println("添加etcd监听器"+key);
         EtcdListener etcdListener = new EtcdListener(key);
         configListenerMap.put(key, etcdListener);
         etcdListener.onProcessEvent(new ConfigChangeEvent());
@@ -106,6 +122,7 @@ public class EtcdConfigurator implements Configurator {
 
     @Override
     public void removeConfigListener(String key) {
+        System.out.println("移除etcd监听器"+key);
         ConfigChangeListener configListener = getConfigListeners(key);
         configListenerMap.remove(key);
         configListener.onShutDown();
@@ -113,8 +130,8 @@ public class EtcdConfigurator implements Configurator {
 
 
     @Override
-    public ConfigChangeListener getConfigListeners(String dataId) {
-        return configListenerMap.get(dataId);
+    public ConfigChangeListener getConfigListeners(String key) {
+        return configListenerMap.get(key);
     }
 
 
@@ -122,6 +139,7 @@ public class EtcdConfigurator implements Configurator {
     public String getType() {
         return "etcd";
     }
+
 
     @Override
     public Map<String,String> getConfigByPrefix(String prefix) {

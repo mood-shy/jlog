@@ -25,6 +25,10 @@ import java.util.ServiceLoader;
 
 /**
  * @author tangbohu
+ * @version 1.0.0
+ * @desc 参考log4J
+ * @ClassName ConfiguratorFactory.java
+ * @createTime 2022年02月15日 21:54:00
  */
 public class ConfiguratorFactory {
 
@@ -51,14 +55,25 @@ public class ConfiguratorFactory {
         return instance;
     }
 
+
+    /**
+     * SPI实现装载不同的配置器
+     * @return 配置器
+     */
     private static Configurator buildConfiguration() {
 
         try {
+            /**
+             * 配置文件的配置器
+             */
             base = new FileConfigurator();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        /**
+         * 配置中心的配置器，如果没有就用文件配置器
+         */
         ServiceLoader<ConfiguratorProvider> builders = ServiceLoader.load(ConfiguratorProvider.class);
         LOGGER.info("ServiceLoader获取到的实现类:{}", builders.toString());
         for (ConfiguratorProvider provider : builders) {
@@ -68,6 +83,10 @@ public class ConfiguratorFactory {
         return base;
     }
 
+    /**
+     * 重载
+     * @throws Exception
+     */
     protected static void reload() throws Exception {
         instance = null;
         getInstance();

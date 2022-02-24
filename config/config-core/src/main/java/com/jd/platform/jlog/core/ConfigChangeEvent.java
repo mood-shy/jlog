@@ -2,7 +2,10 @@ package com.jd.platform.jlog.core;
 
 
 /**
- * @author didi
+ * @author tangbohu
+ * @version 1.0.0
+ * @ClassName ConfigChangeEvent.java
+ * @createTime 2022年02月16日 22:13:00
  */
 public class ConfigChangeEvent {
 
@@ -11,7 +14,7 @@ public class ConfigChangeEvent {
     private String newValue;
     private String namespace;
     private ConfigChangeType changeType;
-    private static final String DEFAULT_NAMESPACE = "DEFAULT";
+    private static final String DEFAULT_NAMESPACE = "jLog";
 
 
     public ConfigChangeEvent(){
@@ -31,96 +34,56 @@ public class ConfigChangeEvent {
         this.changeType = type;
     }
 
-    /**
-     * Gets data id.
-     *
-     * @return the data id
-     */
+
     public String getKey() {
         return key;
     }
 
-    /**
-     * Sets data id.
-     *
-     * @param key key
-     */
+
     public ConfigChangeEvent setKey(String key) {
         this.key = key;
         return this;
     }
 
-    /**
-     * Gets old value.
-     *
-     * @return the old value
-     */
+
     public String getOldValue() {
         return oldValue;
     }
 
-    /**
-     * Sets old value.
-     *
-     * @param oldValue the old value
-     */
+
     public ConfigChangeEvent setOldValue(String oldValue) {
         this.oldValue = oldValue;
         return this;
     }
 
-    /**
-     * Gets new value.
-     *
-     * @return the new value
-     */
+
     public String getNewValue() {
         return newValue;
     }
 
-    /**
-     * Sets new value.
-     *
-     * @param newValue the new value
-     */
+
     public ConfigChangeEvent setNewValue(String newValue) {
         this.newValue = newValue;
         return this;
     }
 
-    /**
-     * Gets change type.
-     *
-     * @return the change type
-     */
+
     public ConfigChangeType getChangeType() {
         return changeType;
     }
 
-    /**
-     * Sets change type.
-     *
-     * @param changeType the change type
-     */
+
     public ConfigChangeEvent setChangeType(ConfigChangeType changeType) {
         this.changeType = changeType;
         return this;
     }
 
-    /**
-     * Gets namespace.
-     *
-     * @return the namespace
-     */
+
     public String getNamespace() {
         return namespace;
     }
 
-    /**
-     * Sets namespace.
-     *
-     * @param namespace the namespace
-     */
+
     public ConfigChangeEvent setNamespace(String namespace) {
         this.namespace = namespace;
         return this;

@@ -61,10 +61,8 @@ public class TracerLogbackAppender extends AppenderBase<ILoggingEvent> {
 
         String formattedMessage = getMessage(loggingEvent);
         logMessage.setContent(formattedMessage);
-      /*  Map<String, Object> map = TagHandler.extractLogTag(formattedMessage);
-        if(map != null){
-            System.out.println("Logback tag map =>> "+ JSON.toJSONString(map));
-        }*/
+        Map<String, Object> map = TagHandler.extractLogTag(formattedMessage);
+
         return logMessage;
     }
 

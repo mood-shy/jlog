@@ -4,6 +4,10 @@ import java.util.Map;
 
 /**
  * @author tangbohu
+ * @version 1.0.0
+ * @desc 参考log4J
+ * @ClassName Configurator.java
+ * @createTime 2022年02月15日 17:06:00
  */
 public interface Configurator {
 
@@ -25,6 +29,7 @@ public interface Configurator {
     /**
      * 设置配置
      * @param key key
+     * @param content val
      * @return content val
      */
     boolean putConfig(String key, String content);
@@ -83,7 +88,7 @@ public interface Configurator {
 
     /**
      * 根据前缀/父级路径获取子节点
-     * @param prefix
+     * @param prefix path
      * @return List
      */
     Map<String, String> getConfigByPrefix(String prefix);

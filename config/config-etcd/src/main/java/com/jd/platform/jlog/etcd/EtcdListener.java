@@ -31,6 +31,21 @@ public class EtcdListener implements ConfigChangeListener {
 
     public EtcdListener(String key) {
         this.key = key;
+        iterator = EtcdConfigurator.client.getKvClient().watch(ByteString.copyFromUtf8(key)).start();
+        System.out.println("构造器EtcdListener");
+
+        getExecutorService().submit(() -> {
+            while (iterator.hasNext()){
+                Event eve = iterator.next().getEvents().get(0);
+                KeyValue kv = eve.getKv();
+                Event.EventType eveType = eve.getType();
+                ConfigChangeType changeType = eveType.equals(Event.EventType.DELETE) ? ConfigChangeType.MODIFY : ConfigChangeType.DELETE;
+
+                ConfigChangeEvent event = new ConfigChangeEvent();
+                event.setKey(key).setNewValue(kv.getValue().toStringUtf8()).setChangeType(changeType);
+                onChangeEvent(event);
+            }
+        });
     }
 
 
@@ -40,21 +55,16 @@ public class EtcdListener implements ConfigChangeListener {
         getExecutorService().shutdownNow();
     }
 
+
     @Override
     public void onChangeEvent(ConfigChangeEvent event) {
-        iterator = EtcdConfigurator.client.getKvClient().watch(ByteString.copyFromUtf8(key)).start();
-        while (iterator.hasNext()){
-            Event eve = iterator.next().getEvents().get(0);
-            KeyValue kv = eve.getKv();
-            Event.EventType eveType = eve.getType();
-            ConfigChangeType changeType = eveType.equals(Event.EventType.DELETE) ? ConfigChangeType.MODIFY : ConfigChangeType.DELETE;
-            event.setKey(key).setNewValue(kv.getValue().toStringUtf8()).setChangeType(changeType);
-            this.onChangeEvent(event);
-        }
+        System.out.println("onChangeEvent 一次又一次的进入 ==> "+event.getKey());
     }
 
     @Override
     public ExecutorService getExecutorService() {
         return executor;
     }
+
+
 }

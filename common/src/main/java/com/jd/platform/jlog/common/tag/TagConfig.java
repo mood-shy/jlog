@@ -11,15 +11,41 @@ import java.util.List;
  */
 public class TagConfig implements Serializable {
 
+    /**
+     * 入参的tag
+     */
     private List<String> reqTags;
 
+    /**
+     * 普通日志的tag
+     */
     private List<String> logTags;
 
+    /**
+     * 自定义正则 可为空
+     */
     private String regex;
 
+    /**
+     * 分隔符 默认｜
+     */
     private String delimiter = "|";
 
+    /**
+     * 连接符 默认=
+     */
     private String join = "=";
+
+    /**
+     * 提取入参开关
+     */
+    private Boolean extractReq = true;
+
+    /**
+     * 提取普通log开关
+     */
+    private Boolean extractLog = true;
+
 
     public List<String> getReqTags() {
         return reqTags;
@@ -61,13 +87,30 @@ public class TagConfig implements Serializable {
         this.join = join;
     }
 
+    public Boolean getExtractReq() {
+        return extractReq;
+    }
+
+    public void setExtractReq(Boolean extractReq) {
+        this.extractReq = extractReq;
+    }
+
+    public Boolean getExtractLog() {
+        return extractLog;
+    }
+
+    public void setExtractLog(Boolean extractLog) {
+        this.extractLog = extractLog;
+    }
 
     public static final class Builder {
         private List<String> reqTags;
         private List<String> logTags;
         private String regex;
-        private String delimiter = "|";
-        private String join = "=";
+        private String delimiter;
+        private String join;
+        private Boolean extractReq;
+        private Boolean extractLog;
 
         public Builder() {
         }
@@ -101,6 +144,16 @@ public class TagConfig implements Serializable {
             return this;
         }
 
+        public Builder extractReq(Boolean extractReq) {
+            this.extractReq = extractReq;
+            return this;
+        }
+
+        public Builder extractLog(Boolean extractLog) {
+            this.extractLog = extractLog;
+            return this;
+        }
+
         public TagConfig build() {
             TagConfig tagConfig = new TagConfig();
             tagConfig.setReqTags(reqTags);
@@ -108,6 +161,8 @@ public class TagConfig implements Serializable {
             tagConfig.setRegex(regex);
             tagConfig.setDelimiter(delimiter);
             tagConfig.setJoin(join);
+            tagConfig.setExtractReq(extractReq);
+            tagConfig.setExtractLog(extractLog);
             return tagConfig;
         }
     }
@@ -120,6 +175,8 @@ public class TagConfig implements Serializable {
                 ", regex='" + regex + '\'' +
                 ", delimiter='" + delimiter + '\'' +
                 ", join='" + join + '\'' +
+                ", extractReq='" + extractReq + '\'' +
+                ", extractLog='" + extractLog + '\'' +
                 '}';
     }
 }

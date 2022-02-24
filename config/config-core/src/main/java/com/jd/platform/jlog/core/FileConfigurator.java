@@ -12,12 +12,18 @@ import java.util.concurrent.*;
 
 
 /**
- * @author didi
+ * @author tangbohu
+ * @version 1.0.0
+ * @ClassName FileConfigurator.java
+ * @createTime 2022年02月17日 23:22:00
  */
 public class FileConfigurator implements Configurator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileConfigurator.class);
 
+    /**
+     * 监听重读配置文件间隔 单位ms
+     */
     private static final long LISTENER_CONFIG_INTERVAL = 5000;
 
     private static final String CONFIG_FILE_PROPERTIES = "/application.properties";
@@ -26,9 +32,12 @@ public class FileConfigurator implements Configurator {
 
     private static final String JLOG_CONFIG_FILE = "/jLog.properties";
 
+    /**
+     * 配置文件集合
+     */
     private static final String[] FILE_ARRAY = { CONFIG_FILE_PROPERTIES, CONFIG_FILE_YML, JLOG_CONFIG_FILE };
 
-    private final ConcurrentMap<String, ConfigChangeListener> configListenerMap = new ConcurrentHashMap<>(8);
+    private final ConcurrentMap<String, ConfigChangeListener> CONFIG_LISTENER_MAP = new ConcurrentHashMap<>(8);
 
     private final Map<String, String> listenedConfigMap = new HashMap<>(8);
 
@@ -74,7 +83,7 @@ public class FileConfigurator implements Configurator {
         }
 
         if(properties.size() == 0){
-            // 不正常 warn
+            //  warn
             return null;
         }
        return properties.getProperty(key);
@@ -103,7 +112,7 @@ public class FileConfigurator implements Configurator {
             return;
         }
         FileListener fileListener = new FileListener();
-        configListenerMap.put(key, fileListener);
+        CONFIG_LISTENER_MAP.put(key, fileListener);
         listenedConfigMap.put(key, ConfiguratorFactory.getInstance().getConfig(key,1000L));
         fileListener.addListener(key, fileListener);
     }
@@ -119,7 +128,7 @@ public class FileConfigurator implements Configurator {
     @Override
     public void removeConfigListener(String key) {
         ConfigChangeListener configListener = getConfigListeners(key);
-        configListenerMap.remove(key);
+        CONFIG_LISTENER_MAP.remove(key);
         listenedConfigMap.remove(key);
         configListener.onShutDown();
     }
@@ -128,7 +137,7 @@ public class FileConfigurator implements Configurator {
 
     @Override
     public ConfigChangeListener getConfigListeners(String key) {
-        return configListenerMap.get(key);
+        return CONFIG_LISTENER_MAP.get(key);
     }
 
 
@@ -147,7 +156,6 @@ public class FileConfigurator implements Configurator {
 
     class FileListener implements ConfigChangeListener {
 
-        private final Map<String, Set<ConfigChangeListener>> keyListenersMap = new HashMap<>();
 
         private final ExecutorService executor = new ThreadPoolExecutor(1, 1, 0L,
                 TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(),
@@ -155,18 +163,18 @@ public class FileConfigurator implements Configurator {
 
         FileListener() {}
 
-        public synchronized void addListener(String dataId, ConfigChangeListener listener) {
-            if (keyListenersMap.isEmpty()) {
+        public synchronized void addListener(String key, ConfigChangeListener listener) {
+            if (CONFIG_LISTENER_MAP.isEmpty()) {
                 fileListener.onProcessEvent(new ConfigChangeEvent());
             }
 
-            keyListenersMap.computeIfAbsent(dataId, value -> new HashSet<>()).add(listener);
+            CONFIG_LISTENER_MAP.put(key, listener);
         }
 
         @Override
         public void onChangeEvent(ConfigChangeEvent event) {
             while (true) {
-                for (String key : keyListenersMap.keySet()) {
+                for (String key : CONFIG_LISTENER_MAP.keySet()) {
                     try {
                         checkAndConfigure();
                         String currentConfig = properties.getProperty(key);
@@ -175,14 +183,11 @@ public class FileConfigurator implements Configurator {
                             if (currentConfig.equals(oldConfig)) {
                                 listenedConfigMap.put(key, currentConfig);
                                 event.setKey(key).setNewValue(currentConfig).setOldValue(oldConfig);
-
-                                for (ConfigChangeListener listener : keyListenersMap.get(key)) {
-                                    listener.onChangeEvent(event);
-                                }
+                                CONFIG_LISTENER_MAP.get(key).onChangeEvent(event);
                             }
                         }
-                    } catch (Exception exx) {
-                        LOGGER.error("fileListener execute error, key :{}", key, exx);
+                    } catch (Exception e) {
+                        LOGGER.error("fileListener execute error, key :{}", key, e);
                     }
                 }
                 try {
@@ -200,8 +205,9 @@ public class FileConfigurator implements Configurator {
     }
 
 
-
-
+    /**
+     * 检测文件最后修改时间 和重载文件
+     */
     private void checkAndConfigure() {
 
         File file;

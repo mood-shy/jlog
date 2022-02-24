@@ -1,4 +1,4 @@
-serverAddr: 101.42.242.201:2181
+serverAddr: 127.0.0.1:2379
 jlog:
   center-config:
     center: etcd

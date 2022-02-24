@@ -2,6 +2,7 @@ package com.jd.platform.jlog.client;
 
 
 import com.alibaba.fastjson.JSON;
+import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.jd.platform.jlog.client.mdc.Mdc;
 import com.jd.platform.jlog.client.task.Monitor;
 import com.jd.platform.jlog.client.udp.HttpSender;
@@ -12,7 +13,6 @@ import com.jd.platform.jlog.common.tag.TagHandler;
 import com.jd.platform.jlog.common.utils.FastJsonUtils;
 import com.jd.platform.jlog.core.Configurator;
 import com.jd.platform.jlog.core.ConfiguratorFactory;
-import com.jd.platform.jlog.zk.ZkConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TracerClientStarter {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(ZkConfigurator.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(TracerClientStarter.class);
 
 
     /**
@@ -89,6 +89,7 @@ public class TracerClientStarter {
         checkAndSetTagConfig();
 
         TagHandler.build(tagConfig);
+
         Context.MDC = mdc;
 
         Monitor starter = new Monitor();
@@ -109,11 +110,11 @@ public class TracerClientStarter {
      * 如果未赋值，从配置器获取，底层是Properties
      */
     private void checkAndSetTagConfig(){
+        Configurator configurator = ConfiguratorFactory.getInstance();
         if(tagConfig != null){
             LOGGER.info("从主配置获取的tagConfig", tagConfig.toString());
             return;
         }
-        Configurator configurator = ConfiguratorFactory.getInstance();
         String reqTag = configurator.getConfig("reqTags");
         String logTag = configurator.getConfig("logTags");
         String regex = configurator.getConfig("regex");
@@ -123,8 +124,17 @@ public class TracerClientStarter {
                 .logTags(FastJsonUtils.toList(logTag, String.class))
                 .regex(regex).delimiter(delimiter).join(join).build();
         LOGGER.info("从配置器获取的tagConfig:{}", tagConfig.toString());
-        configurator.addConfigListener("jLog.properties");
-        configurator.removeConfigListener("jLog.properties");
+        System.out.println("添加监听器开始1111");
+        configurator.addConfigListener("/jLog/properties");
+        System.out.println("添加监听器开始2222");
+        configurator.addConfigListener("a");
 
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("移除监听器开始");
+        configurator.removeConfigListener("/jLog/properties");
     }
 }

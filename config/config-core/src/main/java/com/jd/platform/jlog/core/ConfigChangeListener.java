@@ -16,13 +16,20 @@
 package com.jd.platform.jlog.core;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.*;
 
-
 /**
- * @author didi
+ * @author tangbohu
+ * @version 1.0.0
+ * @ClassName ConfigChangeListener.java
+ * @createTime 2022年02月16日 12:06:00
  */
 public interface ConfigChangeListener {
+
+    Logger LOGGER = LoggerFactory.getLogger(ConfigChangeListener.class);
 
 
     ExecutorService EXECUTOR_SERVICE = new ThreadPoolExecutor(1, 1,
@@ -32,7 +39,12 @@ public interface ConfigChangeListener {
     void onChangeEvent(ConfigChangeEvent event);
 
 
+    /**
+     * 处理变更事件
+     * @param event 事件
+     */
     default void onProcessEvent(ConfigChangeEvent event) {
+        LOGGER.info("通用监听器收到了变更事件, event={}", event.toString());
         getExecutorService().submit(() -> {
             beforeEvent();
             try {

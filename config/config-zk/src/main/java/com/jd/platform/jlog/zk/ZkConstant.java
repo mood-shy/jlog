@@ -1,9 +1,5 @@
 package com.jd.platform.jlog.zk;
 
-import com.jd.platform.jlog.core.Configurator;
-import com.jd.platform.jlog.core.ConfiguratorFactory;
-import org.apache.curator.framework.CuratorFramework;
-
 /**
  * @author tangbohu
  * @version 1.0.0
@@ -13,6 +9,8 @@ import org.apache.curator.framework.CuratorFramework;
  */
 public class ZkConstant {
 
+    static final String NAMESPACE = "jLog";
+    static final String ROOT = "/jLog";
     static final String SERVER_ADDR_KEY = "serverAddr";
     static final String DEFAULT_CONFIG_PATH = "/jLog.properties";
 }

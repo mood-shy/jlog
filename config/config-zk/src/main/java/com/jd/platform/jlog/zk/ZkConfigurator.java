@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.jd.platform.jlog.zk.ZkConstant.DEFAULT_CONFIG_PATH;
+import static com.jd.platform.jlog.zk.ZkConstant.NAMESPACE;
 import static com.jd.platform.jlog.zk.ZkConstant.SERVER_ADDR_KEY;
 
 
@@ -37,20 +38,19 @@ public class ZkConfigurator implements Configurator {
     public ZkConfigurator() throws Exception {
         if (zkClient == null) {
             synchronized (ZkConfigurator.class) {
-                zkClient = CuratorFrameworkFactory.builder().connectString(FILE_CONFIG.getConfig(SERVER_ADDR_KEY,1000L))
+                zkClient = CuratorFrameworkFactory.builder().connectString(FILE_CONFIG.getConfig(SERVER_ADDR_KEY))
                         // 连接超时时间
                         .sessionTimeoutMs(2000)
                         // 会话超时时间
                         .connectionTimeoutMs(6000)
-                        .namespace("jLog")
+                        .namespace(NAMESPACE)
                         // 刚开始重试间隔为1秒，之后重试间隔逐渐增加，最多重试不超过三次
                         .retryPolicy(new ExponentialBackoffRetry(1000, 3))
                         .build();
                 zkClient.start();
             }
-            LOGGER.info("初始化ZK,准备载入Zk数据到缓存");
             loadZkData();
-            LOGGER.info("初始化ZK,载入ZK数据完成 props:{}", pros.toString());
+            LOGGER.info("初始化ZK,载入ZK数据完成 props:{}", JSON.toJSONString(pros));
         }
     }
 
@@ -129,8 +129,7 @@ public class ZkConfigurator implements Configurator {
         }
         ZkListener zkListener = new ZkListener("/"+key);
         CONFIG_LISTENERS_MAP.put(key, zkListener);
-       // zkListener.onProcessEvent(new ConfigChangeEvent());
-        LOGGER.info("ZK添加监听器之后, CONFIG_LISTENERS_MAP:{}", JSON.toJSONString(CONFIG_LISTENERS_MAP));
+        zkListener.onProcessEvent(new ConfigChangeEvent());
     }
 
 
@@ -162,7 +161,6 @@ public class ZkConfigurator implements Configurator {
     public String getType() {
         return "zk";
     }
-
 
 
 

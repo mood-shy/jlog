@@ -9,20 +9,18 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.config.ConfigService;
-import com.alibaba.nacos.api.config.listener.AbstractSharedListener;
 import com.alibaba.nacos.api.exception.NacosException;
 
 import com.alibaba.nacos.common.utils.StringUtils;
-import com.jd.platform.jlog.core.ConfigChangeEvent;
 import com.jd.platform.jlog.core.ConfigChangeListener;
 import com.jd.platform.jlog.core.Configurator;
 import com.jd.platform.jlog.core.ConfiguratorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.alibaba.nacos.api.common.Constants.DEFAULT_GROUP;
 import static com.jd.platform.jlog.nacos.NacosConstant.*;
 
 
@@ -33,14 +31,17 @@ import static com.jd.platform.jlog.nacos.NacosConstant.*;
  */
 public class NacosConfigurator implements Configurator {
 
-    private static volatile NacosConfigurator instance;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(NacosConfigurator.class);
 
+
+    private static volatile NacosConfigurator instance;
+
+
     private static final Configurator FILE_CONFIG = ConfiguratorFactory.base;
+
     private static volatile ConfigService configService;
 
-    static final ConcurrentMap<String, ConcurrentMap<ConfigChangeListener, NacosListener>> CONFIG_LISTENERS_MAP = new ConcurrentHashMap<>(8);
+    static final ConcurrentMap<String, ConfigChangeListener> CONFIG_LISTENER_MAP = new ConcurrentHashMap<>(8);
 
     static volatile Properties props = new Properties();
 
@@ -61,6 +62,7 @@ public class NacosConfigurator implements Configurator {
         if (configService == null) {
             try {
                 configService = NacosFactory.createConfigService(getConfigProperties());
+                LOGGER.info("实例化NacosConfigurator完成 result = {}",configService.getServerStatus());
                 initConfig();
             } catch (NacosException e) {
                 throw new RuntimeException(e);
@@ -85,7 +87,7 @@ public class NacosConfigurator implements Configurator {
 
         if (null == value) {
             try {
-                value = configService.getConfig(key, DEFAULT_GROUP, timeoutMills);
+                value = configService.getConfig(key, JLOG_GROUP, timeoutMills);
             } catch (NacosException exx) {
                 LOGGER.error(exx.getErrMsg());
             }
@@ -105,9 +107,9 @@ public class NacosConfigurator implements Configurator {
         try {
             if (!props.isEmpty()) {
                 props.setProperty(dataId, content);
-                result = configService.publishConfig(DEFAULT_DATA_ID, DEFAULT_GROUP, getConfigStr());
+                result = configService.publishConfig(DEFAULT_DATA_ID, JLOG_GROUP, getConfigStr());
             } else {
-                result = configService.publishConfig(dataId, DEFAULT_GROUP, content);
+                result = configService.publishConfig(dataId, JLOG_GROUP, content);
             }
         } catch (NacosException exx) {
             LOGGER.error(exx.getErrMsg());
@@ -122,9 +124,9 @@ public class NacosConfigurator implements Configurator {
         try {
             if (!props.isEmpty()) {
                 props.remove(dataId);
-                result = configService.publishConfig(DEFAULT_DATA_ID, DEFAULT_GROUP, getConfigStr());
+                result = configService.publishConfig(DEFAULT_DATA_ID, JLOG_GROUP, getConfigStr());
             } else {
-                result = configService.removeConfig(dataId, DEFAULT_GROUP);
+                result = configService.removeConfig(dataId, JLOG_GROUP);
             }
         } catch (NacosException exx) {
             LOGGER.error(exx.getErrMsg());
@@ -132,67 +134,52 @@ public class NacosConfigurator implements Configurator {
         return result;
     }
 
+
     @Override
     public boolean removeConfig(String key) {
         return false;
     }
 
 
-
     @Override
-    public void addConfigListener(String dataId, ConfigChangeListener listener) {
-        if (StringUtils.isBlank(dataId) || listener == null) {
-            return;
-        }
+    public void addConfigListener(String dataId) {
+        LOGGER.info("nacos添加监听器开始 dataId:{}",dataId);
+        NacosListener nacosListener = new NacosListener(dataId);
+        CONFIG_LISTENER_MAP.put(dataId, nacosListener);
+        LOGGER.info("## nacos添加监听器过程 {}",nacosListener.toString());
+
         try {
-            NacosListener nacosListener = new NacosListener(dataId, listener);
-            CONFIG_LISTENERS_MAP.computeIfAbsent(dataId, key -> new ConcurrentHashMap<>())
-                    .put(listener, nacosListener);
-            configService.addListener(dataId, DEFAULT_GROUP, nacosListener);
-        } catch (Exception exx) {
-            LOGGER.error("add nacos listener error:{}", exx.getMessage(), exx);
+            configService.addListener(dataId, JLOG_GROUP, nacosListener);
+        } catch (NacosException e) {
+            LOGGER.error("nacos添加监听器失败",e);
         }
     }
 
+
+
     @Override
-    public void removeConfigListener(String dataId, ConfigChangeListener listener) {
-        if (StringUtils.isBlank(dataId) || listener == null) {
+    public void removeConfigListener(String dataId) {
+        if (StringUtils.isBlank(dataId)) {
             return;
         }
-        Set<ConfigChangeListener> configChangeListeners = getConfigListeners(dataId);
-        if (configChangeListeners != null && configChangeListeners.size() > 0) {
-            for (ConfigChangeListener entry : configChangeListeners) {
-                if (listener.equals(entry)) {
-                    NacosListener nacosListener = null;
-                    Map<ConfigChangeListener, NacosListener> configListeners = CONFIG_LISTENERS_MAP.get(dataId);
-                    if (configListeners != null) {
-                        nacosListener = configListeners.get(listener);
-                        configListeners.remove(entry);
-                    }
-                    if (nacosListener != null) {
-                        configService.removeListener(dataId, DEFAULT_GROUP, nacosListener);
-                    }
-                    break;
-                }
-            }
-        }
+        LOGGER.info("nacos移除监听器开始");
+        ConfigChangeListener changeListener = getConfigListeners(dataId);
+        NacosListener listener = (NacosListener) changeListener;
+        LOGGER.info("## nacos移除监听器过程 {}",listener.toString());
+
+        CONFIG_LISTENER_MAP.remove(dataId);
+        configService.removeListener(dataId, JLOG_GROUP, listener);
     }
 
     @Override
-    public Set<ConfigChangeListener> getConfigListeners(String dataId) {
-        Map<ConfigChangeListener, NacosListener> configListeners = CONFIG_LISTENERS_MAP.get(dataId);
-        if (configListeners != null && configListeners.size() > 0) {
-            return configListeners.keySet();
-        } else {
-            return null;
-        }
+    public ConfigChangeListener getConfigListeners(String dataId) {
+        return CONFIG_LISTENER_MAP.get(dataId);
     }
 
 
     private static Properties getConfigProperties() {
         Properties properties = new Properties();
-        properties.setProperty(PRO_NAMESPACE_KEY, DEFAULT_NAMESPACE);
-        String address = FILE_CONFIG.getConfig("serverAddr",2000L);
+        String address = FILE_CONFIG.getConfig(PRO_SERVER_ADDR_KEY);
         if (address != null) {
             properties.setProperty(PRO_SERVER_ADDR_KEY, address);
         }
@@ -216,13 +203,16 @@ public class NacosConfigurator implements Configurator {
 
     private static void initConfig() {
         try {
-            String config = configService.getConfig(DEFAULT_DATA_ID, DEFAULT_GROUP, 2000L);
+            String config = configService.getConfig(DEFAULT_DATA_ID, JLOG_GROUP, 2000L);
+            LOGGER.info("从NaCos获取配置进行初始化 config = {}", config);
+
             if (StringUtils.isNotBlank(config)) {
                 try (Reader reader = new InputStreamReader(new ByteArrayInputStream(config.getBytes()), StandardCharsets.UTF_8)) {
                     props.load(reader);
                 }
-                NacosListener nacosListener = new NacosListener(DEFAULT_DATA_ID, null);
-                configService.addListener(DEFAULT_DATA_ID, DEFAULT_GROUP, nacosListener);
+                LOGGER.info("初始化本地缓存 props:{} ", JSON.toJSONString(props));
+                NacosListener nacosListener = new NacosListener(DEFAULT_DATA_ID);
+                configService.addListener(DEFAULT_DATA_ID, JLOG_GROUP, nacosListener);
             }
         } catch (NacosException | IOException e) {
             LOGGER.error("init config properties error", e);
@@ -231,8 +221,9 @@ public class NacosConfigurator implements Configurator {
 
     @Override
     public String getType() {
-        return CONFIG_TYPE;
+        return "nacos";
     }
+
 
     @Override
     public Map<String, String> getConfigByPrefix(String prefix) {

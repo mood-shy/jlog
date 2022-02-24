@@ -28,7 +28,11 @@ public class TagHandler {
 
     private Set<String> reqTags;
 
+    private boolean extractReq;
+
     private Set<String> logTags;
+
+    private boolean extractLog;
 
     private String delimiter = "|";
 
@@ -40,17 +44,24 @@ public class TagHandler {
 
     private static volatile TagHandler INSTANCE = null;
 
-
     /**
      * 构建标签处理器
      * @param tagConfig 配置类
      */
     public static void build(TagConfig tagConfig) {
 
+        if(!tagConfig.getExtractReq() && !tagConfig.getExtractLog()){
+            return;
+        }
+
         TagHandler handler =  new TagHandler();
-        String regex = tagConfig.getRegex();
+
+        handler.extractReq = tagConfig.getExtractReq();
+        handler.extractLog = tagConfig.getExtractLog();
         handler.reqTags = new HashSet<>(tagConfig.getReqTags());
         handler.logTags = new HashSet<>(tagConfig.getLogTags());
+
+        String regex = tagConfig.getRegex();
         if(StringUtil.isNotEmpty(regex)){
             handler.pattern = Pattern.compile(regex);
         }else{
@@ -62,7 +73,7 @@ public class TagHandler {
         handler.delimiterLen = tagConfig.getDelimiter().length();
         handler.join = tagConfig.getJoin();
         INSTANCE = handler;
-        //LOGGER.info("构建标签处理器单例完成:{}",INSTANCE.toString());
+        LOGGER.info("构建标签处理器单例完成:{}",INSTANCE.toString());
     }
 
 
@@ -74,7 +85,7 @@ public class TagHandler {
      */
     public static Map<String, Object> extractReqTag(Map<String, String[]> params, @NotNull Map<String, Object> ext) {
 
-        if(INSTANCE == null){ return null; }
+        if(INSTANCE == null || !INSTANCE.extractReq){ return null; }
 
         Map<String, Object> requestMap = new HashMap<>(INSTANCE.reqTags.size());
         for (String tag : INSTANCE.reqTags) {
@@ -99,7 +110,7 @@ public class TagHandler {
      * @return tags
      */
     public static Map<String, Object> extractLogTag(String content) {
-        if(INSTANCE == null || content.length() < 1){
+        if(INSTANCE == null || !INSTANCE.extractLog || content.length() < 1){
             return null;
         }
 
@@ -126,10 +137,10 @@ public class TagHandler {
 
 
     /**
-     * 刷新标签处理器
+     * 刷新标签处理器 加锁是为了防止极端情况下, 先到的config1覆盖后到的config2
      * @param tagConfig 新的配置
      */
-    public static void refresh(TagConfig tagConfig) {
+    public synchronized static void refresh(TagConfig tagConfig) {
         INSTANCE = null;
         build(tagConfig);
     }

@@ -31,13 +31,12 @@ public class ZkListener implements ConfigChangeListener {
         try {
             cache.start(true);
         } catch (Exception e) {
-            System.out.println("构造ZkListenereeeee"+e.getLocalizedMessage());
             e.printStackTrace();
         }
         cache.getListenable().addListener(() -> {
             String value = null;
             if(null!=cache.getCurrentData()){
-                value = new String( cache.getCurrentData().getData());
+                value = new String(cache.getCurrentData().getData());
             }
             System.out.println("=####======   "+value);
         });
@@ -48,21 +47,19 @@ public class ZkListener implements ConfigChangeListener {
 
     @Override
     public void onShutDown(){
-        LOGGER.info("ZK删除监听器, 开始的监听器list:{}",JSON.toJSONString( cache.getListenable()));
+        LOGGER.info("ZK删除监听器");
         try {
             cache.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        LOGGER.info("ZK删除监听器, 完成的监听器list:{}",JSON.toJSONString( cache.getListenable()));
     }
 
     @Override
     public void onChangeEvent(ConfigChangeEvent event) {
         LOGGER.info("ZK数据变更,通用事件触发onChangeEvent",event.toString());
-      //  changeEvent();
+        changeEvent();
     }
-
 
 
     private void changeEvent(){

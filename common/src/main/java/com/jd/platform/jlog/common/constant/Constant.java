@@ -29,11 +29,19 @@ public class Constant {
     public static String DEFAULT_DELETE_VALUE = "#[DELETE]#";
 
 
-
+    /**
+     * 普通tag最大长度 超过则不会单独存储，不超过则会存入tag：{"normal" : "logContent"}
+     */
     public static int TAG_NORMAL_KEY_MAX_LEN = 20;
 
+    /**
+     * 符合正则但不构成kv结构的普通日志，如「xx查询为空」
+     */
     public static String TAG_NORMAL_KEY = "normal";
 
+    /**
+     * 正则里需要特殊处理的字符串
+     */
     public static final Set<String> SPECIAL_CHAR = new HashSet<String>() {
         {
             add("*");
