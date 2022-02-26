@@ -44,7 +44,7 @@ public interface ConfigChangeListener {
      * @param event 事件
      */
     default void onProcessEvent(ConfigChangeEvent event) {
-        LOGGER.info("通用监听器收到了变更事件, event={}", event.toString());
+        LOGGER.info("通用监听器配置处理器", event.toString());
         getExecutorService().submit(() -> {
             beforeEvent();
             try {
@@ -57,7 +57,7 @@ public interface ConfigChangeListener {
     }
 
     default void onShutDown() {
-        getExecutorService().shutdownNow();
+        getExecutorService().shutdown();
     }
 
 

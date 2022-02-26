@@ -75,7 +75,6 @@ public class ConfiguratorFactory {
          * 配置中心的配置器，如果没有就用文件配置器
          */
         ServiceLoader<ConfiguratorProvider> builders = ServiceLoader.load(ConfiguratorProvider.class);
-        LOGGER.info("ServiceLoader获取到的实现类:{}", builders.toString());
         for (ConfiguratorProvider provider : builders) {
             LOGGER.info("第一个实现类类型为:{}", provider.build().getType());
             return provider.build();

@@ -1,11 +1,16 @@
-serverAddr: 127.0.0.1:2379
-jlog:
-  center-config:
-    center: etcd
-    etcdServer: ${etcdServer:http://127.0.0.1:2379} #etcd的地址，重要！！！
-    nacosServer: 101.42.242.201:8848
-    zkServer: 101.42.242.201:2181
+serverAddr: 127.0.0.1:111
+a: 3333
 
-
+tag-config:
+  reqTags:
+    - uid
+    - ip
+  logTags:
+    - errno
+    - node
+  regex: ""
+  delimiter: "|"
+  join: =
 server:
-  port: 8081
+  port: 8085
+

@@ -19,7 +19,7 @@ import javax.annotation.PostConstruct;
  * @date 2021-12-27
  */
 @Component
-@ConfigurationProperties(prefix = "jlog")
+@ConfigurationProperties()
 public class DemoConfig {
 
     private Logger logger = LoggerFactory.getLogger(getClass());

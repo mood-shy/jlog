@@ -31,6 +31,7 @@ public class EtcdListener implements ConfigChangeListener {
 
     public EtcdListener(String key) {
         this.key = key;
+
         iterator = EtcdConfigurator.client.getKvClient().watch(ByteString.copyFromUtf8(key)).start();
         System.out.println("构造器EtcdListener");
 

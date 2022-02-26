@@ -21,6 +21,10 @@ public class ConfigChangeEvent {
 
     }
 
+   /* public ConfigChangeEvent(String key){
+        this(key, DEFAULT_NAMESPACE, null, null, ConfigChangeType.MODIFY);
+    }*/
+
     public ConfigChangeEvent(String key, String newValue) {
         this(key, DEFAULT_NAMESPACE, null, newValue, ConfigChangeType.MODIFY);
     }

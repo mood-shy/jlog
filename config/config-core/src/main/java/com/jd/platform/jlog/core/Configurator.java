@@ -61,24 +61,24 @@ public interface Configurator {
 
     /**
      * 添加监听器
-     * @param key key
+     * @param node 文件
      */
-    void addConfigListener(String key);
+    void addConfigListener(String node);
 
 
     /**
      * 移除监听器
-     * @param key key
+     * @param node 节点 file or dir
      */
-    void removeConfigListener(String key);
+    void removeConfigListener(String node);
 
 
     /**
      * 获取对应监听器
-     * @param key key
+     * @param node key
      * @return Listeners
      */
-    ConfigChangeListener getConfigListeners(String key);
+    ConfigChangeListener getConfigListeners(String node);
 
     /**
      * 获取配置器类型

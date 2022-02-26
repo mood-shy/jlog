@@ -1,8 +1,6 @@
 package com.jd.platform.jlog.client;
 
 
-import com.alibaba.fastjson.JSON;
-import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.jd.platform.jlog.client.mdc.Mdc;
 import com.jd.platform.jlog.client.task.Monitor;
 import com.jd.platform.jlog.client.udp.HttpSender;
@@ -88,7 +86,7 @@ public class TracerClientStarter {
         // 校验和设置
         checkAndSetTagConfig();
 
-        TagHandler.build(tagConfig);
+     //   TagHandler.build(tagConfig);
 
         Context.MDC = mdc;
 
@@ -112,7 +110,8 @@ public class TracerClientStarter {
     private void checkAndSetTagConfig(){
         Configurator configurator = ConfiguratorFactory.getInstance();
         if(tagConfig != null){
-            LOGGER.info("从主配置获取的tagConfig", tagConfig.toString());
+            LOGGER.info("从主配置获取的tagConfig:{}", tagConfig.toString());
+            configurator.addConfigListener("/application.yml");
             return;
         }
         String reqTag = configurator.getConfig("reqTags");
@@ -124,17 +123,5 @@ public class TracerClientStarter {
                 .logTags(FastJsonUtils.toList(logTag, String.class))
                 .regex(regex).delimiter(delimiter).join(join).build();
         LOGGER.info("从配置器获取的tagConfig:{}", tagConfig.toString());
-        System.out.println("添加监听器开始1111");
-        configurator.addConfigListener("/jLog/properties");
-        System.out.println("添加监听器开始2222");
-        configurator.addConfigListener("a");
-
-        try {
-            Thread.sleep(20000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println("移除监听器开始");
-        configurator.removeConfigListener("/jLog/properties");
     }
 }

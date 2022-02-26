@@ -144,7 +144,6 @@ public class UdpSender {
     private static void send(List<TracerBean> tracerBeans) {
         TracerData tracerData = new TracerData();
         tracerData.setTracerBeanList(tracerBeans);
-        System.out.println("Context.CHANNEL==>  "+Context.CHANNEL);
         Context.CHANNEL.writeAndFlush(tracerData);
     }
 }

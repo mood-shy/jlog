@@ -20,3 +20,9 @@ jlog:
 
 server:
   port: 8081
+
+  server.port=8083
+
+  #apollo.meta=http://127.0.0.1:8080
+  #apollo.config-service=http://127.0.0.1:8080
+  #app.id=order
