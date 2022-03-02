@@ -16,6 +16,9 @@ import com.jd.platform.jlog.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.jd.platform.jlog.common.utils.ConfigUtil.formatConfigByte;
+import static com.jd.platform.jlog.common.utils.ConfigUtil.formatConfigStr;
+import static com.jd.platform.jlog.core.Constant.DEFAULT_TIMEOUT;
 import static com.jd.platform.jlog.core.Constant.SERVER_ADDR_KEY;
 
 /**
@@ -35,9 +38,8 @@ public class EtcdConfigurator implements Configurator {
 
     private static final Configurator FILE_CONFIG = ConfiguratorFactory.base;
 
-    private static final String ROOT = "/jLog";
 
-    private static final String PROPERTIES_PATH = "/properties";
+    private static final String PROPERTIES_PATH = "/jLog/properties";
 
     private static Properties PROPERTIES = new Properties();
 
@@ -47,7 +49,7 @@ public class EtcdConfigurator implements Configurator {
     private EtcdConfigurator() {
         LOGGER.info("开始构建etcd客户端, serverAddr:{}",FILE_CONFIG.getConfig(SERVER_ADDR_KEY));
         client = EtcdClient.forEndpoints(FILE_CONFIG.getConfig(SERVER_ADDR_KEY,2000L)).withPlainText().build();
-        RangeResponse rangeResponse = client.getKvClient().get(ByteString.copyFromUtf8(ROOT + PROPERTIES_PATH)).sync();
+        RangeResponse rangeResponse = client.getKvClient().get(ByteString.copyFromUtf8(PROPERTIES_PATH)).sync();
         List<KeyValue> keyValues = rangeResponse.getKvsList();
         if (CollectionUtil.isEmpty(keyValues)) {
             return;
@@ -87,26 +89,29 @@ public class EtcdConfigurator implements Configurator {
 
     @Override
     public boolean putConfig(String key, String content) {
-        client.getKvClient().put(ByteString.copyFromUtf8(key), ByteString.copyFromUtf8(content)).sync();
-        return true;
+        return putConfig(key, content, DEFAULT_TIMEOUT);
     }
 
     @Override
     public boolean putConfig(String key, String content, long timeoutMills) {
-        client.getKvClient().put(ByteString.copyFromUtf8(key), ByteString.copyFromUtf8(content)).timeout(timeoutMills).sync();
+        if(StringUtil.isEmpty(key) || StringUtil.isEmpty(content)){
+            return false;
+        }
+        PROPERTIES.setProperty(key, content);
+        client.getKvClient().put(ByteString.copyFromUtf8(PROPERTIES_PATH), ByteString.copyFromUtf8(formatConfigStr(PROPERTIES))).sync();
         return true;
     }
 
     @Override
     public boolean removeConfig(String key) {
-        client.getKvClient().delete(ByteString.copyFromUtf8(key)).sync();
-        return true;
+        return removeConfig(key, DEFAULT_TIMEOUT);
     }
 
 
     @Override
     public boolean removeConfig(String key, long timeoutMills) {
-        client.getKvClient().delete(ByteString.copyFromUtf8(key)).timeout(timeoutMills).sync();
+        PROPERTIES.remove(key);
+        client.getKvClient().put(ByteString.copyFromUtf8(PROPERTIES_PATH), ByteString.copyFromUtf8(formatConfigStr(PROPERTIES))).sync();
         return true;
     }
 

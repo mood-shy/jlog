@@ -1,7 +1,6 @@
 package com.jd.platform.jlog.config.apollo;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.*;
 
@@ -126,12 +125,6 @@ public class ApolloConfigurator implements Configurator {
     public void removeConfigListener(String key) {
         System.out.println("Apollo进入移除"+key);
         CONFIG_LISTENER_MAP.remove(key);
-    }
-
-
-    @Override
-    public ConfigChangeListener getConfigListeners(String dataId) {
-        return CONFIG_LISTENER_MAP.get(dataId);
     }
 
 
