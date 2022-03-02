@@ -1,6 +1,9 @@
 package com.jd.platform.jlog.common.utils;
 
 import com.jd.platform.jlog.common.constant.Constant;
+
+import java.util.Enumeration;
+import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -30,6 +33,30 @@ public class ConfigUtil {
         }
         return str;
     }
+
+
+
+    public static String formatConfigStr(Properties properties) {
+
+        StringBuilder sb = new StringBuilder();
+        Enumeration<?> enumeration = properties.propertyNames();
+        while (enumeration.hasMoreElements()) {
+            String key = (String) enumeration.nextElement();
+            Object property = properties.get(key);
+            if(property != null){
+                property = String.valueOf(property);
+            }
+            sb.append(key).append("=").append(property).append("\n");
+        }
+        return sb.toString();
+    }
+
+
+
+    public static byte[] formatConfigByte(Properties properties) {
+        return formatConfigStr(properties).getBytes();
+    }
+
 
 /*
 

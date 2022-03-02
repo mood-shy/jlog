@@ -6,11 +6,11 @@ import java.util.Set;
 /**
  * @author tangbohu
  * @version 1.0.0
- * @ClassName FileConstant.java
+ * @ClassName Constant.java
  * @Description TODO
  * @createTime 2022年02月26日 10:19:00
  */
-public class FileConstant {
+public class Constant {
 
     /**
      * 监听重读配置文件间隔 单位ms
@@ -23,11 +23,17 @@ public class FileConstant {
 
     static final String JLOG_CONFIG_FILE = "/jLog.properties";
 
+
     static final String ENV = "env";
 
     static final long AWAIT_TIME = 3 * 1000;
 
     static final String YML = "yml";
+
+    public static final long DEFAULT_TIMEOUT = 2 * 1000;
+
+    public static final String SERVER_ADDR_KEY = "serverAddr";
+
 
 
     /**

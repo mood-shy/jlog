@@ -1,5 +1,6 @@
 package com.jd.platform.jlog.config.apollo;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.*;
@@ -141,7 +142,7 @@ public class ApolloConfigurator implements Configurator {
 
 
     @Override
-    public Map<String, String> getConfigByPrefix(String prefix) {
+    public List getConfigByPrefix(String prefix) {
         return null;
     }
 

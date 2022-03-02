@@ -1,5 +1,6 @@
 package com.jd.platform.jlog.core;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,6 +40,7 @@ public interface Configurator {
      * @param key key
      * @return content val
      * @param timeoutMills timeoutMills
+     * @param content content
      */
     boolean putConfig(String key, String content, long timeoutMills);
 
@@ -60,6 +62,14 @@ public interface Configurator {
 
 
     /**
+     * 根据前缀/父级路径获取子节点
+     * @param prefix path
+     * @return List
+     */
+    List<String> getConfigByPrefix(String prefix);
+
+
+    /**
      * 添加监听器
      * @param node 文件
      */
@@ -74,22 +84,10 @@ public interface Configurator {
 
 
     /**
-     * 获取对应监听器
-     * @param node key
-     * @return Listeners
-     */
-    ConfigChangeListener getConfigListeners(String node);
-
-    /**
      * 获取配置器类型
      * @return string example:apollo
      */
     String getType();
 
-    /**
-     * 根据前缀/父级路径获取子节点
-     * @param prefix path
-     * @return List
-     */
-    Map<String, String> getConfigByPrefix(String prefix);
+
 }

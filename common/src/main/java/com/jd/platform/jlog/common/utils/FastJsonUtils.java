@@ -72,7 +72,7 @@ public class FastJsonUtils {
     /**
      * json字符串转化为map
      */
-    public static <K, V> Map<K, V> stringToCollect(String s) {
+    public static <K, V> Map<K, V> toMap(String s) {
         return (Map<K, V>) JSONObject.parseObject(s);
     }
 

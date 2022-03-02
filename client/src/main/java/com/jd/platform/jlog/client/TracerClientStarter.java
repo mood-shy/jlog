@@ -7,7 +7,6 @@ import com.jd.platform.jlog.client.udp.HttpSender;
 import com.jd.platform.jlog.client.udp.UdpClient;
 import com.jd.platform.jlog.client.udp.UdpSender;
 import com.jd.platform.jlog.common.tag.TagConfig;
-import com.jd.platform.jlog.common.tag.TagHandler;
 import com.jd.platform.jlog.common.utils.FastJsonUtils;
 import com.jd.platform.jlog.core.Configurator;
 import com.jd.platform.jlog.core.ConfiguratorFactory;

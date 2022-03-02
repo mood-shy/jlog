@@ -21,12 +21,12 @@ public class ConfigChangeEvent {
 
     }
 
-   /* public ConfigChangeEvent(String key){
-        this(key, DEFAULT_NAMESPACE, null, null, ConfigChangeType.MODIFY);
-    }*/
-
     public ConfigChangeEvent(String key, String newValue) {
         this(key, DEFAULT_NAMESPACE, null, newValue, ConfigChangeType.MODIFY);
+    }
+
+    public ConfigChangeEvent(String key, String oldValue, String newValue){
+        this(key, DEFAULT_NAMESPACE, oldValue, newValue, ConfigChangeType.MODIFY);
     }
 
     public ConfigChangeEvent(String key, String namespace, String oldValue, String newValue,

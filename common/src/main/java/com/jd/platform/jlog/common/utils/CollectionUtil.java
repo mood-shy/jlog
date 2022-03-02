@@ -1,8 +1,11 @@
 package com.jd.platform.jlog.common.utils;
 
+import com.alibaba.fastjson.JSON;
+
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author tangbohu
@@ -81,4 +84,62 @@ public class CollectionUtil {
         }
     }
 
+
+
+
+
+    public static <K, V> Set<String> diffKeys(Map<K, V> m1, Map<K, V> m2){
+
+        Set<String> diff = new HashSet<>(1);
+
+        for (Map.Entry<K,V> kvEntry : m1.entrySet()) {
+            V val = m2.get(kvEntry.getKey());
+            if(!kvEntry.getValue().equals(val)){
+                diff.add(kvEntry.getKey().toString());
+            }
+        }
+
+        for (Map.Entry<K,V> kvEntry : m2.entrySet()) {
+            V val = m1.get(kvEntry.getKey());
+            if(!kvEntry.getValue().equals(val)){
+                diff.add(kvEntry.getKey().toString());
+            }
+        }
+        return diff;
+    }
+
+
+
+
+    public static <K, V> HashMap<K,V> diffMap(Map<K, V> m1, Map<K, V> m2){
+
+        HashMap<K, V> diff = new HashMap<>(1);
+
+        for (Map.Entry<K,V> kvEntry : m1.entrySet()) {
+            V val = m2.get(kvEntry.getKey());
+            if(!kvEntry.getValue().equals(val)){
+                diff.put(kvEntry.getKey(), kvEntry.getValue());
+            }
+        }
+
+        for (Map.Entry<K,V> kvEntry : m2.entrySet()) {
+            V val = m1.get(kvEntry.getKey());
+            if(!kvEntry.getValue().equals(val)){
+                diff.put(kvEntry.getKey(), kvEntry.getValue());
+            }
+        }
+        return diff;
+    }
+
+
+    public static void main(String[] args) {
+        HashMap<String, Integer> m1 = new HashMap<>();
+        m1.put("t1",1);
+        m1.put("t2",2);
+
+        HashMap<String, Integer> m2 = new HashMap<>();
+        m2.put("t2",2);
+        m2.put("t3",3);
+
+    }
 }

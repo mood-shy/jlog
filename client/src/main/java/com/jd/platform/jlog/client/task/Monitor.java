@@ -59,25 +59,22 @@ public class Monitor {
     private void fetch() throws Exception {
         Configurator configurator = ConfiguratorFactory.getInstance();
         //获取所有worker的ip
-        Map<String, String> keyVal = null;
+        List addresses = new ArrayList();
         try {
             //如果设置了机房属性，则拉取同机房的worker。如果同机房没worker，则拉取所有
             if (Context.MDC != null) {
                 String mdc = parseMdc(Context.MDC);
-                keyVal = configurator.getConfigByPrefix(Constant.WORKER_PATH + Context.APP_NAME + "/" + mdc);
+                addresses = configurator.getConfigByPrefix(Constant.WORKER_PATH + Context.APP_NAME + "/" + mdc);
             }
-            if (keyVal == null || keyVal.size() == 0) {
-                keyVal = configurator.getConfigByPrefix(Constant.WORKER_PATH + Context.APP_NAME);
+            if (addresses == null || addresses.size() == 0) {
+                addresses = configurator.getConfigByPrefix(Constant.WORKER_PATH + Context.APP_NAME);
             }
 
             //全是空，给个警告
-            if (keyVal == null || keyVal.size() == 0) {
+            if (addresses == null || addresses.size() == 0) {
                 LOGGER.warn("very important warn !!! workers ip info is null!!!");
                 return;
             }
-
-            List<String> addresses = new ArrayList<>();
-            keyVal.forEach( (k ,v)-> addresses.add(v));
             //将对应的worker保存下来
             WorkerInfoHolder.mergeAndConnectNew(addresses);
         } catch (Exception ex) {

@@ -1,27 +1,28 @@
 package com.jd.platform.jlog.zk;
 
 import java.io.ByteArrayInputStream;
-import java.util.Enumeration;
-import java.util.Map;
+import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.*;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.platform.jlog.common.utils.FastJsonUtils;
 import com.jd.platform.jlog.common.utils.StringUtil;
 import com.jd.platform.jlog.core.*;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.jd.platform.jlog.zk.ZkConstant.DEFAULT_CONFIG_PATH;
-import static com.jd.platform.jlog.zk.ZkConstant.NAMESPACE;
-import static com.jd.platform.jlog.zk.ZkConstant.SERVER_ADDR_KEY;
+import static com.jd.platform.jlog.common.utils.ConfigUtil.formatConfigByte;
+import static com.jd.platform.jlog.core.Constant.DEFAULT_TIMEOUT;
+import static com.jd.platform.jlog.core.Constant.SERVER_ADDR_KEY;
+import static com.jd.platform.jlog.zk.ZkConstant.*;
 
 
 /**
- * @author didi
+ * @author tangbohu
  */
 public class ZkConfigurator implements Configurator {
 
@@ -31,33 +32,47 @@ public class ZkConfigurator implements Configurator {
 
     static volatile CuratorFramework zkClient;
 
-    static final ConcurrentMap<String, ConfigChangeListener> CONFIG_LISTENERS_MAP = new ConcurrentHashMap<>(8);
-    static volatile Properties pros = new Properties();
+    static volatile Properties PROPERTIES = new Properties();
+
+    private static volatile ZkListener ZKLISTENER = null;
+
 
 
     public ZkConfigurator() throws Exception {
+        System.out.println("### SERVER_ADDR_KEY ===> "+FILE_CONFIG.getConfig(SERVER_ADDR_KEY));
         if (zkClient == null) {
             synchronized (ZkConfigurator.class) {
                 zkClient = CuratorFrameworkFactory.builder().connectString(FILE_CONFIG.getConfig(SERVER_ADDR_KEY))
                         // 连接超时时间
-                        .sessionTimeoutMs(2000)
+                        .sessionTimeoutMs(6000)
                         // 会话超时时间
-                        .connectionTimeoutMs(6000)
+                        .connectionTimeoutMs(2000)
                         .namespace(NAMESPACE)
                         // 刚开始重试间隔为1秒，之后重试间隔逐渐增加，最多重试不超过三次
                         .retryPolicy(new ExponentialBackoffRetry(1000, 3))
                         .build();
                 zkClient.start();
             }
+
+            if(zkClient.checkExists().forPath(DEFAULT_WORKER_PATH) == null){
+                zkClient.create().withMode(CreateMode.EPHEMERAL).forPath(DEFAULT_WORKER_PATH);
+            }
             loadZkData();
-            LOGGER.info("初始化ZK,载入ZK数据完成 props:{}", JSON.toJSONString(pros));
+            addConfigListener(DEFAULT_CONFIG_PATH);
+            LOGGER.info("初始化ZK,载入ZK数据完成 props:{}", JSON.toJSONString(PROPERTIES));
         }
     }
 
 
     @Override
     public String getConfig(String key) {
-        String value = pros.getProperty(key);
+        return getConfig(key, DEFAULT_TIMEOUT);
+    }
+
+
+    @Override
+    public String getConfig(String key, long timeoutMills) {
+        String value = PROPERTIES.getProperty(key);
         if (value != null) {
             return value;
         }
@@ -67,95 +82,91 @@ public class ZkConfigurator implements Configurator {
             return value;
         }
         try {
-            return new String(zkClient.getData().forPath(DEFAULT_CONFIG_PATH));
+            loadZkData();
         } catch (Exception e) {
-            e.printStackTrace();
+            return null;
         }
-        return null;
+        return PROPERTIES.getProperty(key);
     }
 
-
-    @Override
-    public String getConfig(String key, long timeoutMills) {
-        return getConfig(key);
-    }
 
 
     @Override
     public boolean putConfig(String key, String content) {
-        if(StringUtil.isEmpty(key) || StringUtil.isEmpty(content)){
-            return false;
-        }
-        pros.setProperty(key, content);
-        return true;
+        return putConfig(key, content, DEFAULT_TIMEOUT);
     }
 
 
     @Override
     public boolean putConfig(String key, String content, long timeoutMills) {
-        pros.setProperty(key, content);
+        if(StringUtil.isEmpty(key) || StringUtil.isEmpty(content)){
+            return false;
+        }
+        PROPERTIES.setProperty(key, content);
         try {
-            zkClient.setData().forPath(DEFAULT_CONFIG_PATH, formatConfigStr());
+            zkClient.setData().forPath(DEFAULT_CONFIG_PATH, formatConfigByte(PROPERTIES));
         } catch (Exception e) {
-            e.printStackTrace();
+            return false;
         }
         return true;
     }
 
 
-    @Override
-    public boolean removeConfig(String dataId, long timeoutMills) {
-        pros.remove(dataId);
-        try {
-            zkClient.delete().forPath(DEFAULT_CONFIG_PATH);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return true;
-    }
 
     @Override
     public boolean removeConfig(String key) {
-        return false;
+        return removeConfig(key, DEFAULT_TIMEOUT);
     }
 
 
 
     @Override
-    public void addConfigListener(String key) {
-        LOGGER.info("ZK添加监听器, key:{}", key);
-        if (StringUtil.isBlank(key)) {
-            return;
+    public boolean removeConfig(String key, long timeoutMills) {
+        PROPERTIES.remove(key);
+        try {
+            zkClient.setData().forPath(DEFAULT_CONFIG_PATH, formatConfigByte(PROPERTIES));
+        } catch (Exception e) {
+            return false;
         }
-        ZkListener zkListener = new ZkListener("/"+key);
-        CONFIG_LISTENERS_MAP.put(key, zkListener);
-        zkListener.onProcessEvent(new ConfigChangeEvent());
+        return true;
     }
 
 
+
+
     @Override
-    public void removeConfigListener(String key) {
-        if (StringUtil.isBlank(key)) {
-            return;
+    public void addConfigListener(String node) {
+        if(!DEFAULT_CONFIG_PATH.equals(node)){
+            throw new RuntimeException("no support");
         }
-        LOGGER.info("ZK删除监听器, key:{}", key);
-        ConfigChangeListener configChangeListeners = getConfigListeners(key);
-        CONFIG_LISTENERS_MAP.remove(key);
-        ZkListener zkListener = (ZkListener) configChangeListeners;
-        zkListener.onShutDown();
+        LOGGER.info("ZK添加监听器, node:{}", node);
+        ZKLISTENER = new ZkListener(node);
+        ZKLISTENER.onProcessEvent(new ConfigChangeEvent());
     }
 
 
     @Override
-    public ConfigChangeListener getConfigListeners(String key) {
-        return CONFIG_LISTENERS_MAP.get(key);
+    public void removeConfigListener(String node) {
+        if(!DEFAULT_CONFIG_PATH.equals(node)){
+            throw new RuntimeException("no support");
+        }
+        LOGGER.info("ZK删除监听器, node:{}", node);
+        ZKLISTENER.onShutDown();
+        ZKLISTENER = null;
     }
 
 
     @Override
-    public Map<String, String> getConfigByPrefix(String prefix) {
+    public List<String> getConfigByPrefix(String prefix) {
+        try {
+            String val = getConfig(prefix);
+            return FastJsonUtils.toList(val,String.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return null;
     }
+
 
     @Override
     public String getType() {
@@ -164,29 +175,14 @@ public class ZkConfigurator implements Configurator {
 
 
 
-
     static void loadZkData() throws Exception {
 
         byte[] bt = zkClient.getData().forPath(DEFAULT_CONFIG_PATH);
         if (bt != null && bt.length > 0){
             ByteArrayInputStream bArray = new ByteArrayInputStream(bt);
-            pros.load(bArray);
+            PROPERTIES.load(bArray);
         }
+        LOGGER.info("# loadZkData # PROPERTIES:{}",JSON.toJSONString(PROPERTIES));
     }
-
-
-    private static byte[] formatConfigStr() {
-        StringBuilder sb = new StringBuilder();
-
-        Enumeration<?> enumeration = pros.propertyNames();
-        while (enumeration.hasMoreElements()) {
-            String key = (String) enumeration.nextElement();
-            String property = pros.getProperty(key);
-            sb.append(key).append("=").append(property).append("\n");
-        }
-        LOGGER.info("ZK更新配置文件:{}", sb.toString());
-        return sb.toString().getBytes();
-    }
-
 
 }

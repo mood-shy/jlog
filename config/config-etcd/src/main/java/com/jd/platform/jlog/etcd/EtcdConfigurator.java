@@ -16,6 +16,8 @@ import com.jd.platform.jlog.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.jd.platform.jlog.core.Constant.SERVER_ADDR_KEY;
+
 /**
  * @author tangbohu
  * @version 1.0.0
@@ -33,22 +35,24 @@ public class EtcdConfigurator implements Configurator {
 
     private static final Configurator FILE_CONFIG = ConfiguratorFactory.base;
 
-    private ConcurrentMap<String, ConfigChangeListener> configListenerMap = new ConcurrentHashMap<>(8);
-
-    private static final String SERVER_ADDR_KEY = "serverAddr";
-
     private static final String ROOT = "/jLog";
 
     private static final String PROPERTIES_PATH = "/properties";
 
     private static Properties PROPERTIES = new Properties();
 
+    private volatile static EtcdListener LISTENER = null;
 
 
     private EtcdConfigurator() {
         LOGGER.info("开始构建etcd客户端, serverAddr:{}",FILE_CONFIG.getConfig(SERVER_ADDR_KEY));
         client = EtcdClient.forEndpoints(FILE_CONFIG.getConfig(SERVER_ADDR_KEY,2000L)).withPlainText().build();
-        String val = getConfig(ROOT + PROPERTIES_PATH);
+        RangeResponse rangeResponse = client.getKvClient().get(ByteString.copyFromUtf8(ROOT + PROPERTIES_PATH)).sync();
+        List<KeyValue> keyValues = rangeResponse.getKvsList();
+        if (CollectionUtil.isEmpty(keyValues)) {
+            return;
+        }
+        String val = keyValues.get(0).getValue().toStringUtf8();
         if(StringUtil.isNotBlank(val)){
             PROPERTIES.putAll((Map)JSON.parse(val));
         }
@@ -69,22 +73,16 @@ public class EtcdConfigurator implements Configurator {
 
     @Override
     public String getConfig(String key) {
-        RangeResponse rangeResponse = client.getKvClient().get(ByteString.copyFromUtf8(key)).sync();
-        List<KeyValue> keyValues = rangeResponse.getKvsList();
-        if (CollectionUtil.isEmpty(keyValues)) {
-            return null;
+        Object val = PROPERTIES.get(key);
+        if(val != null){
+            return String.valueOf(val);
         }
-        return keyValues.get(0).getValue().toStringUtf8();
+        return null;
     }
 
     @Override
     public String getConfig(String key, long timeoutMills) {
-        RangeResponse rangeResponse = client.getKvClient().get(ByteString.copyFromUtf8(key)).timeout(timeoutMills).sync();
-        List<KeyValue> keyValues = rangeResponse.getKvsList();
-        if (CollectionUtil.isEmpty(keyValues)) {
-            return null;
-        }
-        return keyValues.get(0).getValue().toStringUtf8();
+        return getConfig(key);
     }
 
     @Override
@@ -113,27 +111,18 @@ public class EtcdConfigurator implements Configurator {
     }
 
     @Override
-    public void addConfigListener(String key) {
-        System.out.println("添加etcd监听器"+key);
-        EtcdListener etcdListener = new EtcdListener(key);
-        configListenerMap.put(key, etcdListener);
-        etcdListener.onProcessEvent(new ConfigChangeEvent());
+    public void addConfigListener(String node) {
+        System.out.println("添加etcd监听器"+node);
+        LISTENER = new EtcdListener(node);
+        LISTENER.onProcessEvent(new ConfigChangeEvent());
     }
 
     @Override
-    public void removeConfigListener(String key) {
-        System.out.println("移除etcd监听器"+key);
-        ConfigChangeListener configListener = getConfigListeners(key);
-        configListenerMap.remove(key);
-        configListener.onShutDown();
+    public void removeConfigListener(String node) {
+        System.out.println("移除etcd监听器"+node);
+        LISTENER.onShutDown();
+        LISTENER = null;
     }
-
-
-    @Override
-    public ConfigChangeListener getConfigListeners(String key) {
-        return configListenerMap.get(key);
-    }
-
 
     @Override
     public String getType() {
@@ -142,14 +131,14 @@ public class EtcdConfigurator implements Configurator {
 
 
     @Override
-    public Map<String,String> getConfigByPrefix(String prefix) {
+    public List getConfigByPrefix(String prefix) {
         RangeResponse rangeResponse = client.getKvClient().get(ByteString.copyFromUtf8(prefix)).asPrefix().sync();
-        List<KeyValue> list = rangeResponse.getKvsList();
-        Map<String, String> map = new HashMap<>(list.size());
-        for (KeyValue kv : list) {
-            map.put(kv.getKey().toStringUtf8(), kv.getValue().toStringUtf8());
+        List<KeyValue> keyValues = rangeResponse.getKvsList();
+        List list = new ArrayList<>();
+        for (KeyValue kv : keyValues) {
+            list.add(kv.getValue().toStringUtf8());
         }
-        return map;
+        return list;
     }
 
 }

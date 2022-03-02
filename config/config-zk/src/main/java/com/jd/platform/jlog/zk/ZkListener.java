@@ -1,6 +1,7 @@
 package com.jd.platform.jlog.zk;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.platform.jlog.common.utils.CollectionUtil;
 import com.jd.platform.jlog.core.ConfigChangeEvent;
 import com.jd.platform.jlog.core.ConfigChangeListener;
 import com.jd.platform.jlog.core.ConfigChangeType;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import static com.jd.platform.jlog.zk.ZkConfigurator.*;
 
@@ -25,7 +27,10 @@ public class ZkListener implements ConfigChangeListener {
 
     private NodeCache cache;
 
+    private String path;
+
     public ZkListener(String path) {
+        this.path = path;
         cache = new NodeCache(zkClient, path);
         LOGGER.info("构造ZkListener:{}",path);
         try {
@@ -57,34 +62,21 @@ public class ZkListener implements ConfigChangeListener {
 
     @Override
     public void onChangeEvent(ConfigChangeEvent event) {
-        LOGGER.info("ZK数据变更,通用事件触发onChangeEvent",event.toString());
-        changeEvent();
-    }
-
-
-    private void changeEvent(){
-        ChildData data = cache.getCurrentData();
-        LOGGER.info("变更-当前数据cache:{}", cache);
-        Properties propsTmp = pros;
+        LOGGER.info("ZK数据变更-当前监听器关注的path:{}", path);
+        Properties propsTmp = new Properties(PROPERTIES);
         try {
             LOGGER.info("ZK数据变更,旧Properties:{}", JSON.toJSONString(propsTmp));
             loadZkData();
-            LOGGER.info("ZK数据变更,新Properties:{}", JSON.toJSONString(pros));
+            LOGGER.info("ZK数据变更,新Properties:{}", JSON.toJSONString(PROPERTIES));
         } catch (Exception e) {
             e.printStackTrace();
         }
-        LOGGER.info("ZK数据变更,CONFIG_LISTENERS_MAP:{}", JSON.toJSONString(CONFIG_LISTENERS_MAP));
-        for (Map.Entry<String, ConfigChangeListener> entry : CONFIG_LISTENERS_MAP.entrySet()) {
-            String listenedKey = entry.getKey();
-            String propertyOld = pros.getProperty(listenedKey);
-            String propertyNew = propsTmp.getProperty(listenedKey);
-            if (!propertyOld.equals(propertyNew)) {
-                ConfigChangeEvent event = new ConfigChangeEvent()
-                        .setKey(listenedKey)
-                        .setNewValue(propertyNew)
-                        .setChangeType(ConfigChangeType.MODIFY);
-                entry.getValue().onProcessEvent(event);
+        Set<String> diffKeys = CollectionUtil.diffKeys(propsTmp, PROPERTIES);
+        if(!diffKeys.isEmpty()){
+            for (String diffKey : diffKeys) {
+                LOGGER.warn("ZK {} 配置变更 key={} 变更事件:{}", path, diffKey, new ConfigChangeEvent(diffKey, propsTmp.get(diffKey).toString(), PROPERTIES.get(diffKey).toString()));
             }
         }
     }
+
 }

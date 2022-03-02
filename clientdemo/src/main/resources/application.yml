@@ -1,5 +1,11 @@
-serverAddr: 127.0.0.1:111
-a: 3333
+testKey: 111
+serverAddr: 101.42.242.201:2181
+server:
+  port: 8085
+workers:
+  - 111
+  - 222
+  - 333
 
 tag-config:
   reqTags:
@@ -11,6 +17,4 @@ tag-config:
   regex: ""
   delimiter: "|"
   join: =
-server:
-  port: 8085
 

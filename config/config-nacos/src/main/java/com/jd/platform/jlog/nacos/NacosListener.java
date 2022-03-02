@@ -1,6 +1,5 @@
 package com.jd.platform.jlog.nacos;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.nacos.api.config.listener.AbstractSharedListener;
 import com.alibaba.nacos.api.naming.listener.Event;
 import com.alibaba.nacos.api.naming.listener.EventListener;
@@ -13,55 +12,26 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Properties;
+import java.util.Set;
 
 
-import static com.jd.platform.jlog.nacos.NacosConfigurator.CONFIG_LISTENER_MAP;
-import static com.jd.platform.jlog.nacos.NacosConfigurator.props;
+import static com.jd.platform.jlog.nacos.NacosConfigurator.*;
 import static com.jd.platform.jlog.nacos.NacosConstant.DEFAULT_DATA_ID;
-import static com.jd.platform.jlog.nacos.NacosConstant.JLOG_GROUP;
 
 
 public class NacosListener extends AbstractSharedListener implements ConfigChangeListener, EventListener {
 
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NacosConfigurator.class);
-
-    private final String dataId;
-
-    private final String group;
+    private static final Logger LOGGER = LoggerFactory.getLogger(NacosListener.class);
 
 
-    public NacosListener(String dataId) {
-        this.dataId = dataId;
-        this.group = JLOG_GROUP;
-    }
+    public NacosListener() {}
 
     @Override
     public void innerReceive(String dataId, String group, String configInfo) {
 
         LOGGER.info("configInfo:{}", configInfo);
-        System.out.println("自带监听器" + configInfo);
-        if (DEFAULT_DATA_ID.equals(dataId)) {
-            Properties properties = new Properties();
-            if (StringUtils.isNotBlank(configInfo)) {
-                try {
-                    properties.load(new StringReader(configInfo));
-                } catch (IOException e) {
-                    return;
-                }
-            }
-            LOGGER.info("CONFIG_LISTENER_MAP :{}",JSON.toJSONString(CONFIG_LISTENER_MAP));
-            ConfigChangeListener listener = CONFIG_LISTENER_MAP.get(dataId);
-            boolean same = CollectionUtil.equals(properties, props);
-            if(!same){
-                ConfigChangeEvent event = new ConfigChangeEvent()
-                        .setKey(DEFAULT_DATA_ID)
-                        .setOldValue(JSON.toJSONString(props))
-                        .setNewValue(JSON.toJSONString(properties))
-                        .setNamespace(group);
-                listener.onProcessEvent(event);
-                props = properties;
-            }
+        if(!DEFAULT_DATA_ID.equals(dataId)){
             return;
         }
 
@@ -75,6 +45,22 @@ public class NacosListener extends AbstractSharedListener implements ConfigChang
     public void onChangeEvent(ConfigChangeEvent event) {
         System.out.println("通用[配置]变更事件");
         LOGGER.info("通用[配置]变更事件 event:{}",event);
+
+        Properties props = new Properties();
+        if (StringUtils.isNotBlank(event.getNewValue())) {
+            try {
+                props.load(new StringReader(event.getNewValue()));
+            } catch (IOException e) {
+                return;
+            }
+        }
+        Set<String> diffKeys = CollectionUtil.diffKeys(props, PROPERTIES);
+        if(!diffKeys.isEmpty()){
+            PROPERTIES = props;
+            for (String diffKey : diffKeys) {
+                LOGGER.warn("NACOS {} 配置变更 key={} 变更事件:{}", DEFAULT_DATA_ID, diffKey, new ConfigChangeEvent(diffKey, props.get(diffKey).toString(), PROPERTIES.get(diffKey).toString()));
+            }
+        }
     }
 
 

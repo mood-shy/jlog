@@ -36,6 +36,10 @@ public interface ConfigChangeListener {
         Integer.MAX_VALUE, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), Executors.defaultThreadFactory());
 
 
+    /**
+     * 事件具体处理
+     * @param event event
+     */
     void onChangeEvent(ConfigChangeEvent event);
 
 

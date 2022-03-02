@@ -10,7 +10,6 @@ package com.jd.platform.jlog.zk;
 public class ZkConstant {
 
     static final String NAMESPACE = "jLog";
-    static final String ROOT = "/jLog";
-    static final String SERVER_ADDR_KEY = "serverAddr";
     static final String DEFAULT_CONFIG_PATH = "/jLog.properties";
+    static final String DEFAULT_WORKER_PATH = "/workers";
 }

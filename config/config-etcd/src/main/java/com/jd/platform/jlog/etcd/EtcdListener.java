@@ -23,16 +23,14 @@ import java.util.concurrent.TimeUnit;
  * @createTime 2022年02月21日 23:34:00
  */
 public class EtcdListener implements ConfigChangeListener {
-    private final String key;
     private KvClient.WatchIterator iterator;
     private final ExecutorService executor = new ThreadPoolExecutor(1, 1, 0L,
             TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(),
             new DefaultThreadFactory("etcdListener", 1));
 
-    public EtcdListener(String key) {
-        this.key = key;
+    public EtcdListener(String node) {
 
-        iterator = EtcdConfigurator.client.getKvClient().watch(ByteString.copyFromUtf8(key)).start();
+        iterator = EtcdConfigurator.client.getKvClient().watch(ByteString.copyFromUtf8(node)).start();
         System.out.println("构造器EtcdListener");
 
         getExecutorService().submit(() -> {
@@ -43,7 +41,7 @@ public class EtcdListener implements ConfigChangeListener {
                 ConfigChangeType changeType = eveType.equals(Event.EventType.DELETE) ? ConfigChangeType.MODIFY : ConfigChangeType.DELETE;
 
                 ConfigChangeEvent event = new ConfigChangeEvent();
-                event.setKey(key).setNewValue(kv.getValue().toStringUtf8()).setChangeType(changeType);
+                event.setKey(node).setNewValue(kv.getValue().toStringUtf8()).setChangeType(changeType);
                 onChangeEvent(event);
             }
         });
