@@ -78,6 +78,26 @@ public class ApolloConfigurator implements Configurator {
     }
 
     @Override
+    public String getString(String key) {
+        return null;
+    }
+
+    @Override
+    public Long getLong(String key) {
+        return null;
+    }
+
+    @Override
+    public List<String> getList(String key) {
+        return null;
+    }
+
+    @Override
+    public <T> T getObject(String key, Class<T> clz) {
+        return null;
+    }
+
+    @Override
     public String getConfig(String key) {
         return config.getProperty(key,"");
     }

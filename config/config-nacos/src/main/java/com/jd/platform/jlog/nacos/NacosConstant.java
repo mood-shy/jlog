@@ -12,5 +12,4 @@ public class NacosConstant {
 
     static final String JLOG_GROUP = "JLOG_GROUP";
     static final String DEFAULT_DATA_ID = "jLog.properties";
-    static final String PRO_SERVER_ADDR_KEY = "serverAddr";
 }

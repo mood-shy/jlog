@@ -1,6 +1,8 @@
 package com.jd.platform.jlog.etcd;
 
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -39,7 +41,7 @@ public class EtcdConfigurator implements Configurator {
     private static final Configurator FILE_CONFIG = ConfiguratorFactory.base;
 
 
-    private static final String PROPERTIES_PATH = "/jLog/properties";
+    private static final String PROPERTIES_PATH = "/jLog/jLog.properties";
 
     private static Properties PROPERTIES = new Properties();
 
@@ -56,7 +58,11 @@ public class EtcdConfigurator implements Configurator {
         }
         String val = keyValues.get(0).getValue().toStringUtf8();
         if(StringUtil.isNotBlank(val)){
-            PROPERTIES.putAll((Map)JSON.parse(val));
+            try {
+                PROPERTIES.load(new StringReader(val));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -72,6 +78,26 @@ public class EtcdConfigurator implements Configurator {
         return instance;
     }
 
+
+    @Override
+    public String getString(String key) {
+        return null;
+    }
+
+    @Override
+    public Long getLong(String key) {
+        return null;
+    }
+
+    @Override
+    public List<String> getList(String key) {
+        return null;
+    }
+
+    @Override
+    public <T> T getObject(String key, Class<T> clz) {
+        return null;
+    }
 
     @Override
     public String getConfig(String key) {

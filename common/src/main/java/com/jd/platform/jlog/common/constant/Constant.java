@@ -35,6 +35,11 @@ public class Constant {
     public static int TAG_NORMAL_KEY_MAX_LEN = 20;
 
     /**
+     * 可供提取的日志最小长度
+     */
+    public static int EXTRACT_MIN_LEN = 5;
+
+    /**
      * 符合正则但不构成kv结构的普通日志，如「xx查询为空」
      */
     public static String TAG_NORMAL_KEY = "normal";

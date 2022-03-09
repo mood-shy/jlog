@@ -1,7 +1,6 @@
 package com.jd.platform.jlog.core;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author tangbohu
@@ -13,19 +12,34 @@ import java.util.Map;
 public interface Configurator {
 
     /**
-     * 获取配置
+     * 获取string配置
      * @param key key
      * @return val
      */
-    String getConfig(String key);
+    String getString(String key);
+
 
     /**
-     * 获取配置
+     * 获取LONG配置
      * @param key key
-     * @param timeoutMills timeoutMills
      * @return val
      */
-    String getConfig(String key, long timeoutMills);
+    Long getLong(String key);
+
+    /**
+     * 获取LIST类型配置
+     * @param key key
+     * @return val
+     */
+    List<String> getList(String key);
+
+    /**
+     * 获取实体类型配置
+     * @param key key
+     * @return val
+     */
+    <T> T getObject(String key, Class<T> clz);
+
 
     /**
      * 设置配置

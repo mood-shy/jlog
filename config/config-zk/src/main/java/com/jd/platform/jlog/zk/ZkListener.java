@@ -32,7 +32,6 @@ public class ZkListener implements ConfigChangeListener {
     public ZkListener(String path) {
         this.path = path;
         cache = new NodeCache(zkClient, path);
-        LOGGER.info("构造ZkListener:{}",path);
         try {
             cache.start(true);
         } catch (Exception e) {
@@ -43,9 +42,9 @@ public class ZkListener implements ConfigChangeListener {
             if(null!=cache.getCurrentData()){
                 value = new String(cache.getCurrentData().getData());
             }
+            onChangeEvent(null);
             System.out.println("=####======   "+value);
         });
-        System.out.println("=####= SIZE=====   "+cache.getListenable().size());
     }
 
 
@@ -62,19 +61,23 @@ public class ZkListener implements ConfigChangeListener {
 
     @Override
     public void onChangeEvent(ConfigChangeEvent event) {
-        LOGGER.info("ZK数据变更-当前监听器关注的path:{}", path);
-        Properties propsTmp = new Properties(PROPERTIES);
+        LOGGER.info("ZK数据变更-当前监听器关注的path:{} PROPERTIES:{}", path, JSON.toJSONString(PROPERTIES));
+        Properties props = new Properties();
+        props.putAll(PROPERTIES);
         try {
-            LOGGER.info("ZK数据变更,旧Properties:{}", JSON.toJSONString(propsTmp));
+            LOGGER.info("ZK数据变更,旧Properties:{}", JSON.toJSONString(props));
             loadZkData();
             LOGGER.info("ZK数据变更,新Properties:{}", JSON.toJSONString(PROPERTIES));
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Set<String> diffKeys = CollectionUtil.diffKeys(propsTmp, PROPERTIES);
+        Set<String> diffKeys = CollectionUtil.diffKeys(props, PROPERTIES);
         if(!diffKeys.isEmpty()){
             for (String diffKey : diffKeys) {
-                LOGGER.warn("ZK {} 配置变更 key={} 变更事件:{}", path, diffKey, new ConfigChangeEvent(diffKey, propsTmp.get(diffKey).toString(), PROPERTIES.get(diffKey).toString()));
+                LOGGER.warn("ZK {} 配置变更 key={} 变更事件:{}", path, diffKey,
+                        new ConfigChangeEvent(diffKey,
+                                String.valueOf(props.get(diffKey)),
+                                String.valueOf(PROPERTIES.get(diffKey).toString())));
             }
         }
     }

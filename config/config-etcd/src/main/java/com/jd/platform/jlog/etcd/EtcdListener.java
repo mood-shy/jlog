@@ -5,6 +5,7 @@ import com.ibm.etcd.api.Event;
 import com.ibm.etcd.api.KeyValue;
 import com.ibm.etcd.client.EtcdClient;
 import com.ibm.etcd.client.kv.KvClient;
+import com.ibm.etcd.client.kv.WatchUpdate;
 import com.jd.platform.jlog.core.ConfigChangeEvent;
 import com.jd.platform.jlog.core.ConfigChangeListener;
 import com.jd.platform.jlog.core.ConfigChangeType;
@@ -30,19 +31,24 @@ public class EtcdListener implements ConfigChangeListener {
 
     public EtcdListener(String node) {
 
-        iterator = EtcdConfigurator.client.getKvClient().watch(ByteString.copyFromUtf8(node)).start();
-        System.out.println("构造器EtcdListener");
+        iterator = EtcdConfigurator.client.getKvClient().watch(ByteString.copyFromUtf8(node)).asPrefix().start();
+        System.out.println("构造器EtcdListener"+node);
 
         getExecutorService().submit(() -> {
             while (iterator.hasNext()){
-                Event eve = iterator.next().getEvents().get(0);
-                KeyValue kv = eve.getKv();
-                Event.EventType eveType = eve.getType();
-                ConfigChangeType changeType = eveType.equals(Event.EventType.DELETE) ? ConfigChangeType.MODIFY : ConfigChangeType.DELETE;
+                try {
+                    WatchUpdate update = iterator.next();
+                    Event eve = update.getEvents().get(0);
+                    KeyValue kv = eve.getKv();
+                    Event.EventType eveType = eve.getType();
+                    ConfigChangeType changeType = eveType.equals(Event.EventType.DELETE) ? ConfigChangeType.MODIFY : ConfigChangeType.DELETE;
+                    ConfigChangeEvent event = new ConfigChangeEvent();
+                    event.setKey(node).setNewValue(kv.getValue().toStringUtf8()).setChangeType(changeType);
+                    onChangeEvent(event);
+                }catch (RuntimeException e){
+                    e.printStackTrace();
+                }
 
-                ConfigChangeEvent event = new ConfigChangeEvent();
-                event.setKey(node).setNewValue(kv.getValue().toStringUtf8()).setChangeType(changeType);
-                onChangeEvent(event);
             }
         });
     }

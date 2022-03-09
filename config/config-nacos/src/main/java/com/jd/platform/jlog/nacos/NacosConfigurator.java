@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.jd.platform.jlog.common.utils.ConfigUtil.formatConfigStr;
-import static com.jd.platform.jlog.core.Constant.DEFAULT_TIMEOUT;
+import static com.jd.platform.jlog.core.Constant.*;
 import static com.jd.platform.jlog.nacos.NacosConstant.*;
 
 
@@ -77,6 +77,26 @@ public class NacosConfigurator implements Configurator {
         }
     }
 
+
+    @Override
+    public String getString(String key) {
+        return null;
+    }
+
+    @Override
+    public Long getLong(String key) {
+        return null;
+    }
+
+    @Override
+    public List<String> getList(String key) {
+        return null;
+    }
+
+    @Override
+    public <T> T getObject(String key, Class<T> clz) {
+        return null;
+    }
 
     @Override
     public String getConfig(String key) {
@@ -198,9 +218,18 @@ public class NacosConfigurator implements Configurator {
 
     private static Properties getConfigProperties() {
         Properties properties = new Properties();
-        String address = FILE_CONFIG.getConfig(PRO_SERVER_ADDR_KEY);
+        String address = FILE_CONFIG.getConfig(SERVER_ADDR_KEY);
         if (address != null) {
-            properties.setProperty(PRO_SERVER_ADDR_KEY, address);
+            properties.setProperty(SERVER_ADDR_KEY, address);
+        }
+
+        String namespace = FILE_CONFIG.getConfig(NAMESPACE_KEY);
+        if (namespace != null) {
+            properties.setProperty(NAMESPACE_KEY, namespace);
+        }else{
+            if (System.getProperty(NAMESPACE_KEY) != null) {
+                properties.setProperty(NAMESPACE_KEY, System.getProperty(NAMESPACE_KEY));
+            }
         }
         return properties;
     }

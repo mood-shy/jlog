@@ -1,0 +1,23 @@
+serverAddr: http://101.42.242.201:8848
+server:
+  port: 8085
+
+test: true
+
+workers:
+  - 111
+  - 222
+  - 333
+
+tag-config:
+  reqTags:
+    - uid
+    - ip
+    - newK
+  logTags:
+    - errno
+    - node
+  regex: ""
+  delimiter: "|"
+  join: =
+

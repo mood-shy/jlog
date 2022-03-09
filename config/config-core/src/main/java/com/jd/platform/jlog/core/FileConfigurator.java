@@ -28,7 +28,7 @@ public class FileConfigurator implements Configurator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileConfigurator.class);
 
-    private static Properties PROPERTIES = new Properties();
+    private static JcProperties PROPERTIES = new JcProperties();
 
     private static volatile FileListener FILELISTENER = null;
 
@@ -44,18 +44,19 @@ public class FileConfigurator implements Configurator {
         for (String file : CONFIG_FILES) {
             String fileName = StringUtil.isEmpty(env) ? file : file + "_" + env;
             URL url = this.getClass().getResource(file);
-            if(url != null){
-                try (InputStream is = url.openStream()) {
-                    Properties props = new Properties();
-                    if (fileName.contains(YML)) {
-                        props.putAll(new Yaml().loadAs(is, Map.class));
-                    } else {
-                        props.load(is);
-                    }
-                    FILE_MODIFY_MAP.put(fileName, new FileWrapper(new File(url.getFile()).lastModified(), props));
-                    PROPERTIES.putAll(props);
-                    LOGGER.info("{}配置文件配置:{}", file, props.toString());
+            if(url == null){
+                continue;
+            }
+            try (InputStream is = url.openStream()) {
+                JcProperties props = new JcProperties();
+                if (fileName.contains(YML)) {
+                    props.putAll(new Yaml().loadAs(is, Map.class));
+                } else {
+                    props.load(is);
                 }
+                FILE_MODIFY_MAP.put(fileName, new FileWrapper(new File(url.getFile()).lastModified(), props));
+                PROPERTIES.putAll(props);
+                LOGGER.info("{}配置文件配置:{}", file, props.toString());
             }
         }
         LOGGER.info("合并后的配置:{}",PROPERTIES.toString());
@@ -63,20 +64,24 @@ public class FileConfigurator implements Configurator {
 
 
     @Override
-    public String getConfig(String key) {
-        Object val = PROPERTIES.get(key);
-        if(val != null){
-            return String.valueOf(val);
-        }
-        return null;
+    public String getString(String key) {
+        return PROPERTIES.getString(key);
     }
-
 
     @Override
-    public String getConfig(String key, long timeoutMills) {
-       return PROPERTIES.getProperty(key);
+    public Long getLong(String key) {
+        return PROPERTIES.getLong(key);
     }
 
+    @Override
+    public List<String> getList(String key) {
+        return PROPERTIES.getStrList(key);
+    }
+
+    @Override
+    public <T> T getObject(String key, Class<T> clz) {
+        return PROPERTIES.getBean(key, clz);
+    }
     
     @Override
     public boolean putConfig(String key, String content) { return false; }
@@ -106,7 +111,6 @@ public class FileConfigurator implements Configurator {
             return;
         }
         String env = System.getenv(ENV);
-
         for (String file : CONFIG_FILES) {
             file = StringUtil.isEmpty(env) ? file : file + "_" + env;
             if(node.equals(file)){
@@ -171,7 +175,8 @@ public class FileConfigurator implements Configurator {
                 TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(),
                 new DefaultThreadFactory("fileListener", 1));
 
-        FileListener() { }
+        FileListener() {
+        }
 
         synchronized void addListener() {
             FILELISTENER.onProcessEvent(new ConfigChangeEvent());
@@ -202,28 +207,30 @@ public class FileConfigurator implements Configurator {
      * 检测文件最后修改时间 和重载文件
      */
     private void checkAndConfigure(){
+
         AtomicBoolean change = new AtomicBoolean(false);
         Map<String, FileWrapper> newModifyMap = checkAndReload();
+
         FILE_MODIFY_MAP.forEach((k, v)->{
             FileWrapper newFile = newModifyMap.get(k);
             if(newFile != null && newFile.change){
-
                 Set<String> diffKeys = CollectionUtil.diffKeys(newFile.props, v.props);
                 if(!diffKeys.isEmpty()){
                     change.set(true);
-                    v.props = newFile.props;
-
                     for (String diffKey : diffKeys) {
-                        LOGGER.warn("文件 {} 配置变更 key={}变更事件:{}", k, diffKey, new ConfigChangeEvent(diffKey, v.props.get(diffKey).toString(), newFile.props.get(diffKey).toString()));
+                            LOGGER.warn("文件 {} 配置变更 key={}变更事件:{}", k, diffKey, new ConfigChangeEvent(diffKey, String.valueOf(v.props.get(diffKey)), String.valueOf(newFile.props.get(diffKey))));
                     }
+                    v.props = newFile.props;
+                    v.lastModify= newFile.lastModify;
                 }
             }
         });
         if(change.get()){
-            LOGGER.info("变更之前的总配置：{}", JSON.toJSONString(PROPERTIES));
+          //  LOGGER.info("变更之前的总配置：{}", JSON.toJSONString(PROPERTIES));
             PROPERTIES.clear();
             FILE_MODIFY_MAP.forEach((k,v)-> PROPERTIES.putAll(v.props));
             LOGGER.info("变更之后的总配置：{}", JSON.toJSONString(PROPERTIES));
+            TagHandlerBuilder.refresh();
         }
     }
 
@@ -234,8 +241,10 @@ public class FileConfigurator implements Configurator {
     private Map<String, FileWrapper> checkAndReload() {
 
         Map<String, FileWrapper> fileWrapperMap = new ConcurrentHashMap<>(3);
+
         for (String fileName : LISTENED_FILES) {
             URL url = this.getClass().getResource(fileName);
+
             if(url == null){
                 continue;
             }
@@ -246,7 +255,7 @@ public class FileConfigurator implements Configurator {
             if(curLastMod <= cacheLastMod){
                 continue;
             }
-            Properties props = new Properties();
+            JcProperties props = new JcProperties();
             try (InputStream is = url.openStream()) {
                 if (fileName.contains(YML)) {
                     props.putAll(new Yaml().loadAs(is, Map.class));
@@ -269,14 +278,14 @@ public class FileConfigurator implements Configurator {
 
         private boolean change;
 
-        private Properties props;
+        private JcProperties props;
 
-        FileWrapper(long lastModify, Properties props) {
+        FileWrapper(long lastModify, JcProperties props) {
             this.lastModify = lastModify;
             this.change = false;
             this.props = props;
         }
-        FileWrapper(long lastModify, boolean change, Properties props) {
+        FileWrapper(long lastModify, boolean change, JcProperties props) {
             this.lastModify = lastModify;
             this.change = change;
             this.props = props;

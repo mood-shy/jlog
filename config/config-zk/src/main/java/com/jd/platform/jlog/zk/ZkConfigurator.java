@@ -39,10 +39,9 @@ public class ZkConfigurator implements Configurator {
 
 
     public ZkConfigurator() throws Exception {
-        System.out.println("### SERVER_ADDR_KEY ===> "+FILE_CONFIG.getConfig(SERVER_ADDR_KEY));
         if (zkClient == null) {
             synchronized (ZkConfigurator.class) {
-                zkClient = CuratorFrameworkFactory.builder().connectString(FILE_CONFIG.getConfig(SERVER_ADDR_KEY))
+                zkClient = CuratorFrameworkFactory.builder().connectString(FILE_CONFIG.getString(SERVER_ADDR_KEY))
                         // 连接超时时间
                         .sessionTimeoutMs(6000)
                         // 会话超时时间
@@ -65,30 +64,24 @@ public class ZkConfigurator implements Configurator {
 
 
     @Override
-    public String getConfig(String key) {
-        return getConfig(key, DEFAULT_TIMEOUT);
+    public String getString(String key) {
+        return getString(key);
     }
-
 
     @Override
-    public String getConfig(String key, long timeoutMills) {
-        String value = PROPERTIES.getProperty(key);
-        if (value != null) {
-            return value;
-        }
-
-        value = System.getProperty(key);
-        if (value != null) {
-            return value;
-        }
-        try {
-            loadZkData();
-        } catch (Exception e) {
-            return null;
-        }
-        return PROPERTIES.getProperty(key);
+    public Long getLong(String key) {
+        return null;
     }
 
+    @Override
+    public List<String> getList(String key) {
+        return null;
+    }
+
+    @Override
+    public <T> T getObject(String key, Class<T> clz) {
+        return null;
+    }
 
 
     @Override
@@ -140,8 +133,11 @@ public class ZkConfigurator implements Configurator {
             throw new RuntimeException("no support");
         }
         LOGGER.info("ZK添加监听器, node:{}", node);
-        ZKLISTENER = new ZkListener(node);
-        ZKLISTENER.onProcessEvent(new ConfigChangeEvent());
+        if(ZKLISTENER == null){
+            synchronized (ZkConfigurator.class){
+                ZKLISTENER = new ZkListener(node);
+            }
+        }
     }
 
 
@@ -159,7 +155,7 @@ public class ZkConfigurator implements Configurator {
     @Override
     public List<String> getConfigByPrefix(String prefix) {
         try {
-            String val = getConfig(prefix);
+            String val = getString(prefix);
             return FastJsonUtils.toList(val,String.class);
         } catch (Exception e) {
             e.printStackTrace();

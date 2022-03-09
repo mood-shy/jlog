@@ -32,8 +32,8 @@ public class ConfiguratorFactory {
             synchronized (Configurator.class) {
                 if (instance == null) {
                     instance = buildConfiguration();
-                    LOGGER.info("构建总配置器单例完成 instance 获取reqTags结果:{}", instance.getConfig("reqTags"));
-                    LOGGER.info("构建总配置器单例完成 Base 获取serverAddr结果:{}", base.getConfig("serverAddr"));
+                    LOGGER.info("构建总配置器单例完成 instance 获取类型结果:{}", instance.getType());
+                    LOGGER.info("构建总配置器单例完成 Base 获取serverAddr结果:{}", base.getString("serverAddr"));
                 }
             }
         }
@@ -65,6 +65,21 @@ public class ConfiguratorFactory {
         for (ConfiguratorProvider provider : builders) {
             LOGGER.info("配置中心的配置器获取成功, 类型为:{}", provider.build().getType());
             return provider.build();
+        }
+        return base;
+    }
+
+
+
+    private static Configurator refreshBaseConfiguration() {
+
+        synchronized (Configurator.class){
+            try {
+                base = new FileConfigurator();
+            } catch (IOException e) {
+                LOGGER.info("文件配置器构建失败", e);
+                throw new RuntimeException("build file buildConfiguration fail", e);
+            }
         }
         return base;
     }

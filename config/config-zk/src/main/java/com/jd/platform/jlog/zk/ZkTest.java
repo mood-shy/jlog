@@ -3,12 +3,9 @@ package com.jd.platform.jlog.zk;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.NodeCache;
-import org.apache.curator.framework.recipes.cache.NodeCacheListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.jd.platform.jlog.zk.ZkConstant.SERVER_ADDR_KEY;
 
 /**
  * @author tangbohu

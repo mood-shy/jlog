@@ -15,7 +15,7 @@ public class Constant {
     /**
      * 监听重读配置文件间隔 单位ms
      */
-    static final long LISTENER_CONFIG_INTERVAL = 10000;
+    static final long LISTENER_CONFIG_INTERVAL = 3000;
 
     static final String CONFIG_FILE_PROPERTIES = "/application.properties";
 
@@ -34,7 +34,7 @@ public class Constant {
 
     public static final String SERVER_ADDR_KEY = "serverAddr";
 
-
+    public static final String NAMESPACE_KEY = "namespace";
 
     /**
      * 配置文件集合

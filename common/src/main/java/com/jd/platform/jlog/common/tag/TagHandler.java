@@ -12,8 +12,12 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.jd.platform.jlog.common.constant.Constant.EXTRACT_MIN_LEN;
 import static com.jd.platform.jlog.common.constant.Constant.TAG_NORMAL_KEY;
 import static com.jd.platform.jlog.common.constant.Constant.TAG_NORMAL_KEY_MAX_LEN;
+import static com.jd.platform.jlog.common.tag.CollectMode.*;
+import static com.jd.platform.jlog.common.tag.CollectMode.E_LOG;
+import static com.jd.platform.jlog.common.tag.CollectMode.E_REQ;
 import static com.jd.platform.jlog.common.utils.ConfigUtil.RANDOM;
 
 /**
@@ -28,11 +32,7 @@ public class TagHandler {
 
     private Set<String> reqTags;
 
-    private boolean extractReq;
-
     private Set<String> logTags;
-
-    private boolean extractLog;
 
     private String delimiter = "|";
 
@@ -42,22 +42,25 @@ public class TagHandler {
 
     private Pattern pattern;
 
+    private long extract;
+
+    private long compress;
+
     private static volatile TagHandler INSTANCE = null;
 
     /**
      * 构建标签处理器
      * @param tagConfig 配置类
      */
-    public static void build(TagConfig tagConfig) {
+    public static void buildHandler(TagConfig tagConfig) {
 
-        if(!tagConfig.getExtractReq() && !tagConfig.getExtractLog()){
+        if(tagConfig.getExtract() == SUSPEND && tagConfig.getCompress() == SUSPEND ){
             return;
         }
 
         TagHandler handler =  new TagHandler();
-
-        handler.extractReq = tagConfig.getExtractReq();
-        handler.extractLog = tagConfig.getExtractLog();
+        handler.extract = tagConfig.getExtract();
+        handler.compress = tagConfig.getCompress();
         handler.reqTags = new HashSet<>(tagConfig.getReqTags());
         handler.logTags = new HashSet<>(tagConfig.getLogTags());
 
@@ -85,7 +88,9 @@ public class TagHandler {
      */
     public static Map<String, Object> extractReqTag(Map<String, String[]> params, @NotNull Map<String, Object> ext) {
 
-        if(INSTANCE == null || !INSTANCE.extractReq){ return null; }
+        if(INSTANCE == null || !isMatched(INSTANCE.extract, E_REQ)){ return null; }
+
+        System.out.println("### INSTANCE.reqTags:"+JSON.toJSONString(INSTANCE.reqTags));
 
         Map<String, Object> requestMap = new HashMap<>(INSTANCE.reqTags.size());
         for (String tag : INSTANCE.reqTags) {
@@ -99,7 +104,7 @@ public class TagHandler {
                 requestMap.put(tag, params.get(tag)[0]);
             }
         }
-
+        System.out.println("提取到了请求入参日志标签："+JSON.toJSONString(requestMap));
         return requestMap;
     }
 
@@ -110,7 +115,7 @@ public class TagHandler {
      * @return tags
      */
     public static Map<String, Object> extractLogTag(String content) {
-        if(INSTANCE == null || !INSTANCE.extractLog || content.length() < 1){
+        if(INSTANCE == null || !isMatched(INSTANCE.extract, E_LOG) || content.length() < EXTRACT_MIN_LEN){
             return null;
         }
 
@@ -131,6 +136,7 @@ public class TagHandler {
                 }
             }
         }
+        System.out.println("提取到了请求log日志标签："+JSON.toJSONString(tagMap));
         return tagMap;
     }
 
@@ -142,7 +148,7 @@ public class TagHandler {
      */
     public synchronized static void refresh(TagConfig tagConfig) {
         INSTANCE = null;
-        build(tagConfig);
+        buildHandler(tagConfig);
     }
 
 
@@ -154,6 +160,9 @@ public class TagHandler {
                 ", delimiter='" + delimiter + '\'' +
                 ", delimiterLen=" + delimiterLen +
                 ", join='" + join + '\'' +
+                ", pattern=" + pattern +
+                ", extract=" + extract +
+                ", compress=" + compress +
                 '}';
     }
 

@@ -3,6 +3,9 @@ package com.jd.platform.jlog.common.tag;
 import java.io.Serializable;
 import java.util.List;
 
+import static com.jd.platform.jlog.common.tag.CollectMode.COMPRESS_ALL;
+import static com.jd.platform.jlog.common.tag.CollectMode.EXTRACT_ALL;
+
 /**
  * @author tangbohu
  * @version 1.0.0
@@ -37,14 +40,14 @@ public class TagConfig implements Serializable {
     private String join = "=";
 
     /**
-     * 提取入参开关
+     * 提取策略
      */
-    private Boolean extractReq = true;
+    private long extract = EXTRACT_ALL;
 
     /**
-     * 提取普通log开关
+     * 压缩策略
      */
-    private Boolean extractLog = true;
+    private long compress = COMPRESS_ALL;
 
 
     public List<String> getReqTags() {
@@ -87,20 +90,20 @@ public class TagConfig implements Serializable {
         this.join = join;
     }
 
-    public Boolean getExtractReq() {
-        return extractReq;
+    public long getExtract() {
+        return extract;
     }
 
-    public void setExtractReq(Boolean extractReq) {
-        this.extractReq = extractReq;
+    public void setExtract(long extract) {
+        this.extract = extract;
     }
 
-    public Boolean getExtractLog() {
-        return extractLog;
+    public long getCompress() {
+        return compress;
     }
 
-    public void setExtractLog(Boolean extractLog) {
-        this.extractLog = extractLog;
+    public void setCompress(long compress) {
+        this.compress = compress;
     }
 
     public static final class Builder {
@@ -109,8 +112,8 @@ public class TagConfig implements Serializable {
         private String regex;
         private String delimiter;
         private String join;
-        private Boolean extractReq;
-        private Boolean extractLog;
+        private long extract;
+        private long compress;
 
         public Builder() {
         }
@@ -144,13 +147,13 @@ public class TagConfig implements Serializable {
             return this;
         }
 
-        public Builder extractReq(Boolean extractReq) {
-            this.extractReq = extractReq;
+        public Builder extract(long extract) {
+            this.extract = extract;
             return this;
         }
 
-        public Builder extractLog(Boolean extractLog) {
-            this.extractLog = extractLog;
+        public Builder compress(long compress) {
+            this.compress = compress;
             return this;
         }
 
@@ -161,8 +164,8 @@ public class TagConfig implements Serializable {
             tagConfig.setRegex(regex);
             tagConfig.setDelimiter(delimiter);
             tagConfig.setJoin(join);
-            tagConfig.setExtractReq(extractReq);
-            tagConfig.setExtractLog(extractLog);
+            tagConfig.setExtract(extract);
+            tagConfig.setCompress(compress);
             return tagConfig;
         }
     }
@@ -175,8 +178,8 @@ public class TagConfig implements Serializable {
                 ", regex='" + regex + '\'' +
                 ", delimiter='" + delimiter + '\'' +
                 ", join='" + join + '\'' +
-                ", extractReq='" + extractReq + '\'' +
-                ", extractLog='" + extractLog + '\'' +
+                ", extract='" + extract + '\'' +
+                ", compress='" + compress + '\'' +
                 '}';
     }
 }

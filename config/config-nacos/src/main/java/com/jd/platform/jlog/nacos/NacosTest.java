@@ -28,11 +28,11 @@ public class NacosTest {
         NamingService naming = NamingFactory.createNamingService(serverAddr);
         naming.registerInstance("nacos.test1", JLOG_GROUP,"172.22.216.105", 8888, "TEST1");
         Thread.sleep(3000);
-        NacosListener server = new NacosListener(DEFAULT_DATA_ID);
+        NacosListener server = new NacosListener();
         naming.subscribe("nacos.test1", JLOG_GROUP,server);
         String content = configService.getConfig(dataId, group, 2000L);
         System.out.println("content: "+content);
-        NacosListener nL = new NacosListener(DEFAULT_DATA_ID);
+        NacosListener nL = new NacosListener();
         configService.addListener(dataId, group, nL);
 
         System.out.println("新增完成");
