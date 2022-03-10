@@ -1,10 +1,10 @@
-package com.jd.platform.jlog.common.tag;
+package com.jd.platform.jlog.common.handler;
 
 import java.io.Serializable;
 import java.util.List;
 
-import static com.jd.platform.jlog.common.tag.CollectMode.COMPRESS_ALL;
-import static com.jd.platform.jlog.common.tag.CollectMode.EXTRACT_ALL;
+import static com.jd.platform.jlog.common.handler.CollectMode.COMPRESS_ALL;
+import static com.jd.platform.jlog.common.handler.CollectMode.EXTRACT_ALL;
 
 /**
  * @author tangbohu
@@ -23,6 +23,11 @@ public class TagConfig implements Serializable {
      * 普通日志的tag
      */
     private List<String> logTags;
+
+    /**
+     * 返参的tag
+     */
+    private List<String> respTags;
 
     /**
      * 自定义正则 可为空
@@ -66,6 +71,14 @@ public class TagConfig implements Serializable {
         this.logTags = logTags;
     }
 
+    public List<String> getRespTags() {
+        return respTags;
+    }
+
+    public void setRespTags(List<String> respTags) {
+        this.respTags = respTags;
+    }
+
     public String getRegex() {
         return regex;
     }
@@ -106,75 +119,13 @@ public class TagConfig implements Serializable {
         this.compress = compress;
     }
 
-    public static final class Builder {
-        private List<String> reqTags;
-        private List<String> logTags;
-        private String regex;
-        private String delimiter;
-        private String join;
-        private long extract;
-        private long compress;
-
-        public Builder() {
-        }
-
-        public static Builder aTagConfig() {
-            return new Builder();
-        }
-
-        public Builder reqTags(List<String> reqTags) {
-            this.reqTags = reqTags;
-            return this;
-        }
-
-        public Builder logTags(List<String> logTags) {
-            this.logTags = logTags;
-            return this;
-        }
-
-        public Builder regex(String regex) {
-            this.regex = regex;
-            return this;
-        }
-
-        public Builder delimiter(String delimiter) {
-            this.delimiter = delimiter;
-            return this;
-        }
-
-        public Builder join(String join) {
-            this.join = join;
-            return this;
-        }
-
-        public Builder extract(long extract) {
-            this.extract = extract;
-            return this;
-        }
-
-        public Builder compress(long compress) {
-            this.compress = compress;
-            return this;
-        }
-
-        public TagConfig build() {
-            TagConfig tagConfig = new TagConfig();
-            tagConfig.setReqTags(reqTags);
-            tagConfig.setLogTags(logTags);
-            tagConfig.setRegex(regex);
-            tagConfig.setDelimiter(delimiter);
-            tagConfig.setJoin(join);
-            tagConfig.setExtract(extract);
-            tagConfig.setCompress(compress);
-            return tagConfig;
-        }
-    }
 
     @Override
     public String toString() {
         return "TagConfig{" +
                 "reqTags=" + reqTags +
                 ", logTags=" + logTags +
+                ", respTags=" + respTags +
                 ", regex='" + regex + '\'' +
                 ", delimiter='" + delimiter + '\'' +
                 ", join='" + join + '\'' +

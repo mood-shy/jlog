@@ -1,4 +1,4 @@
-package com.jd.platform.jlog.common.tag;
+package com.jd.platform.jlog.common.handler;
 
 import java.lang.annotation.*;
 

@@ -4,12 +4,11 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.ThrowableProxy;
 import ch.qos.logback.core.AppenderBase;
-import com.alibaba.fastjson.JSON;
 import com.jd.platform.jlog.client.log.LogExceptionStackTrace;
 import com.jd.platform.jlog.client.tracerholder.TracerHolder;
 import com.jd.platform.jlog.client.udp.UdpSender;
 import com.jd.platform.jlog.common.model.RunLogMessage;
-import com.jd.platform.jlog.common.tag.TagHandler;
+import com.jd.platform.jlog.common.handler.TagHandler;
 import org.slf4j.helpers.MessageFormatter;
 
 import java.util.Map;

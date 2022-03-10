@@ -4,7 +4,7 @@ package com.jd.platform.jlog.client;
 import com.alibaba.fastjson.JSON;
 import com.jd.platform.jlog.client.mdc.Mdc;
 import com.jd.platform.jlog.client.task.Monitor;
-import com.jd.platform.jlog.common.tag.TagConfig;
+import com.jd.platform.jlog.common.handler.TagConfig;
 import com.jd.platform.jlog.core.Configurator;
 import com.jd.platform.jlog.core.ConfiguratorFactory;
 import com.jd.platform.jlog.core.TagHandlerBuilder;

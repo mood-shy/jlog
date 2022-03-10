@@ -5,7 +5,7 @@ import com.jd.platform.jlog.client.percent.DefaultTracerPercentImpl;
 import com.jd.platform.jlog.client.percent.ITracerPercent;
 import com.jd.platform.jlog.client.tracerholder.TracerHolder;
 import com.jd.platform.jlog.client.udp.UdpSender;
-import com.jd.platform.jlog.common.tag.TagHandler;
+import com.jd.platform.jlog.common.handler.TagHandler;
 import com.jd.platform.jlog.common.model.TracerBean;
 import com.jd.platform.jlog.common.utils.IdWorker;
 import com.jd.platform.jlog.common.utils.IpUtils;

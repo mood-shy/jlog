@@ -1,14 +1,12 @@
 package com.jd.platform.jlog.clientdemo.web;
 
 
-import com.jd.platform.jlog.clientdemo.config.DemoConfig;
 import com.jd.platform.jlog.common.model.TracerBean;
-import com.jd.platform.jlog.common.tag.TagConfig;
+import com.jd.platform.jlog.common.handler.TagConfig;
 import com.jd.platform.jlog.core.Configurator;
 import com.jd.platform.jlog.core.ConfiguratorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;

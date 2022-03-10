@@ -2,7 +2,7 @@ package com.jd.platform.jlog.clientdemo.config;
 
 import com.jd.platform.jlog.client.TracerClientStarter;
 import com.jd.platform.jlog.client.filter.HttpFilter;
-import com.jd.platform.jlog.common.tag.TagConfig;
+import com.jd.platform.jlog.common.handler.TagConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;

@@ -1,4 +1,4 @@
-package com.jd.platform.jlog.common.tag;
+package com.jd.platform.jlog.common.handler;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.platform.jlog.common.utils.CollectionUtil;
@@ -15,9 +15,9 @@ import java.util.regex.Pattern;
 import static com.jd.platform.jlog.common.constant.Constant.EXTRACT_MIN_LEN;
 import static com.jd.platform.jlog.common.constant.Constant.TAG_NORMAL_KEY;
 import static com.jd.platform.jlog.common.constant.Constant.TAG_NORMAL_KEY_MAX_LEN;
-import static com.jd.platform.jlog.common.tag.CollectMode.*;
-import static com.jd.platform.jlog.common.tag.CollectMode.E_LOG;
-import static com.jd.platform.jlog.common.tag.CollectMode.E_REQ;
+import static com.jd.platform.jlog.common.handler.CollectMode.*;
+import static com.jd.platform.jlog.common.handler.CollectMode.E_LOG;
+import static com.jd.platform.jlog.common.handler.CollectMode.E_REQ;
 import static com.jd.platform.jlog.common.utils.ConfigUtil.RANDOM;
 
 /**
@@ -34,6 +34,8 @@ public class TagHandler {
 
     private Set<String> logTags;
 
+    private Set<String> respTags;
+
     private String delimiter = "|";
 
     private int delimiterLen = delimiter.length();
@@ -43,8 +45,6 @@ public class TagHandler {
     private Pattern pattern;
 
     private long extract;
-
-    private long compress;
 
     private static volatile TagHandler INSTANCE = null;
 
@@ -60,9 +60,9 @@ public class TagHandler {
 
         TagHandler handler =  new TagHandler();
         handler.extract = tagConfig.getExtract();
-        handler.compress = tagConfig.getCompress();
         handler.reqTags = new HashSet<>(tagConfig.getReqTags());
         handler.logTags = new HashSet<>(tagConfig.getLogTags());
+        handler.respTags = new HashSet<>(tagConfig.getRespTags());
 
         String regex = tagConfig.getRegex();
         if(StringUtil.isNotEmpty(regex)){
@@ -110,7 +110,7 @@ public class TagHandler {
 
 
     /**
-     * 提取普通日志中的标签
+     * 提取普通log里标签
      * @param content 内容
      * @return tags
      */
@@ -141,6 +141,30 @@ public class TagHandler {
     }
 
 
+    /**
+     * 提取返回结果的tag
+     * @param resp 参数
+     * @return map
+     */
+    public static Map<String, Object> extractRespTag(Map<String, Object> resp) {
+
+        if(INSTANCE == null || !isMatched(INSTANCE.extract, E_REQ)){ return null; }
+
+        System.out.println("### INSTANCE.reqTags:"+JSON.toJSONString(INSTANCE.reqTags));
+
+        Map<String, Object> requestMap = new HashMap<>(INSTANCE.reqTags.size());
+        for (String tag : INSTANCE.reqTags) {
+            Object val = resp.get(tag);
+            if(val != null){
+                requestMap.put(tag, val);
+            }
+        }
+        System.out.println("提取到了请求入参日志标签："+JSON.toJSONString(requestMap));
+        return requestMap;
+    }
+
+
+
 
     /**
      * 刷新标签处理器 加锁是为了防止极端情况下, 先到的config1覆盖后到的config2
@@ -162,7 +186,6 @@ public class TagHandler {
                 ", join='" + join + '\'' +
                 ", pattern=" + pattern +
                 ", extract=" + extract +
-                ", compress=" + compress +
                 '}';
     }
 

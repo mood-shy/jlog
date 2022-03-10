@@ -1,7 +1,7 @@
 package com.jd.platform.jlog.core;
 
-import com.jd.platform.jlog.common.tag.TagConfig;
-import com.jd.platform.jlog.common.tag.TagHandler;
+import com.jd.platform.jlog.common.handler.TagConfig;
+import com.jd.platform.jlog.common.handler.TagHandler;
 
 /**
  * @author tangbohu
@@ -34,6 +34,6 @@ public class TagHandlerBuilder {
 
 
     private static TagConfig buildTagConfigByConfigurator(Configurator configurator){
-        return configurator.getObject("tag-config", TagConfig.class);
+        return configurator.getObject("handler-config", TagConfig.class);
     }
 }

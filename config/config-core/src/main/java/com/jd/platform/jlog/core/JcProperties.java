@@ -5,12 +5,7 @@ import com.jd.platform.jlog.common.utils.ConfigUtil;
 import com.jd.platform.jlog.common.utils.FastJsonUtils;
 import com.jd.platform.jlog.common.utils.StringUtil;
 
-import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -30,11 +25,11 @@ public class JcProperties extends Properties {
     }
 
     public String getString(String key) {
-        Object val = super.get(key);
+        Object val = get(key);
         if(val == null){
             return null;
         }
-        return String.valueOf(super.get(key));
+        return String.valueOf(val);
     }
 
     public Long getLong(String key) {
