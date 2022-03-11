@@ -230,7 +230,7 @@ public class FileConfigurator implements Configurator {
             PROPERTIES.clear();
             FILE_MODIFY_MAP.forEach((k,v)-> PROPERTIES.putAll(v.props));
             LOGGER.info("变更之后的总配置：{}", JSON.toJSONString(PROPERTIES));
-            TagHandlerBuilder.refresh();
+         //   TagHandlerBuilder.refresh();
         }
     }
 

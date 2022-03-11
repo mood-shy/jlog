@@ -46,15 +46,15 @@ public class TagHandler {
 
     private long extract;
 
-    private static volatile TagHandler INSTANCE = null;
+    private static volatile TagHandler instance = null;
 
     /**
      * 构建标签处理器
      * @param tagConfig 配置类
      */
-    public static void buildHandler(TagConfig tagConfig) {
+    public static void buildTagHandler(TagConfig tagConfig) {
 
-        if(tagConfig.getExtract() == SUSPEND && tagConfig.getCompress() == SUSPEND ){
+        if(tagConfig.getExtract() == SUSPEND){
             return;
         }
 
@@ -75,8 +75,8 @@ public class TagHandler {
         handler.delimiter = tagConfig.getDelimiter();
         handler.delimiterLen = tagConfig.getDelimiter().length();
         handler.join = tagConfig.getJoin();
-        INSTANCE = handler;
-        LOGGER.info("构建标签处理器单例完成:{}",INSTANCE.toString());
+        instance = handler;
+        LOGGER.info("构建标签处理器单例完成:{}",instance.toString());
     }
 
 
@@ -88,12 +88,12 @@ public class TagHandler {
      */
     public static Map<String, Object> extractReqTag(Map<String, String[]> params, @NotNull Map<String, Object> ext) {
 
-        if(INSTANCE == null || !isMatched(INSTANCE.extract, E_REQ)){ return null; }
+        if(instance == null || !isMatched(instance.extract, E_REQ)){ return null; }
 
-        System.out.println("### INSTANCE.reqTags:"+JSON.toJSONString(INSTANCE.reqTags));
+        System.out.println("### INSTANCE.reqTags:"+JSON.toJSONString(instance.reqTags));
 
-        Map<String, Object> requestMap = new HashMap<>(INSTANCE.reqTags.size());
-        for (String tag : INSTANCE.reqTags) {
+        Map<String, Object> requestMap = new HashMap<>(instance.reqTags.size());
+        for (String tag : instance.reqTags) {
             Object val = ext.get(tag);
             if(val != null){
                 requestMap.put(tag, val);
@@ -115,17 +115,17 @@ public class TagHandler {
      * @return tags
      */
     public static Map<String, Object> extractLogTag(String content) {
-        if(INSTANCE == null || !isMatched(INSTANCE.extract, E_LOG) || content.length() < EXTRACT_MIN_LEN){
+        if(instance == null || !isMatched(instance.extract, E_LOG) || content.length() < EXTRACT_MIN_LEN){
             return null;
         }
 
         Map<String,Object> tagMap = new HashMap<>(3);
-        Matcher m = INSTANCE.pattern.matcher(content);
+        Matcher m = instance.pattern.matcher(content);
         while (m.find()) {
-            String str = m.group().substring(INSTANCE.delimiterLen, m.group().length() - INSTANCE.delimiterLen);
-            if(str.contains(INSTANCE.join)){
-                String[] arr = str.split(INSTANCE.join);
-                if(INSTANCE.logTags.contains(arr[0])){
+            String str = m.group().substring(instance.delimiterLen, m.group().length() - instance.delimiterLen);
+            if(str.contains(instance.join)){
+                String[] arr = str.split(instance.join);
+                if(instance.logTags.contains(arr[0])){
                     tagMap.put(arr[0], arr[1]);
                 }
             }else if(str.length() < TAG_NORMAL_KEY_MAX_LEN){
@@ -148,12 +148,12 @@ public class TagHandler {
      */
     public static Map<String, Object> extractRespTag(Map<String, Object> resp) {
 
-        if(INSTANCE == null || !isMatched(INSTANCE.extract, E_REQ)){ return null; }
+        if(instance == null || !isMatched(instance.extract, E_REQ)){ return null; }
 
-        System.out.println("### INSTANCE.reqTags:"+JSON.toJSONString(INSTANCE.reqTags));
+        System.out.println("### INSTANCE.reqTags:"+JSON.toJSONString(instance.reqTags));
 
-        Map<String, Object> requestMap = new HashMap<>(INSTANCE.reqTags.size());
-        for (String tag : INSTANCE.reqTags) {
+        Map<String, Object> requestMap = new HashMap<>(instance.reqTags.size());
+        for (String tag : instance.reqTags) {
             Object val = resp.get(tag);
             if(val != null){
                 requestMap.put(tag, val);
@@ -171,8 +171,8 @@ public class TagHandler {
      * @param tagConfig 新的配置
      */
     public synchronized static void refresh(TagConfig tagConfig) {
-        INSTANCE = null;
-        buildHandler(tagConfig);
+        instance = null;
+        buildTagHandler(tagConfig);
     }
 
 

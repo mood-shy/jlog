@@ -49,10 +49,6 @@ public class TagConfig implements Serializable {
      */
     private long extract = EXTRACT_ALL;
 
-    /**
-     * 压缩策略
-     */
-    private long compress = COMPRESS_ALL;
 
 
     public List<String> getReqTags() {
@@ -111,14 +107,6 @@ public class TagConfig implements Serializable {
         this.extract = extract;
     }
 
-    public long getCompress() {
-        return compress;
-    }
-
-    public void setCompress(long compress) {
-        this.compress = compress;
-    }
-
 
     @Override
     public String toString() {
@@ -130,7 +118,6 @@ public class TagConfig implements Serializable {
                 ", delimiter='" + delimiter + '\'' +
                 ", join='" + join + '\'' +
                 ", extract='" + extract + '\'' +
-                ", compress='" + compress + '\'' +
                 '}';
     }
 }

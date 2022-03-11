@@ -5,6 +5,7 @@ import com.jd.platform.jlog.client.percent.DefaultTracerPercentImpl;
 import com.jd.platform.jlog.client.percent.ITracerPercent;
 import com.jd.platform.jlog.client.tracerholder.TracerHolder;
 import com.jd.platform.jlog.client.udp.UdpSender;
+import com.jd.platform.jlog.common.handler.CompressHandler;
 import com.jd.platform.jlog.common.handler.TagHandler;
 import com.jd.platform.jlog.common.model.TracerBean;
 import com.jd.platform.jlog.common.utils.IdWorker;
@@ -128,12 +129,8 @@ public class HttpFilter implements Filter {
         filterChain.doFilter(servletRequest, mResp);
         byte[] contentBytes = mResp.getContent();
         String content = new String(contentBytes);
-        //最终的要发往worker的response，经历了base64压缩
-        byte[] bytes = ZstdUtils.compress(contentBytes);
-        byte[] base64Bytes = Base64.getEncoder().encode(bytes);
-
         Map<String, Object> responseMap = new HashMap<>(8);
-        responseMap.put("response", base64Bytes);
+        responseMap.put("response", CompressHandler.compressResp(contentBytes));
         tracerObject.add(responseMap);
 
         //此处可以对content做处理,然后再把content写回到输出流中

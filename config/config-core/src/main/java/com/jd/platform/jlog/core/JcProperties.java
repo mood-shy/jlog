@@ -91,7 +91,7 @@ public class JcProperties extends Properties {
                     field.setShort(model, Short.valueOf(properties.getString(fillName)));
                     break;
                 case "int":
-                    field.setInt(model, properties.getLong(fillName).intValue()) ;
+                    field.setInt(model, Integer.parseInt(properties.getString(fillName))) ;
                     break;
                 case "long":
                     field.setLong(model, properties.getLong(fillName));

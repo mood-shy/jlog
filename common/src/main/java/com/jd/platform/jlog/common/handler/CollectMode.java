@@ -83,9 +83,9 @@ public class CollectMode {
     public static final long COMPRESS_REQ_REQP = C_REQ | C_RESP;
 
     /**
-     * 压缩req+resp
+     * 压缩log+resp
      */
-    public static final long COMPRESS_REQ_C_RESP = C_REQ | C_RESP;
+    public static final long COMPRESS_LOG_RESP = C_REQ | C_RESP;
 
     /**
      * 压缩req+log+resp

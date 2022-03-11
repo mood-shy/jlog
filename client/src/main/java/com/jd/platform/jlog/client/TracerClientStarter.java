@@ -7,7 +7,7 @@ import com.jd.platform.jlog.client.task.Monitor;
 import com.jd.platform.jlog.common.handler.TagConfig;
 import com.jd.platform.jlog.core.Configurator;
 import com.jd.platform.jlog.core.ConfiguratorFactory;
-import com.jd.platform.jlog.core.TagHandlerBuilder;
+import com.jd.platform.jlog.core.HandlerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,7 +105,7 @@ public class TracerClientStarter {
     private void initJLogConfig(){
         LOGGER.info("从主配置获取的tagConfig:{}", JSON.toJSONString(tagConfig));
         Configurator configurator = ConfiguratorFactory.getInstance();
-        TagHandlerBuilder.buildTagHandler(tagConfig, configurator);
+        HandlerBuilder.buildHandler(tagConfig, configurator);
         configurator.addConfigListener("/application.properties");
       //  configurator.addConfigListener("/application.yml");
 

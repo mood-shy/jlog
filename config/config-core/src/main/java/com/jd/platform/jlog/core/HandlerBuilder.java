@@ -1,5 +1,6 @@
 package com.jd.platform.jlog.core;
 
+import com.jd.platform.jlog.common.handler.CompressHandler;
 import com.jd.platform.jlog.common.handler.TagConfig;
 import com.jd.platform.jlog.common.handler.TagHandler;
 
@@ -10,15 +11,16 @@ import com.jd.platform.jlog.common.handler.TagHandler;
  * @Description TODO
  * @createTime 2022年03月05日 22:07:00
  */
-public class TagHandlerBuilder {
+public class HandlerBuilder {
 
 
 
-    public static void buildTagHandler(TagConfig tagConfig, Configurator configurator){
+    public static void buildHandler(TagConfig tagConfig, Configurator configurator){
         if(tagConfig == null){
             tagConfig = buildTagConfigByConfigurator(configurator);
         }
-        TagHandler.buildHandler(tagConfig);
+        TagHandler.buildTagHandler(tagConfig);
+        CompressHandler.buildCompressHandler(configurator.getLong("compress"));
     }
 
 
