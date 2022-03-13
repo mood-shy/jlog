@@ -16,6 +16,7 @@
 package com.jd.platform.jlog.core;
 
 
+import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,7 @@ public interface ConfigChangeListener {
 
 
     ExecutorService EXECUTOR_SERVICE = new ThreadPoolExecutor(1, 1,
-        Integer.MAX_VALUE, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), Executors.defaultThreadFactory());
+            Integer.MAX_VALUE, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new DefaultThreadFactory("configListener", 1));
 
 
     /**

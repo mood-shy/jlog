@@ -30,11 +30,11 @@ public class TagHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TagHandler.class);
 
-    private Set<String> reqTags;
+    private List<String> reqTags;
 
-    private Set<String> logTags;
+    private List<String> logTags;
 
-    private Set<String> respTags;
+    private List<String> respTags;
 
     private String delimiter = "|";
 
@@ -60,12 +60,12 @@ public class TagHandler {
 
         TagHandler handler =  new TagHandler();
         handler.extract = tagConfig.getExtract();
-        handler.reqTags = new HashSet<>(tagConfig.getReqTags());
-        handler.logTags = new HashSet<>(tagConfig.getLogTags());
-        handler.respTags = new HashSet<>(tagConfig.getRespTags());
+        handler.reqTags = tagConfig.getReqTags();
+        handler.logTags = tagConfig.getLogTags();
+        handler.respTags = tagConfig.getRespTags();
 
         String regex = tagConfig.getRegex();
-        if(StringUtil.isNotEmpty(regex)){
+        if(StringUtil.isNotBlank(regex)){
             handler.pattern = Pattern.compile(regex);
         }else{
             String escapeDelimiter = ConfigUtil.escapeExprSpecialWord(tagConfig.getDelimiter());
@@ -76,6 +76,7 @@ public class TagHandler {
         handler.delimiterLen = tagConfig.getDelimiter().length();
         handler.join = tagConfig.getJoin();
         instance = handler;
+        System.out.println("### instance == > "+instance.toString());
         LOGGER.info("构建标签处理器单例完成:{}",instance.toString());
     }
 
@@ -91,6 +92,8 @@ public class TagHandler {
         if(instance == null || !isMatched(instance.extract, E_REQ)){ return null; }
 
         System.out.println("### INSTANCE.reqTags:"+JSON.toJSONString(instance.reqTags));
+        System.out.println("### .params:"+JSON.toJSONString(params));
+        System.out.println("### .ext:"+JSON.toJSONString(ext));
 
         Map<String, Object> requestMap = new HashMap<>(instance.reqTags.size());
         for (String tag : instance.reqTags) {
@@ -118,6 +121,8 @@ public class TagHandler {
         if(instance == null || !isMatched(instance.extract, E_LOG) || content.length() < EXTRACT_MIN_LEN){
             return null;
         }
+        System.out.println("### INSTANCE:"+instance.toString());
+        System.out.println("### .content:"+content);
 
         Map<String,Object> tagMap = new HashMap<>(3);
         Matcher m = instance.pattern.matcher(content);
@@ -192,8 +197,15 @@ public class TagHandler {
     // static Pattern BRACKET_PATTERN = Pattern.compile("(\\|[\\w\\W]*?\\|)");
     public static List<String> extractTest(String content) {
 
+        TagConfig cfg = new TagConfig();
+        cfg.setDelimiter("|");
+        cfg.setJoin("=");
+
+        buildTagHandler(cfg);
+
         List<String> list = new ArrayList<>();
-        Matcher m = BRACKET_PATTERN.matcher(content);
+      //  Matcher m = BRACKET_PATTERN.matcher(content);
+        Matcher m = instance.pattern.matcher(content);
         while (m.find()) {
             list.add(m.group().substring(1, m.group().length() - 1));
             //   list.add(m.group().substring(2, m.group().length() - 2));
@@ -207,16 +219,21 @@ public class TagHandler {
    // static Pattern BRACKET_PATTERN = Pattern.compile("(\\|\\|[\\w\\W]*?\\|\\|)");
     static Pattern BRACKET_PATTERN = Pattern.compile("(\\|[\\w\\W]*?\\|)");
 
-    static String str1 = "||a=1||b=2||qwewe";
+    static String str1 = "|errno=val3||node=val4||这是随便的log|";
     static String str2 = "||a=1||b=2||qwewe||";
     static String str3 = "||a=1||eee||b=2";
     static String str4 = "||a=1||eee||b=2||";
 
 
     public static void main(String[] args) {
+
+
+        //### INSTANCE:TagHandler{reqTags=[uid, url], logTags=[node, bizType],
+        // delimiter='|', delimiterLen=1, join='"="', pattern="", extract=41}
+        //### .content:|errno=val3||node=val4||这是随便的log|
        System.out.println("msgByRegular1==> "+JSON.toJSONString(extractTest(str1)));
-        System.out.println("msgByRegular2==> "+JSON.toJSONString(extractTest(str2)));
+      /*  System.out.println("msgByRegular2==> "+JSON.toJSONString(extractTest(str2)));
         System.out.println("msgByRegular3==> "+JSON.toJSONString(extractTest(str3)));
-        System.out.println("msgByRegular4==> "+JSON.toJSONString(extractTest(str4)));
+        System.out.println("msgByRegular4==> "+JSON.toJSONString(extractTest(str4)));*/
     }
 }

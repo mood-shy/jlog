@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.jd.platform.jlog.core.ConfigChangeListener.EXECUTOR_SERVICE;
 import static com.jd.platform.jlog.core.Constant.*;
 
 
@@ -136,9 +137,9 @@ public class FileConfigurator implements Configurator {
             LOGGER.info("没有要监听的key了 关闭线程池");
             FILELISTENER.onShutDown();
             try {
-                if(!FILELISTENER.executor.awaitTermination(AWAIT_TIME, TimeUnit.MILLISECONDS)){
+                if(!EXECUTOR_SERVICE.awaitTermination(AWAIT_TIME, TimeUnit.MILLISECONDS)){
                     // 超时的时候向线程池中所有的线程发出中断(interrupted)。
-                    FILELISTENER.executor.shutdownNow();
+                    EXECUTOR_SERVICE.shutdownNow();
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -151,13 +152,7 @@ public class FileConfigurator implements Configurator {
 
     @Override
     public List<String> getConfigByPrefix(String prefix) {
-
-        Object val = PROPERTIES.get(prefix);
-
-        if(val != null){
-            return FastJsonUtils.toList(String.valueOf(val), String.class);
-        }
-        return null;
+        return PROPERTIES.getStrList(prefix);
     }
 
 
@@ -170,10 +165,6 @@ public class FileConfigurator implements Configurator {
     
 
     class FileListener implements ConfigChangeListener {
-
-        private final ExecutorService executor = new ThreadPoolExecutor(1, 1, 0L,
-                TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(),
-                new DefaultThreadFactory("fileListener", 1));
 
         FileListener() {
         }
@@ -191,12 +182,6 @@ public class FileConfigurator implements Configurator {
                 } catch (InterruptedException ignored) {
                 }
             }
-        }
-
-
-        @Override
-        public ExecutorService getExecutorService() {
-            return executor;
         }
     }
 

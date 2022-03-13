@@ -2,10 +2,12 @@ package com.jd.platform.jlog.core;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.platform.jlog.common.handler.CollectMode;
+import com.jd.platform.jlog.common.handler.TagConfig;
 import com.jd.platform.jlog.common.utils.ZstdUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Base64;
 
 /**
@@ -21,6 +23,20 @@ public final class FileNode {
     private long lastModity;
 
     public static void main(String[] args) throws IOException {
+
+        String a = "汉字";
+        System.out.println("a byte length："+a.getBytes().length);
+
+        byte[] bt1 = ZstdUtils.compress(a.getBytes());
+        String ckStr = new String(bt1);
+        String newStr1 = ZstdUtils.decompress(bt1);
+        System.out.println("老 字符串 bt："+ Arrays.toString(a.getBytes()));
+        System.out.println("新 字符串 bt："+ Arrays.toString(ckStr.getBytes()));
+
+
+        System.out.println("新字符串："+newStr1);
+        System.out.println("新字符串的byte长度："+newStr1.getBytes().length);
+
         String str = "这是实打实分身乏术的故事大哥大哥大哥算法算法发生大发DVD放v都是这是实打实分身乏术的故事大哥大哥大哥算法算法发生大发DVD放v都是这是实打实分身乏术的故事大哥大哥大哥算法算法发生大发DVD放v都是这是实打实分身乏术的故事大哥大哥大哥算法算法发生大发DVD放v都是这是实打实分身乏术的故事大哥大哥大哥算法算法发生大发DVD放v都是这是实打实分身乏术的故事大哥大哥大哥算法算法发生大发DVD放v都是这是实打实分身乏术的故事大哥大哥大哥算法算法发生大发DVD放v都是这是实打实分身乏术的故事大哥大哥大哥算法算法发生大发DVD放v都是这是实打实分身乏术的故事大哥大哥大哥算法算法发生大发DVD放v都是这是实打实分身乏术的故事大哥大哥大哥算法算法发生大发DVD放v都是这是实打实分身乏术的故事大哥大哥大哥算法算法发生大发DVD放v都是这是实打实分身乏术的故事大哥大哥大哥算法算法发生大发DVD放v都是"+"{\"@level\":\"info\",\"@message\":\"response json: \",\"@module\":\"testing-platform.cfeature_plugin\",\"@timestamp\":\"2022-03-10T19:37:55.181928+08:00\",这是实打实分身乏术的故事大哥大哥大哥算法算法发生大发DVD放v都是这是实打实分身乏术的故事大哥大哥大哥算法算法发生大发DVD放v都是这是实打实分身乏术的故事大哥大哥大哥算法算法发生大发DVD放v都是" +
                 "\"EXTRA_VALUE_AT_END\":{\"data\":{\"accountAddr\":\"bg\",\"accountArea\":\"\",\"accountBank\":\"012\",\"accountBankBranch\":\"\",\"accountBankBranchNo\":\"\",\"accountBankName\":\"BBVA BANCOMER SA\",\"accountBranch\":\"\",\"accountCardDigit\":\"\",\"accountCardType\":null,\"accountCardno\":\"012420015684144165\",\"accountCity\":\"\",\"accountCompany\":\"\",\"accountFirstName\":\"\",\"accountGrantPhoto\":{\"keys\":[\"do1_tQxmThhy446Wf8JLHK5E\"],\"urls\":[\"http://img1.didiglobal.com/static/sailing_private_b/do1_tQxmThhy446Wf8JLHK5E?expire=1647517074\\u0026signiture=iTo-tiI21Ysdn7n7Y6y2YGs36avRi0cfLUpRl0rlE-g=\"]},\"accountHolder\":\"test_accountHolder\",\"accountHolderId\":\"\",\"accountLastName\":null,\"accountType\":0,\"addr\":\"test_addr\",\"addrAlph\":\"\",\"applyId\":\"5764607808352618589\",\"applyStatus\":0,\"applyType\":1,\"areaName\":\"Area0\",\"arrBusinessAttr\":[\"140\"],\"arrTags\":[],\"authorizationInfo\":{\"payment\":{\"authorizedPics\":null," +
                 "\"extraFiles\":null,\"pics\":null},\"sign\":{\"authorizedPics\":null,\"extraFiles\":null,\"pics\":null}},\"autoSwitch\":\"0\",\"avgPrice\":{\"max\":0,\"min\":0},\"avgProduceTime\":600,\"bLicenseAddr\":\"\",\"bLicenseBrand\":\"\",\"bLicenseExpireFlag\":61,\"bLicenseExpireTime\":\"1970-01-01 08:00:00\",\"bLicenseId\":\"\",\"bLicenseLpName\":\"\",\"bLicensePic\":\"\",\"bLicensePicUrl\":\"\",\"bLicenseStartTime\":\"1970-01-01 08:00:00\",\"bLicenseStatus\":\"3\",\"bLicenseValidType\":0,\"bankAgentDigit\":\"\",\"bankAgentno\":\"\",\"bdName\":\"sim_data_01(simdata01_test_v)\",\"bdPhone\":\"\",\"bizDayTime\":null,\"bizDayTimeNonAffiliate\":\"\",\"bizStatus\":1,\"bizTime\":\"{\\\"day\\\":[1,1,1,1,1,1,1],\\\"time\\\":[{\\\"begin\\\":\\\"10:00\\\",\\\"end\\\":\\\"18:00\\\"}]}\",\"bizoppDocInfo\":{\"city\":{\"files\":null,\"licensePics\":null},\"corp\":{\"files\":null,\"licensePics\":null},\"health\":{\"files\":null,\"licensePics\":null},\"land\":{\"files\":null,\"" +
@@ -32,12 +48,21 @@ public final class FileNode {
                 "\"type\":0},{\"button\":\"已通过\",\"text\":\"营业时间段\",\"type\":1},{\"button\":\"已添加\",\"text\":\"门店主营品类\",\"type\":1},{\"button\":\"已添加\",\"text\":\"出餐时长\",\"type\":1}],\"openCheckNonAffiliate\":null,\"orderConfirmMethod\":\"0\",\"padInfo\":{\"isNeedPad\":0,\"isPadOnlineSign\":1},\"padStatus\":0,\"payVerifyReason\":\"\",\"payVerifyStatus\":0,\"permAddr\":\"\",\"permNo\":\"\",\"phone\":\"164501155695\",\"poi\":\"ChIJOdOau5VB6oYR-LfkU_bfr_g\",\"poiId\":\"ChIJOdOau5VB6oYR-LfkU_bfr_g\",\"poiName\":\"Arcos de Terragona 16934, Villa del Nte, 31137 Chihuahua, Chih., México\",\"postCode\":\"\",\"produceTimeMax\":\"0\",\"rank\":5,\"repeatShopId\":\"\",\"reprePhone\":\"\",\"riderAreaName\":\"\",\"riderClusterId\":52080200,\"score\":0,\"secondCategory\":\"\",\"selectCityId\":52080200,\"settledStatus\":0,\"settledTags\":0,\"shopId\":\"5764607747732277132\",\"shopLayerLevel\":\"\",\"shopLevel\":\"\",\"shopOnlineStatus\":3,\"shopOnlineStatusDesc\":\"需手工开启营业\"," +
                 "\"shopOnlineStatusMsg\":\"歇业中\",\"shopPhone\":\"\",\"shopPics\":{\"environmentalPhoto\":[\"/static/soda_public/do1_QSl1NDnsiCYaB2A5gmis\"],\"frontPhoto\":[\"/static/soda_public/do1_AMgzb2wxVwL4usmf4qHu\"]},\"shopStatus\":3,\"shopTag\":0,\"signPic\":null,\"signType\":1,\"signedTime\":1645011613,\"source\":2,\"startupCost\":500000,\"startupCostLimit\":50000,\"startupCostNum\":0,\"startupCostProportion\":1000,\"startupExecWeek\":1,\"tags\":0,\"taxId\":\"234234123112\",\"taxIdType\":1,\"taxPayer\":\"\",\"taxPayerAddr\":\"\",\"taxPayerIdType\":0,\"taxPaymentMethod\":\"\",\"taxPics\":[\"https://img0.didiglobal.com/static/soda_public/do1_Gip4umImni45IUHPTvQQ\"],\"taxVatPayment\":0,\"thirdCategory\":\"\",\"timezone\":\"\",\"todayBizTime\":[],\"type\":1,\"updateTime\":\"2022-03-10 15:46:20\",\"visible\":false,\"visitStatus\":0},\"errmsg\":\"ok\",\"errno\":0,\"machine\":\"\",\"reqParams\":{\"locale\":\"zh-CN\",\"shopId\":\"5764607747732277132\"},\"time\":1646912275," +
                 "\"traceId\":\"s060310x1646912272\"},\"timestamp\":\"2022-03-10T19:37:55.180+0800\"}";
-        System.out.println(str.length());
-        System.out.println(str.getBytes().length);
-        System.out.println("=======");
+        System.out.println("字符串长度： "+str.length());
+        System.out.println("字符串byte长度："+str.getBytes().length);
         byte[] bt = ZstdUtils.compress(str.getBytes());
-        System.out.println(bt.length);
-        System.out.println(Base64.getEncoder().encode(bt).length);
+        String newStr = ZstdUtils.decompress(bt);
+        System.out.println("新字符串："+newStr);
+        System.out.println("新字符串的byte长度："+newStr.getBytes().length);
+
+        System.out.println("Zstd压缩后的byte长度："+bt.length);
+
+        byte[] bs = GzipCompress.compress(str.getBytes());
+        System.out.println("Gzip压缩后的byte长度："+bs.length);
+        System.out.println("Zstd压缩后的byte长度 + Gzip压缩后的byte长度："+GzipCompress.compress(bt).length);
+
+
+        System.out.println("Base64 后的byte长度: "+Base64.getEncoder().encode(bt).length);
 
         System.out.println("=======");
         System.out.println(CollectMode.COMPRESS_LOG_RESP);
@@ -48,7 +73,8 @@ public final class FileNode {
         String path = "/Users/didi/Desktop/jlog/example/target/classes/application.properties";
         properties.load(new FileInputStream(path));
         System.out.println(JSON.toJSONString(properties));
-        Server bean = properties.getBean("server", Server.class);
+        TagConfig bean = properties.getBean("tag-config", TagConfig.class);
         System.out.println(JSON.toJSONString(bean));
     }
+
 }

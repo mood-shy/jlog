@@ -42,7 +42,19 @@ public class Constant {
     /**
      * 符合正则但不构成kv结构的普通日志，如「xx查询为空」
      */
-    public static String TAG_NORMAL_KEY = "normal";
+    public static final String TAG_NORMAL_KEY = "normal";
+
+    /**
+     * 小于1000不考虑压缩
+     */
+    public static final long MIN = 1000;
+
+
+    /**
+     * 默认大于10000才考虑压缩
+     */
+    public static final long THRESHOLD = 10000;
+
 
     /**
      * 正则里需要特殊处理的字符串

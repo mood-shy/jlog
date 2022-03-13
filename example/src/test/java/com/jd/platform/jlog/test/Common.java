@@ -1,6 +1,7 @@
 package com.jd.platform.jlog.test;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.platform.jlog.common.handler.TagConfig;
 import com.jd.platform.jlog.core.Configurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +27,8 @@ public class Common {
         LOGGER.info("配置器类型：{}", configurator.getType());
         String addr = configurator.getString("serverAddr");
         LOGGER.info("配置器get addr：{}", addr);
-        String reqTags = configurator.getString("reqTags");
-        LOGGER.info("配置器get reqTags：{}", reqTags);
+        TagConfig tagConfig = configurator.getObject("tagConfig", TagConfig.class);
+        LOGGER.info("配置器get tagConfig：{}", tagConfig.toString());
         List workers = configurator.getConfigByPrefix("workers");
         LOGGER.info("配置器get workers：{}", JSON.toJSONString(workers));
     }

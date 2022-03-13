@@ -94,6 +94,7 @@ public interface Configurator {
      * 移除监听器
      * @param node 节点 file or dir
      */
+    @Deprecated
     void removeConfigListener(String node);
 
 

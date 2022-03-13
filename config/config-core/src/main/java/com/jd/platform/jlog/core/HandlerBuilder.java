@@ -20,7 +20,7 @@ public class HandlerBuilder {
             tagConfig = buildTagConfigByConfigurator(configurator);
         }
         TagHandler.buildTagHandler(tagConfig);
-        CompressHandler.buildCompressHandler(configurator.getLong("compress"));
+        CompressHandler.buildCompressHandler(configurator.getLong("compress"), configurator.getLong("threshold"));
     }
 
 
@@ -36,6 +36,6 @@ public class HandlerBuilder {
 
 
     private static TagConfig buildTagConfigByConfigurator(Configurator configurator){
-        return configurator.getObject("handler-config", TagConfig.class);
+        return configurator.getObject("tag-config", TagConfig.class);
     }
 }

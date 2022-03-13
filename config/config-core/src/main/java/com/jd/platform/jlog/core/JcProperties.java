@@ -21,8 +21,7 @@ import static com.jd.platform.jlog.common.utils.ConfigUtil.lowerFirst;
  */
 public class JcProperties extends Properties {
 
-    public JcProperties() {
-    }
+    public JcProperties() {}
 
     public String getString(String key) {
         Object val = get(key);
@@ -34,10 +33,10 @@ public class JcProperties extends Properties {
 
     public Long getLong(String key) {
         String val = getString(key);
-        if(StringUtil.isEmpty(val)){
+        if(val == null){
             return null;
         }
-        return Long.valueOf(val);
+        return Long.parseLong(val);
     }
 
     public List<String> getStrList(String key) {
@@ -65,6 +64,17 @@ public class JcProperties extends Properties {
     }
 
 
+    /**
+     * 只支持简单的对象形配置
+     * @param model bean
+     * @param properties
+     * @param prefix
+     * @throws IllegalAccessException
+     * @throws ClassNotFoundException
+     * @throws InstantiationException
+     * @throws ParseException
+     */
+    @Deprecated
     private void invoke(Object model, JcProperties properties, String prefix) throws
             IllegalAccessException, ClassNotFoundException, InstantiationException, ParseException {
 
@@ -112,8 +122,18 @@ public class JcProperties extends Properties {
                 default:
                     String tn = field.getType().getTypeName();
                     if("java.util.List".equals(tn)){
-                        String val = properties.getString(fillName);
-                        field.set(model,FastJsonUtils.toList(val, String.class));
+                        String[] arr = fillName.split("\\[");
+                        int index = 0;
+                        String suffix;
+                        String fastSuffix;
+                        List<String> list = new ArrayList<>();
+                        do{
+                            suffix = "["+index+"]";
+                            fastSuffix = "["+(index+1)+"]";
+                            list.add(properties.getString(arr[0]+suffix));
+                            index ++;
+                        }while (properties.getString(arr[0]+fastSuffix) != null);
+                        field.set(model, list);
                     }else if("java.util.Map".equals(tn)){
                         String val = properties.getString(fillName);
                         field.set(model,FastJsonUtils.toMap(val));

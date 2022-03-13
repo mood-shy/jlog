@@ -4,6 +4,8 @@ import com.jd.platform.jlog.common.utils.ZstdUtils;
 
 import java.util.Base64;
 
+import static com.jd.platform.jlog.common.constant.Constant.MIN;
+import static com.jd.platform.jlog.common.constant.Constant.THRESHOLD;
 import static com.jd.platform.jlog.common.handler.CollectMode.*;
 
 /**
@@ -18,20 +20,30 @@ public class CompressHandler {
     /**
      * 压缩策略
      */
-    private long compress = COMPRESS_LOG_RESP;
+    private long compress;
 
-    private int limit = 10000;
+    /**
+     * 超过limit的才压缩
+     */
+    private long threshold;
 
 
-    private CompressHandler(long compress, int limit){
+    private CompressHandler(long compress, long threshold){
         this.compress = compress;
-        this.limit = limit;
+        this.threshold = threshold;
     }
 
     private static volatile CompressHandler instance = null;
 
-    public static void buildCompressHandler(long compress, int limit) {
-        instance = new CompressHandler(compress,limit);
+
+    public static void buildCompressHandler(Long compress, Long threshold) {
+        if(compress == null || compress < 1){
+            compress = COMPRESS_LOG_RESP;
+        }
+        if( threshold == null || threshold < MIN){
+            threshold = THRESHOLD;
+        }
+        instance = new CompressHandler(compress, threshold);
     }
 
     public static byte[] compressReq(byte[] contentBytes){
@@ -50,6 +62,9 @@ public class CompressHandler {
     }
 
     private static byte[] doCompress(byte[] contentBytes){
+        if(contentBytes.length < instance.threshold){
+            return contentBytes;
+        }
         //最终的要发往worker的response，经历了base64压缩
         byte[] bytes = ZstdUtils.compress(contentBytes);
         return Base64.getEncoder().encode(bytes);
