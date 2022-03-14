@@ -1,6 +1,8 @@
 package com.jd.platform.jlog.core;
 
 
+import static com.jd.platform.jlog.core.Constant.DEFAULT_NAMESPACE;
+
 /**
  * @author tangbohu
  * @version 1.0.0
@@ -14,7 +16,6 @@ public class ConfigChangeEvent {
     private String newValue;
     private String namespace;
     private ConfigChangeType changeType;
-    private static final String DEFAULT_NAMESPACE = "jLog";
 
 
     public ConfigChangeEvent(){

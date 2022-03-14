@@ -8,10 +8,9 @@ import com.jd.platform.jlog.client.log.LogExceptionStackTrace;
 import com.jd.platform.jlog.client.tracerholder.TracerHolder;
 import com.jd.platform.jlog.client.udp.UdpSender;
 import com.jd.platform.jlog.common.model.RunLogMessage;
-import com.jd.platform.jlog.common.handler.TagHandler;
+import com.jd.platform.jlog.core.ClientHandler;
 import org.slf4j.helpers.MessageFormatter;
 
-import java.util.Map;
 
 /**
  * className：TracerLog4JAppender
@@ -60,8 +59,8 @@ public class TracerLogbackAppender extends AppenderBase<ILoggingEvent> {
 
         String formattedMessage = getMessage(loggingEvent);
         logMessage.setContent(formattedMessage);
-        Map<String, Object> map = TagHandler.extractLogTag(formattedMessage);
-        logMessage.setTagMap(map);
+        ClientHandler.Outcome out = ClientHandler.processLog(formattedMessage);
+        logMessage.setTagMap(out.getMap());
         return logMessage;
     }
 

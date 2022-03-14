@@ -1,12 +1,16 @@
 package com.jd.platform.jlog.worker.config;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.platform.jlog.common.constant.Constant;
 import com.jd.platform.jlog.common.utils.IpUtils;
+import com.jd.platform.jlog.core.Configurator;
 import com.jd.platform.jlog.core.ConfiguratorFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -42,12 +46,16 @@ public class CenterStarter {
      */
     public void uploadSelfInfo() {
         //开启上传worker信息
+        Configurator config = ConfiguratorFactory.getInstance();
         ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         scheduledExecutorService.scheduleAtFixedRate(() -> {
 
             try {
-                ConfiguratorFactory.getInstance().putConfig(buildKey(), buildValue());
-                ConfiguratorFactory.getInstance().putConfig(buildSecondKey(), buildValue());
+                List<String> list = config.getList("workers");
+                if(!list.contains(buildKey())){
+                    list.add(buildValue());
+                }
+                config.putConfig("workers", JSON.toJSONString(list));
             } catch (Exception e) {
                 //do nothing
                 e.printStackTrace();
@@ -62,14 +70,6 @@ public class CenterStarter {
     private String buildKey() {
         String hostName = IpUtils.getHostName();
         return Constant.WORKER_PATH + workerPath + "/" + hostName;
-    }
-
-    /**
-     * 在配置中心对应机房存放的key
-     */
-    private String buildSecondKey() {
-        String hostName = IpUtils.getHostName();
-        return Constant.WORKER_PATH + workerPath + "/" + mdc + "/" + hostName;
     }
 
     /**

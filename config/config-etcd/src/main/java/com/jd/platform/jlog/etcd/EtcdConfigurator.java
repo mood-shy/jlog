@@ -12,6 +12,7 @@ import com.google.protobuf.ByteString;
 import com.ibm.etcd.api.KeyValue;
 import com.ibm.etcd.api.RangeResponse;
 import com.ibm.etcd.client.EtcdClient;
+import com.jd.platform.jlog.common.handler.JcProperties;
 import com.jd.platform.jlog.common.utils.CollectionUtil;
 import com.jd.platform.jlog.common.utils.StringUtil;
 import com.jd.platform.jlog.core.*;
@@ -40,11 +41,11 @@ public class EtcdConfigurator implements Configurator {
 
     private static final Configurator FILE_CONFIG = ConfiguratorFactory.base;
 
-    public static final String ROOT = "/jLog";
+    static final String ROOT = "/jLog";
 
-    private static final String PROPERTIES_PATH = "/jLog/jLog.properties";
+    static final String PROPERTIES_PATH = "/jLog/jLog.properties";
 
-    private static Properties PROPERTIES = new Properties();
+    static JcProperties PROPERTIES = new JcProperties();
 
     private EtcdConfigurator() {
         LOGGER.info("开始构建etcd客户端, serverAddr:{}",FILE_CONFIG.getString(SERVER_ADDR_KEY));
@@ -62,7 +63,7 @@ public class EtcdConfigurator implements Configurator {
                 e.printStackTrace();
             }
         }
-
+        LOGGER.info("初始化etcd配置", JSON.toJSONString(PROPERTIES));
         new EtcdListener().onProcessEvent(new ConfigChangeEvent());
     }
 
@@ -78,25 +79,24 @@ public class EtcdConfigurator implements Configurator {
         return instance;
     }
 
-
     @Override
     public String getString(String key) {
-        return null;
+        return  PROPERTIES.getString(key);
     }
 
     @Override
     public Long getLong(String key) {
-        return null;
+        return PROPERTIES.getLong(key);
     }
 
     @Override
     public List<String> getList(String key) {
-        return null;
+        return PROPERTIES.getStrList(key);
     }
 
     @Override
     public <T> T getObject(String key, Class<T> clz) {
-        return null;
+        return PROPERTIES.getBean(key, clz);
     }
 
     @Override

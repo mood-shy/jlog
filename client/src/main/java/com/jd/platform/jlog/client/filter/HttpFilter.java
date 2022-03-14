@@ -128,7 +128,13 @@ public class HttpFilter implements Filter {
         byte[] contentBytes = mResp.getContent();
         String content = new String(contentBytes);
         Map<String, Object> responseMap = new HashMap<>(8);
-        responseMap.put("response", ClientHandler.compressResp(contentBytes));
+        Map<String, Object> map = new HashMap<>(1);
+        map.put("errno", 200);
+        ClientHandler.Outcome outcome = ClientHandler.processResp(contentBytes, map);
+        responseMap.put("response", outcome.getContent());
+        if(!outcome.getMap().isEmpty()){
+            responseMap.putAll(outcome.getMap());
+        }
         tracerObject.add(responseMap);
 
         //此处可以对content做处理,然后再把content写回到输出流中
@@ -154,7 +160,7 @@ public class HttpFilter implements Filter {
         requestMap.put("serverIp", IpUtils.getIp());
         requestMap.put("tracerId", tracerId);
         requestMap.put("uri", uri);
-        tracerObject.add(ClientHandler.processReq(requestMap);
+        tracerObject.add(ClientHandler.processReq(requestMap));
     }
 
     @Override

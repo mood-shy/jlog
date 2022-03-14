@@ -1,12 +1,15 @@
 package com.jd.platform.jlog.common.utils;
 
 import com.jd.platform.jlog.common.constant.Constant;
+import com.jd.platform.jlog.common.handler.JcProperties;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -146,4 +149,88 @@ public class ConfigUtil {
         chars[0] += 32;
         return String.valueOf(chars);
     }
+
+
+    /**
+     * 只支持简单的对象形配置
+     * @param model bean
+     * @param properties 配置
+     * @param prefix 前缀
+     */
+    @Deprecated
+    public static void invoke(Object model, JcProperties properties, String prefix) throws
+            IllegalAccessException, ClassNotFoundException, InstantiationException, ParseException {
+
+        Class<?> clz = model.getClass();
+        Field[] fields = model.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            String type = field.getGenericType().toString();
+            field.setAccessible(true);
+
+            String curObjName = ConfigUtil.camelToMidline(lowerFirst(clz.getSimpleName()));
+
+            prefix = StringUtil.isEmpty(prefix) ? curObjName : prefix;
+            String fillName = !curObjName.equals(prefix) ? prefix +"."+ curObjName + "." + field.getName() : curObjName + "." + field.getName();
+
+            switch (type){
+                case "class java.lang.String":
+                    field.set(model, properties.getString(fillName)) ;
+                    break;
+                case "byte":
+                    field.setByte(model, Byte.valueOf(properties.getString(fillName)));
+                    break;
+                case "short":
+                    field.setShort(model, Short.valueOf(properties.getString(fillName)));
+                    break;
+                case "int":
+                    field.setInt(model, Integer.parseInt(properties.getString(fillName))) ;
+                    break;
+                case "long":
+                    field.setLong(model, properties.getLong(fillName));
+                    break;
+                case "double":
+                    field.setDouble(model, Double.valueOf(properties.getString(fillName)));
+                    break;
+                case "float":
+                    field.setFloat(model, Float.valueOf(properties.getString(fillName)));
+                    break;
+                case "boolean":
+                    field.setBoolean(model, Boolean.parseBoolean(properties.getString(fillName)));
+                    break;
+                case "class java.util.Date":
+                    Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(properties.getString(fillName));
+                    field.set(model,date) ;
+                    break;
+                default:
+                    String tn = field.getType().getTypeName();
+                    if("java.util.List".equals(tn)){
+                        String[] arr = fillName.split("\\[");
+                        int index = 0;
+                        String suffix;
+                        String fastSuffix;
+                        List<String> list = new ArrayList<>();
+                        do{
+                            suffix = "["+index+"]";
+                            fastSuffix = "["+(index+1)+"]";
+                            list.add(properties.getString(arr[0]+suffix));
+                            index ++;
+                        }while (properties.getString(arr[0]+fastSuffix) != null);
+                        field.set(model, list);
+                    }else if("java.util.Map".equals(tn)){
+                        String val = properties.getString(fillName);
+                        field.set(model,FastJsonUtils.toMap(val));
+                    }else if(field.getType().isArray()){
+                        String val = properties.getString(fillName);
+                        field.set(model,FastJsonUtils.toArray(val));
+                    }else{
+                        String[] ar = type.split(" ");
+                        Object tinyObj = Class.forName(ar[1]).newInstance();
+                        invoke(tinyObj, properties, prefix);
+                        field.set(model,tinyObj);
+                    }
+            }
+        }
+
+    }
+
 }

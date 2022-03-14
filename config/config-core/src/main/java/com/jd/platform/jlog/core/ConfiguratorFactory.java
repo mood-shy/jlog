@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ServiceLoader;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
@@ -24,6 +25,9 @@ public class ConfiguratorFactory {
 
 
     public static volatile Configurator base = null;
+
+
+    public static AtomicBoolean useFileConfig = new AtomicBoolean(true);
 
 
 
@@ -64,22 +68,8 @@ public class ConfiguratorFactory {
         //noinspection LoopStatementThatDoesntLoop
         for (ConfiguratorProvider provider : builders) {
             LOGGER.info("配置中心的配置器获取成功, 类型为:{}", provider.build().getType());
+            useFileConfig.set(false);
             return provider.build();
-        }
-        return base;
-    }
-
-
-
-    private static Configurator refreshBaseConfiguration() {
-
-        synchronized (Configurator.class){
-            try {
-                base = new FileConfigurator();
-            } catch (IOException e) {
-                LOGGER.info("文件配置器构建失败", e);
-                throw new RuntimeException("build file buildConfiguration fail", e);
-            }
         }
         return base;
     }

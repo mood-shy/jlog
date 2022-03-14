@@ -2,6 +2,7 @@ package com.jd.platform.jlog.zk;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.platform.jlog.common.utils.CollectionUtil;
+import com.jd.platform.jlog.core.ClientHandlerBuilder;
 import com.jd.platform.jlog.core.ConfigChangeEvent;
 import com.jd.platform.jlog.core.ConfigChangeListener;
 import com.jd.platform.jlog.core.ConfigChangeType;
@@ -34,30 +35,13 @@ public class ZkListener implements ConfigChangeListener {
         cache = new NodeCache(zkClient, path);
         try {
             cache.start(true);
+            cache.getListenable().addListener(() -> onChangeEvent(null));
         } catch (Exception e) {
             e.printStackTrace();
         }
-        cache.getListenable().addListener(() -> {
-            String value = null;
-            if(null!=cache.getCurrentData()){
-                value = new String(cache.getCurrentData().getData());
-            }
-            onChangeEvent(null);
-            System.out.println("=####======   "+value);
-        });
     }
 
 
-
-    @Override
-    public void onShutDown(){
-        LOGGER.info("ZK删除监听器");
-        try {
-            cache.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     public void onChangeEvent(ConfigChangeEvent event) {
@@ -65,9 +49,9 @@ public class ZkListener implements ConfigChangeListener {
         Properties props = new Properties();
         props.putAll(PROPERTIES);
         try {
-            LOGGER.info("ZK数据变更,旧Properties:{}", JSON.toJSONString(props));
+            LOGGER.debug("ZK数据变更,旧Properties:{}", JSON.toJSONString(props));
             loadZkData();
-            LOGGER.info("ZK数据变更,新Properties:{}", JSON.toJSONString(PROPERTIES));
+            LOGGER.debug("ZK数据变更,新Properties:{}", JSON.toJSONString(PROPERTIES));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -77,8 +61,9 @@ public class ZkListener implements ConfigChangeListener {
                 LOGGER.warn("ZK {} 配置变更 key={} 变更事件:{}", path, diffKey,
                         new ConfigChangeEvent(diffKey,
                                 String.valueOf(props.get(diffKey)),
-                                String.valueOf(PROPERTIES.get(diffKey).toString())));
+                                String.valueOf(PROPERTIES.get(diffKey))));
             }
+            ClientHandlerBuilder.refresh();
         }
     }
 

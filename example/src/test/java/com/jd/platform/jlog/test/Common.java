@@ -27,7 +27,7 @@ public class Common {
         LOGGER.info("配置器类型：{}", configurator.getType());
         String addr = configurator.getString("serverAddr");
         LOGGER.info("配置器get addr：{}", addr);
-        TagConfig tagConfig = configurator.getObject("tagConfig", TagConfig.class);
+        TagConfig tagConfig = configurator.getObject("tag-config", TagConfig.class);
         LOGGER.info("配置器get tagConfig：{}", tagConfig.toString());
         List workers = configurator.getList("workers");
         LOGGER.info("配置器get workers：{}", JSON.toJSONString(workers));

@@ -1,8 +1,8 @@
 package com.jd.platform.jlog.core;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.platform.jlog.common.handler.JcProperties;
 import com.jd.platform.jlog.common.utils.CollectionUtil;
-import com.jd.platform.jlog.common.utils.FastJsonUtils;
 import com.jd.platform.jlog.common.utils.StringUtil;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
@@ -16,6 +16,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.jd.platform.jlog.core.ConfigChangeListener.EXECUTOR_SERVICE;
+import static com.jd.platform.jlog.core.ConfiguratorFactory.useFileConfig;
 import static com.jd.platform.jlog.core.Constant.*;
 
 
@@ -61,6 +62,16 @@ public class FileConfigurator implements Configurator {
             }
         }
         LOGGER.info("合并后的配置:{}",PROPERTIES.toString());
+        for (String file : CONFIG_FILES) {
+            file = StringUtil.isEmpty(env) ? file : file + "_" + env;
+            LISTENED_FILES.add(file);
+            if(FILELISTENER == null){
+                synchronized (FileConfigurator.class){
+                    FILELISTENER = new FileListener();
+                    FILELISTENER.addListener();
+                }
+            }
+        }
     }
 
 
@@ -95,79 +106,20 @@ public class FileConfigurator implements Configurator {
 
 
     @Override
-    public boolean removeConfig(String key, long timeoutMills) {
-        return false;
-    }
-
-
-    @Override
-    public boolean removeConfig(String key) {
-        return false;
-    }
-    
-
-    @Override
-    public void addConfigListener(String node) {
-        if (StringUtil.isBlank(node)) {
-            return;
-        }
-        String env = System.getenv(ENV);
-        for (String file : CONFIG_FILES) {
-            file = StringUtil.isEmpty(env) ? file : file + "_" + env;
-            if(node.equals(file)){
-                LISTENED_FILES.add(node);
-                if(FILELISTENER == null){
-                    synchronized (FileConfigurator.class){
-                        FILELISTENER = new FileListener();
-                        FILELISTENER.addListener();
-                    }
-                }
-            }
-        }
-    }
-
-
-
-
-    @Override
-    public void removeConfigListener(String node) {
-
-        LISTENED_FILES.remove(node);
-        if(LISTENED_FILES.isEmpty() && FILELISTENER != null){
-            LOGGER.info("没有要监听的key了 关闭线程池");
-            FILELISTENER.onShutDown();
-            try {
-                if(!EXECUTOR_SERVICE.awaitTermination(AWAIT_TIME, TimeUnit.MILLISECONDS)){
-                    // 超时的时候向线程池中所有的线程发出中断(interrupted)。
-                    EXECUTOR_SERVICE.shutdownNow();
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            FILELISTENER = null;
-        }
-    }
-
-
-
-    @Override
-    public List<String> getConfigByPrefix(String prefix) {
-        return PROPERTIES.getStrList(prefix);
-    }
-
-
-    @Override
     public String getType() {
         return "file";
     }
-
 
     
 
     class FileListener implements ConfigChangeListener {
 
-        FileListener() {
-        }
+        private final ExecutorService executor = new ThreadPoolExecutor(1, 1, 0L,
+                TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(),
+                new DefaultThreadFactory("fileListener", 1));
+
+
+        FileListener() {}
 
         synchronized void addListener() {
             FILELISTENER.onProcessEvent(new ConfigChangeEvent());
@@ -178,11 +130,26 @@ public class FileConfigurator implements Configurator {
         public void onChangeEvent(ConfigChangeEvent event) {
             for(; !getExecutorService().isShutdown() && !getExecutorService().isShutdown(); checkAndConfigure()) {
                 try {
+                    if(!useFileConfig.get()){
+                        LOGGER.info("装配了配置中心, 文件配置器关闭");
+                        executor.shutdown();
+                        if(!executor.awaitTermination(AWAIT_TIME, TimeUnit.MILLISECONDS)){
+                            // 超时的时候向线程池中所有的线程发出中断(interrupted)。
+                            executor.shutdownNow();
+                            return;
+                        }
+                    }
                     Thread.sleep(LISTENER_CONFIG_INTERVAL);
                 } catch (InterruptedException ignored) {
                 }
             }
         }
+
+        @Override
+        public ExecutorService getExecutorService() {
+            return executor;
+        }
+
     }
 
 
@@ -211,11 +178,11 @@ public class FileConfigurator implements Configurator {
             }
         });
         if(change.get()){
-          //  LOGGER.info("变更之前的总配置：{}", JSON.toJSONString(PROPERTIES));
+            LOGGER.debug("变更之前的总配置：{}", JSON.toJSONString(PROPERTIES));
             PROPERTIES.clear();
             FILE_MODIFY_MAP.forEach((k,v)-> PROPERTIES.putAll(v.props));
             LOGGER.info("变更之后的总配置：{}", JSON.toJSONString(PROPERTIES));
-         //   TagHandlerBuilder.refresh();
+            ClientHandlerBuilder.refresh();
         }
     }
 

@@ -1,5 +1,6 @@
 package com.jd.platform.jlog.config.apollo;
 
+import com.jd.platform.jlog.core.ClientHandlerBuilder;
 import com.jd.platform.jlog.core.ConfigChangeEvent;
 import com.jd.platform.jlog.core.ConfigChangeListener;
 
@@ -13,6 +14,6 @@ public class ApolloListener implements ConfigChangeListener {
 
     @Override
     public void onChangeEvent(ConfigChangeEvent event) {
-        LOGGER.info("APOLLO 重写的事件 event={}", event.toString());
+        ClientHandlerBuilder.refresh();
     }
 }

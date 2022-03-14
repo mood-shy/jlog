@@ -5,9 +5,9 @@ import com.alibaba.fastjson.JSON;
 import com.jd.platform.jlog.client.mdc.Mdc;
 import com.jd.platform.jlog.client.task.Monitor;
 import com.jd.platform.jlog.common.handler.TagConfig;
+import com.jd.platform.jlog.core.ClientHandlerBuilder;
 import com.jd.platform.jlog.core.Configurator;
 import com.jd.platform.jlog.core.ConfiguratorFactory;
-import com.jd.platform.jlog.core.HandlerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,6 +105,6 @@ public class TracerClientStarter {
     private void initJLogConfig(){
         LOGGER.info("从主配置获取的tagConfig:{}", JSON.toJSONString(tagConfig));
         Configurator configurator = ConfiguratorFactory.getInstance();
-        HandlerBuilder.buildHandler(tagConfig, configurator);
+        ClientHandlerBuilder.buildHandler(tagConfig, configurator);
     }
 }

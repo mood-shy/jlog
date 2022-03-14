@@ -93,12 +93,8 @@ public class CollectMode {
     public static final long COMPRESS_ALL = C_REQ | C_LOG | C_RESP;
 
 
-    public static void main(String[] args) {
-        System.out.println(isMatched(EXTRACT_REQ_LOG, EXTRACT_REQ_RESP));
-    }
     public static boolean isMatched(long indicator, long position) {
         return (indicator & position) == position;
     }
 
 }
- // curl --location --request POST 'http://10.96.98.110:8058/app/flow/getappraiselist' --header 'Content-Type: application/x-www-form-urlencoded' --data-urlencode 'token=DF9YcBVAaMiLCZtZEZCf6MunJX8I3jWGmQXwRzb-oQIszD1uAjEQgNG7fG1Gq5nx2I6nzBFygwSWn8ZIIKrV3h0hUb3ubUwlKYsuijCNNGE6WVVLCLOQ1uvoLTza6KrCDPJNJfn5RfgjQfgnw8vo7j6KqX-HC0dyCCu58bg974f1U-_CibQWrXlXC-FM8lWrqhZrvVYvCBcSQ7iSur8CAAD__w==' --data-urlencode 'cityID=55000116' --data-urlencode 'appVersion=2.0.28' --data-urlencode 'country=BR'

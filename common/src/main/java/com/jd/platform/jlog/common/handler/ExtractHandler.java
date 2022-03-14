@@ -52,8 +52,7 @@ public class ExtractHandler {
      * 构建标签处理器
      * @param tagConfig 配置类
      */
-    public static void buildTagHandler(TagConfig tagConfig) {
-
+    public static void buildExtractHandler(TagConfig tagConfig) {
         if(tagConfig.getExtract() == SUSPEND){
             return;
         }
@@ -76,7 +75,6 @@ public class ExtractHandler {
         handler.delimiterLen = tagConfig.getDelimiter().length();
         handler.join = tagConfig.getJoin();
         instance = handler;
-        System.out.println("### instance == > "+instance.toString());
         LOGGER.info("构建标签处理器单例完成:{}",instance.toString());
     }
 
@@ -90,8 +88,7 @@ public class ExtractHandler {
 
         if(instance == null || !isMatched(instance.extract, E_REQ)){ return null; }
 
-        System.out.println("### INSTANCE.reqTags:"+JSON.toJSONString(instance.reqTags));
-        System.out.println("### .ext:"+JSON.toJSONString(reqMap));
+        System.out.println("### REQ INSTANCE :"+instance.toString());
 
         Map<String, Object> tagMap = new HashMap<>(instance.reqTags.size());
         for (String tag : instance.reqTags) {
@@ -114,8 +111,6 @@ public class ExtractHandler {
         if(instance == null || !isMatched(instance.extract, E_LOG) || content.length() < EXTRACT_MIN_LEN){
             return null;
         }
-        System.out.println("### INSTANCE:"+instance.toString());
-        System.out.println("### .content:"+content);
 
         Map<String,Object> tagMap = new HashMap<>(3);
         Matcher m = instance.pattern.matcher(content);
@@ -148,16 +143,14 @@ public class ExtractHandler {
 
         if(instance == null || !isMatched(instance.extract, E_REQ)){ return null; }
 
-        System.out.println("### INSTANCE.respTags:"+JSON.toJSONString(instance.respTags));
-
         Map<String, Object> requestMap = new HashMap<>(instance.respTags.size());
-        for (String tag : instance.reqTags) {
+        for (String tag : instance.respTags) {
             Object val = resp.get(tag);
             if(val != null){
                 requestMap.put(tag, val);
             }
         }
-        System.out.println("提取到了请求入参日志标签："+JSON.toJSONString(requestMap));
+        System.out.println("提取到了请求出参日志标签："+JSON.toJSONString(requestMap));
         return requestMap;
     }
 
@@ -170,7 +163,7 @@ public class ExtractHandler {
      */
     public synchronized static void refresh(TagConfig tagConfig) {
         instance = null;
-        buildTagHandler(tagConfig);
+        buildExtractHandler(tagConfig);
     }
 
 
@@ -194,7 +187,7 @@ public class ExtractHandler {
         cfg.setDelimiter("|");
         cfg.setJoin("=");
 
-        buildTagHandler(cfg);
+        buildExtractHandler(cfg);
 
         List<String> list = new ArrayList<>();
       //  Matcher m = BRACKET_PATTERN.matcher(content);

@@ -48,9 +48,8 @@ public class ZKConfiguratorTest {
     public void testUpdateCFG() throws Exception {
         List<String> workers = configurator.getList("workers");
         LOGGER.info("初始化的workers：{}", JSON.toJSONString(workers));
-        String myIp = "121.1.1.0";
+        String myIp = "121.0";
         if(workers.contains(myIp)){
-            // do nothing
             LOGGER.info("自己的IP还在配置list里 什么也不做");
             return;
         }else{

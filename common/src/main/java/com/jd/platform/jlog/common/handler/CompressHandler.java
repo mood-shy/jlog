@@ -36,6 +36,7 @@ public class CompressHandler {
         this.threshold = threshold;
     }
 
+
     private static volatile CompressHandler instance = null;
 
 
@@ -49,6 +50,11 @@ public class CompressHandler {
         instance = new CompressHandler(compress, threshold);
     }
 
+    public static void refresh(Long compress, Long threshold){
+        instance = null;
+        buildCompressHandler(compress, threshold);
+    }
+
     public static Map<String, Object> compressReq(Map<String, Object> map){
         if(instance == null || !isMatched(instance.compress, E_REQ)){
             return  map;
@@ -60,7 +66,7 @@ public class CompressHandler {
         return map;
     }
 
-    public static Map<String, Object> compressLog(byte[] contentBytes){
+    public static byte[] compressLog(byte[] contentBytes){
         if(instance == null || !isMatched(instance.compress, E_LOG)){ return contentBytes; }
         return doCompress(contentBytes);
     }
@@ -87,6 +93,5 @@ public class CompressHandler {
     public void setCompress(long compress) {
         this.compress = compress;
     }
-
 
 }

@@ -1,18 +1,13 @@
 package com.jd.platform.jlog.client.task;
 
 
-import com.jd.platform.jlog.client.Context;
 import com.jd.platform.jlog.client.mdc.Mdc;
 import com.jd.platform.jlog.client.worker.WorkerInfoHolder;
-import com.jd.platform.jlog.common.constant.Constant;
 import com.jd.platform.jlog.core.Configurator;
 import com.jd.platform.jlog.core.ConfiguratorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -59,17 +54,10 @@ public class Monitor {
     private void fetch() throws Exception {
         Configurator configurator = ConfiguratorFactory.getInstance();
         //获取所有worker的ip
-        List addresses = new ArrayList();
+        List addresses;
         try {
             //如果设置了机房属性，则拉取同机房的worker。如果同机房没worker，则拉取所有
-            if (Context.MDC != null) {
-                String mdc = parseMdc(Context.MDC);
-                addresses = configurator.getConfigByPrefix(Constant.WORKER_PATH + Context.APP_NAME + "/" + mdc);
-            }
-            if (addresses == null || addresses.size() == 0) {
-                addresses = configurator.getConfigByPrefix(Constant.WORKER_PATH + Context.APP_NAME);
-            }
-
+            addresses = configurator.getList("workers");
             //全是空，给个警告
             if (addresses == null || addresses.size() == 0) {
                 LOGGER.warn("very important warn !!! workers ip info is null!!!");

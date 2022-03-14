@@ -15,7 +15,7 @@ public class Constant {
     /**
      * 监听重读配置文件间隔 单位ms
      */
-    static final long LISTENER_CONFIG_INTERVAL = 3000;
+    static final long LISTENER_CONFIG_INTERVAL = 10000;
 
     static final String CONFIG_FILE_PROPERTIES = "/application.properties";
 
@@ -26,15 +26,18 @@ public class Constant {
 
     static final String ENV = "env";
 
-    static final long AWAIT_TIME = 3 * 1000;
-
     static final String YML = "yml";
 
     public static final long DEFAULT_TIMEOUT = 2 * 1000;
 
+    static final long AWAIT_TIME = 3 * 1000;
+
     public static final String SERVER_ADDR_KEY = "serverAddr";
 
     public static final String NAMESPACE_KEY = "namespace";
+
+    public static final String DEFAULT_NAMESPACE = "jLog";
+
 
     /**
      * 配置文件集合

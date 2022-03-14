@@ -50,7 +50,7 @@ public class FileConfiguratorTest {
 
     @Test
     public void testAddConfigListener() throws Exception {
-        String path = "/Users/didi/Desktop/jlog/example/target/classes/application.properties";
+        String path = "/Users/didi/Desktop/jlog/example/target/classes/bakapplication.yml";
         Properties props = new Properties();
         FileInputStream fis = new FileInputStream(new File(path));
         if (path.contains("yml")) {
@@ -61,20 +61,7 @@ public class FileConfiguratorTest {
         LOGGER.info("读取文件：{} 最新配置:{}", path, JSON.toJSONString(props));
         modifyFile(path);
         LOGGER.info("修改文件完毕 准备触发监听器");
-        Thread.sleep(2000);
-        LOGGER.info("睡醒了 应该更新了配置，testKey：{}",configurator.getString("testKey"));
-        Thread.sleep(2000);
-        LOGGER.info("移除监听器之前，testKey：{}",configurator.getString("testKey"));
-        LOGGER.info("移除监听器之后，testKey：{}",configurator.getString("testKey"));
-        modifyFile(path);
-        LOGGER.info("修改文件完毕 准备验证监听器是否停止  最新testKey={}", configurator.getString("testKey"));
-
-
-        LOGGER.info("再次添加监听器");
-        modifyFile(path);
-        LOGGER.info("修改文件完毕");
-        Thread.sleep(1000);
-
+        Thread.sleep(10000);
     }
 
 

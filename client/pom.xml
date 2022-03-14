@@ -23,7 +23,7 @@
             <artifactId>config-zk</artifactId>
             <version>1.4-SNAPSHOT</version>
         </dependency>-->
-        <!--<dependency>
+       <!-- <dependency>
             <groupId>com.jd.platfrom.jlog</groupId>
             <artifactId>config-nacos</artifactId>
             <version>1.4-SNAPSHOT</version>
@@ -33,17 +33,17 @@
             <artifactId>config-etcd</artifactId>
             <version>1.4-SNAPSHOT</version>
         </dependency>-->
-       <!--
+
         <dependency>
             <groupId>com.jd.platfrom.jlog</groupId>
             <artifactId>config-apollo</artifactId>
             <version>1.4-SNAPSHOT</version>
-        </dependency>-->
-        <dependency>
+        </dependency>
+      <!--  <dependency>
             <groupId>com.jd.platfrom.jlog</groupId>
             <artifactId>config-core</artifactId>
             <version>1.4-SNAPSHOT</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>

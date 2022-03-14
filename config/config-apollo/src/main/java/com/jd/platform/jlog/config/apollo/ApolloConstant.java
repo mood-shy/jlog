@@ -17,5 +17,4 @@ public class ApolloConstant {
     static final String PROP_APOLLO_CONFIG_SERVICE = "apollo.config-service";
     static final String PROP_APOLLO_SECRET = "apollo.accesskey.secret";
     static final String PROP_APOLLO_CLUSTER = "apollo.cluster";
-    static final String DEFAULT_NAMESPACE = "jLog";
 }
