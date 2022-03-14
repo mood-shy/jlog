@@ -54,8 +54,8 @@ public class CenterStarter {
                 List<String> list = config.getList("workers");
                 if(!list.contains(buildKey())){
                     list.add(buildValue());
+                    config.putConfig("workers", JSON.toJSONString(list));
                 }
-                config.putConfig("workers", JSON.toJSONString(list));
             } catch (Exception e) {
                 //do nothing
                 e.printStackTrace();
