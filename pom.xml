@@ -16,7 +16,8 @@
         <module>clientlog4j2</module>
         <module>clientlogback</module>
         <module>Dashboard</module>
-        <module>clientdemo</module>
+        <module>example</module>
+        <module>config</module>
     </modules>
 
     <properties>

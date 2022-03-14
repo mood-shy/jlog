@@ -1,6 +1,5 @@
 package com.jd.platform.jlog.worker.disruptor;
 
-import cn.hutool.core.date.DateUtil;
 import com.jd.platform.jlog.common.model.RunLogMessage;
 import com.jd.platform.jlog.common.model.TracerBean;
 import com.jd.platform.jlog.common.model.TracerData;
@@ -105,8 +104,8 @@ public class TracerConsumer implements WorkHandler<OneTracer> {
             map.put("threadName", runLogMessage.getThreadName());
             map.put("methodName", runLogMessage.getMethodName());
             map.put("logLevel", runLogMessage.getLogLevel());
-            map.put("createTime", DateUtil.formatDateTime(new Date(runLogMessage.getCreateTime())));
             map.put("content", runLogMessage.getContent());
+            map.putAll(runLogMessage.getTagMap());
             tracerLogToDbStore.offer(map);
         }
 
@@ -116,8 +115,11 @@ public class TracerConsumer implements WorkHandler<OneTracer> {
      * 处理filter里处理的出入参
      */
     private void dealFilterModel(TracerBean tracerBean) {
+
         List<Map<String, Object>> mapList = tracerBean.getTracerObject();
         Map<String, Object> requestMap = mapList.get(0);
+
+        Map<String, Object> map = new HashMap<>(requestMap);
 
         long tracerId = requestMap.get("tracerId") == null ? 0 : Long.valueOf(requestMap.get("tracerId").toString());
         //filter的出入参
@@ -128,59 +130,11 @@ public class TracerConsumer implements WorkHandler<OneTracer> {
             responseBytes = (byte[]) responseMap.get("response");
         }
 
-        Map<String, Object> map = new HashMap<>();
-        //jsf的是用户自己设置的request入参，http的是从httpRequest读取的
-        if (requestMap.get("wholeRequest") == null) {
-            map.put("requestContent", FastJsonUtils.collectToString(requestMap));
-        } else {
-            map.put("requestContent", requestMap.get("wholeRequest"));
-        }
-
-        //此处做了一个base64编码，否则原编码直接进去，取出来后是String，直接getBytes后无法用Zstd解压
         map.put("responseContent", responseBytes);
-        map.put("createTime", DateUtil.formatDateTime(new Date(tracerBean.getCreateTime())));
         map.put("costTime", tracerBean.getCostTime());
-
-
         map.put("tracerId", tracerId);
-
-        String pin = requestMap.get("pin") == null ? "" : requestMap.get("pin").toString();
-        map.put("pin", pin);
-
-        String uri = requestMap.get("uri") == null ? "" : requestMap.get("uri").toString();
-        map.put("uri", uri);
-
-        //appName
-        String appName = requestMap.get("appName") == null ? "" : requestMap.get("appName").toString();
-        map.put("appName", appName);
-
-        String openudid = requestMap.get("openudid") == null ? "" : requestMap.get("openudid").toString();
-
-        if (StringUtil.isNullOrEmpty(openudid)) {
-            String uuid = requestMap.get("uuid") == null ? "" : requestMap.get("uuid").toString();
-            map.put("uuid", uuid);
-        } else {
-            map.put("uuid", openudid);
-        }
-
-        String client = requestMap.get("client") == null ? "" : requestMap.get("client").toString();
-        int clientType = 0;
-        if ("apple".equals(client)) {
-            clientType = 2;
-        } else if ("android".equals(client)) {
-            clientType = 1;
-        }
-        map.put("clientType", clientType);
-        String clientVersion = requestMap.get("clientVersion") == null ? "" : requestMap.get("clientVersion").toString();
-        map.put("clientVersion", clientVersion);
-
-        String userIp = requestMap.get("ip") == null ? "" : requestMap.get("ip").toString();
-        map.put("userIp", userIp);
-        String serverIp = requestMap.get("serverIp") == null ? "" : requestMap.get("serverIp").toString();
-        map.put("serverIp", serverIp);
-
-        map.put("intoDbTime", DateUtil.formatDateTime(new Date(tracerBean.getCreateTime())));
-
+        responseMap.remove("response");
+        map.putAll(responseMap);
         tracerModelToDbStore.offer(map);
     }
 

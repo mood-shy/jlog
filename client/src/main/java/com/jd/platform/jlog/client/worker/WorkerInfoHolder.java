@@ -1,6 +1,5 @@
 package com.jd.platform.jlog.client.worker;
 
-import cn.hutool.core.collection.CollectionUtil;
 
 import java.util.Collections;
 import java.util.List;
@@ -57,7 +56,7 @@ public class WorkerInfoHolder {
      * address例子：10.12.139.152:11111
      */
     public static void mergeAndConnectNew(List<String> allAddresses) {
-        if (CollectionUtil.isEmpty(allAddresses)) {
+        if (allAddresses.size() == 0) {
             WORKER_HOLDER.clear();
             return;
         }

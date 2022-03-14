@@ -1,6 +1,6 @@
 package com.jd.platform.jlog.common.utils;
 
-import com.google.common.base.Preconditions;
+import com.sun.tools.javac.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,14 +86,14 @@ public class IdWorker {
      * @param workerId 工作进程Id
      */
     private static void setWorkerId(final Long workerId) {
-        Preconditions.checkArgument(workerId >= 0L && workerId < WORKER_ID_MAX_VALUE);
+        Assert.check(workerId >= 0L && workerId < WORKER_ID_MAX_VALUE);
         IdWorker.workerId = workerId;
     }
 
     //下一个ID生成算法
     public static long nextId() {
         long time = System.currentTimeMillis();
-        Preconditions.checkState(lastTime <= time, "Clock is moving backwards, last time is %d milliseconds, current time is %d milliseconds", lastTime, time);
+        Assert.check(lastTime <= time, "Clock is moving backwards, last time is %d milliseconds, current time is %d milliseconds"+lastTime);
         if (lastTime == time) {
             if (0L == (sequence = ++sequence & SEQUENCE_MASK)) {
                 time = waitUntilNextTime(time);
