@@ -60,45 +60,6 @@ public interface Configurator {
 
 
     /**
-     * 移除配置
-     * @param key key
-     * @return val
-     */
-    boolean removeConfig(String key);
-
-    /**
-     * 移除配置
-     * @param key key
-     * @param timeoutMills timeoutMills
-     * @return val
-     */
-    boolean removeConfig(String key, long timeoutMills);
-
-
-    /**
-     * 根据前缀/父级路径获取子节点
-     * @param prefix path
-     * @return List
-     */
-    List<String> getConfigByPrefix(String prefix);
-
-
-    /**
-     * 添加监听器
-     * @param node 文件
-     */
-    void addConfigListener(String node);
-
-
-    /**
-     * 移除监听器
-     * @param node 节点 file or dir
-     */
-    @Deprecated
-    void removeConfigListener(String node);
-
-
-    /**
      * 获取配置器类型
      * @return string example:apollo
      */

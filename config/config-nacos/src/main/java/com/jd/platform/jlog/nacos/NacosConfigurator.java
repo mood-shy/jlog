@@ -25,6 +25,9 @@ import static com.jd.platform.jlog.nacos.NacosConstant.*;
 
 
 
+/**
+ * @author tangbohu
+ */
 public class NacosConfigurator implements Configurator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NacosConfigurator.class);
@@ -71,6 +74,8 @@ public class NacosConfigurator implements Configurator {
                         KEY_DATAID_MAP.put((String) e.nextElement(), DEFAULT_DATA_ID);
                     }
                 }
+                configService.addListener(DEFAULT_DATA_ID, JLOG_GROUP, new NacosListener());
+
             } catch (NacosException | IOException e) {
                 throw new RuntimeException(e);
             }
@@ -96,39 +101,6 @@ public class NacosConfigurator implements Configurator {
     @Override
     public <T> T getObject(String key, Class<T> clz) {
         return null;
-    }
-
-    @Override
-    public String getConfig(String key) {
-        return getConfig(key, DEFAULT_TIMEOUT);
-    }
-
-
-    @Override
-    public String getConfig(String key, long timeoutMills) {
-        String value = System.getProperty(key);
-        if (value != null) {
-            return value;
-        }
-
-        value = PROPERTIES.getProperty(key);
-
-        if (null == value) {
-            try {
-                String dataId = KEY_DATAID_MAP.get(key);
-                if(StringUtil.isEmpty(dataId)){
-                    return null;
-                }
-                String config = configService.getConfig(dataId, JLOG_GROUP, timeoutMills);
-                if(StringUtil.isEmpty(config)){
-                    return null;
-                }
-                PROPERTIES.load(new StringReader(config));
-            } catch (NacosException | IOException ex) {
-                LOGGER.error(ex.getMessage());
-            }
-        }
-        return PROPERTIES.getProperty(key);
     }
 
 
@@ -159,71 +131,15 @@ public class NacosConfigurator implements Configurator {
     }
 
 
-    @Override
-    public boolean removeConfig(String key) {
-        return removeConfig(key, DEFAULT_TIMEOUT);
-    }
-
-
-
-    @Override
-    public boolean removeConfig(String key, long timeoutMills) {
-
-        String dataId = KEY_DATAID_MAP.get(key);
-        if(StringUtil.isEmpty(dataId)){
-            return false;
-        }
-        boolean result = false;
-        try {
-            if (!PROPERTIES.isEmpty()) {
-                PROPERTIES.remove(key);
-                result = configService.publishConfig(dataId, JLOG_GROUP, formatConfigStr(PROPERTIES));
-            } else {
-                result = configService.removeConfig(dataId, JLOG_GROUP);
-            }
-        } catch (NacosException exx) {
-            LOGGER.error(exx.getErrMsg());
-        }
-        return result;
-    }
-
-
-
-    @Override
-    public void addConfigListener(String dataId) {
-        if(!DEFAULT_DATA_ID.equals(dataId)){
-            throw new RuntimeException("no support");
-        }
-        LOGGER.info("nacos添加监听器开始 dataId:{}",dataId);
-        NacosListener nacosListener = new NacosListener();
-        LOGGER.info("## nacos添加监听器过程 {}",nacosListener.toString());
-        try {
-            configService.addListener(dataId, JLOG_GROUP, nacosListener);
-        } catch (NacosException e) {
-            LOGGER.error("nacos添加监听器失败",e);
-        }
-    }
-
-
-
-    @Override
-    public void removeConfigListener(String dataId) {
-        if(!DEFAULT_DATA_ID.equals(dataId)){
-            throw new RuntimeException("no support");
-        }
-        LOGGER.info("nacos移除监听器开始");
-        configService.removeListener(dataId, JLOG_GROUP, NACOSLISTENER);
-    }
-
 
     private static Properties getConfigProperties() {
         Properties properties = new Properties();
-        String address = FILE_CONFIG.getConfig(SERVER_ADDR_KEY);
+        String address = FILE_CONFIG.getString(SERVER_ADDR_KEY);
         if (address != null) {
             properties.setProperty(SERVER_ADDR_KEY, address);
         }
 
-        String namespace = FILE_CONFIG.getConfig(NAMESPACE_KEY);
+        String namespace = FILE_CONFIG.getString(NAMESPACE_KEY);
         if (namespace != null) {
             properties.setProperty(NAMESPACE_KEY, namespace);
         }else{
@@ -239,12 +155,6 @@ public class NacosConfigurator implements Configurator {
     @Override
     public String getType() {
         return "nacos";
-    }
-
-
-    @Override
-    public List<String> getConfigByPrefix(String prefix) {
-        return null;
     }
 
 

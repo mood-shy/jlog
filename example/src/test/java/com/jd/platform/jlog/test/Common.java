@@ -29,7 +29,7 @@ public class Common {
         LOGGER.info("配置器get addr：{}", addr);
         TagConfig tagConfig = configurator.getObject("tagConfig", TagConfig.class);
         LOGGER.info("配置器get tagConfig：{}", tagConfig.toString());
-        List workers = configurator.getConfigByPrefix("workers");
+        List workers = configurator.getList("workers");
         LOGGER.info("配置器get workers：{}", JSON.toJSONString(workers));
     }
 

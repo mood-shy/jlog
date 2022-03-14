@@ -45,7 +45,7 @@ public class EtcdConfiguratorTest {
 
    // @Test
     public void testUpdateCFG() throws Exception {
-        List<String> workers = configurator.getConfigByPrefix("workers");
+        List<String> workers = configurator.getList("workers");
         LOGGER.info("初始化的workers：{}", JSON.toJSONString(workers));
         String myIp = "121.1.1.0";
         if(workers.contains(myIp)){
@@ -57,7 +57,7 @@ public class EtcdConfiguratorTest {
             workers.add(myIp);
         }
         configurator.putConfig("workers",JSON.toJSONString(workers));
-        List<String> workers2 = configurator.getConfigByPrefix("workers");
+        List<String> workers2 = configurator.getList("workers");
         LOGGER.info("最新的workers：{}", JSON.toJSONString(workers2));
     }
 
@@ -68,7 +68,6 @@ public class EtcdConfiguratorTest {
 
         String val1 = configurator.getString("testKey");
         LOGGER.info("初始化的testKey的val:{}", val1);
-        configurator.addConfigListener("/jLog");
         LOGGER.info("添加监听器后， 修改配置testKey = {}", i1);
         configurator.putConfig("testKey",i1 + "");
         LOGGER.info("修改完毕 准备触发监听器");
@@ -76,14 +75,9 @@ public class EtcdConfiguratorTest {
         String val2 = configurator.getString("testKey");
         LOGGER.info("第一次修改后的的val:{}", val2);
         Thread.sleep(5000);
-        configurator.removeConfigListener("/jLog");
-        Thread.sleep(5000);
      //   LOGGER.info("移除监听器后:修改配置testKey = {}",i2);
      //   configurator.putConfig("testKey",i2 + "");
         LOGGER.info("准备验证监听器是否停止  最新testKey={}", configurator.getString("testKey"));
-
-
-        configurator.addConfigListener("/jLog");
         LOGGER.info("第二次添加监听器");
         Thread.sleep(22000);
 

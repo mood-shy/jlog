@@ -50,7 +50,6 @@ public class FileConfiguratorTest {
 
     @Test
     public void testAddConfigListener() throws Exception {
-        configurator.addConfigListener("/bakapplication.yml");
         String path = "/Users/didi/Desktop/jlog/example/target/classes/application.properties";
         Properties props = new Properties();
         FileInputStream fis = new FileInputStream(new File(path));
@@ -66,14 +65,12 @@ public class FileConfiguratorTest {
         LOGGER.info("睡醒了 应该更新了配置，testKey：{}",configurator.getString("testKey"));
         Thread.sleep(2000);
         LOGGER.info("移除监听器之前，testKey：{}",configurator.getString("testKey"));
-        configurator.removeConfigListener("/bakapplication.yml");
         LOGGER.info("移除监听器之后，testKey：{}",configurator.getString("testKey"));
         modifyFile(path);
         LOGGER.info("修改文件完毕 准备验证监听器是否停止  最新testKey={}", configurator.getString("testKey"));
 
 
         LOGGER.info("再次添加监听器");
-        configurator.addConfigListener("/bakapplication.yml");
         modifyFile(path);
         LOGGER.info("修改文件完毕");
         Thread.sleep(1000);

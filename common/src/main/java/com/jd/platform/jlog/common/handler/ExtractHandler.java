@@ -23,12 +23,12 @@ import static com.jd.platform.jlog.common.utils.ConfigUtil.RANDOM;
 /**
  * @author tangbohu
  * @version 1.0.0
- * @ClassName Tag.java
+ * @ClassName ExtractHandler.java
  * @createTime 2022年02月12日 21:28:00
  */
-public class TagHandler {
+public class ExtractHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TagHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExtractHandler.class);
 
     private List<String> reqTags;
 
@@ -46,7 +46,7 @@ public class TagHandler {
 
     private long extract;
 
-    private static volatile TagHandler instance = null;
+    private static volatile ExtractHandler instance = null;
 
     /**
      * 构建标签处理器
@@ -58,7 +58,7 @@ public class TagHandler {
             return;
         }
 
-        TagHandler handler =  new TagHandler();
+        ExtractHandler handler =  new ExtractHandler();
         handler.extract = tagConfig.getExtract();
         handler.reqTags = tagConfig.getReqTags();
         handler.logTags = tagConfig.getLogTags();
@@ -83,32 +83,25 @@ public class TagHandler {
 
     /**
      * 提取请求参数里的标签
-     * @param params 参数
-     * @param ext 额外附加的,如ip等
+     * @param reqMap 额外附加的,如ip等
      * @return tags
      */
-    public static Map<String, Object> extractReqTag(Map<String, String[]> params, @NotNull Map<String, Object> ext) {
+    public static Map<String, Object> extractReqTag(Map<String, Object> reqMap) {
 
         if(instance == null || !isMatched(instance.extract, E_REQ)){ return null; }
 
         System.out.println("### INSTANCE.reqTags:"+JSON.toJSONString(instance.reqTags));
-        System.out.println("### .params:"+JSON.toJSONString(params));
-        System.out.println("### .ext:"+JSON.toJSONString(ext));
+        System.out.println("### .ext:"+JSON.toJSONString(reqMap));
 
-        Map<String, Object> requestMap = new HashMap<>(instance.reqTags.size());
+        Map<String, Object> tagMap = new HashMap<>(instance.reqTags.size());
         for (String tag : instance.reqTags) {
-            Object val = ext.get(tag);
+            Object val = reqMap.get(tag);
             if(val != null){
-                requestMap.put(tag, val);
-                continue;
-            }
-
-            if(CollectionUtil.isNotEmpty(params) && params.get(tag) != null){
-                requestMap.put(tag, params.get(tag)[0]);
+                tagMap.put(tag, val);
             }
         }
-        System.out.println("提取到了请求入参日志标签："+JSON.toJSONString(requestMap));
-        return requestMap;
+        System.out.println("提取到了请求入参日志标签："+JSON.toJSONString(tagMap));
+        return tagMap;
     }
 
 
@@ -155,9 +148,9 @@ public class TagHandler {
 
         if(instance == null || !isMatched(instance.extract, E_REQ)){ return null; }
 
-        System.out.println("### INSTANCE.reqTags:"+JSON.toJSONString(instance.reqTags));
+        System.out.println("### INSTANCE.respTags:"+JSON.toJSONString(instance.respTags));
 
-        Map<String, Object> requestMap = new HashMap<>(instance.reqTags.size());
+        Map<String, Object> requestMap = new HashMap<>(instance.respTags.size());
         for (String tag : instance.reqTags) {
             Object val = resp.get(tag);
             if(val != null){

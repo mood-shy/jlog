@@ -1,8 +1,8 @@
 package com.jd.platform.jlog.core;
 
 import com.jd.platform.jlog.common.handler.CompressHandler;
+import com.jd.platform.jlog.common.handler.ExtractHandler;
 import com.jd.platform.jlog.common.handler.TagConfig;
-import com.jd.platform.jlog.common.handler.TagHandler;
 
 /**
  * @author tangbohu
@@ -11,7 +11,7 @@ import com.jd.platform.jlog.common.handler.TagHandler;
  * @Description TODO
  * @createTime 2022年03月05日 22:07:00
  */
-public class HandlerBuilder {
+public class ClientHandlerBuilder {
 
 
 
@@ -19,7 +19,7 @@ public class HandlerBuilder {
         if(tagConfig == null){
             tagConfig = buildTagConfigByConfigurator(configurator);
         }
-        TagHandler.buildTagHandler(tagConfig);
+        ExtractHandler.buildTagHandler(tagConfig);
         CompressHandler.buildCompressHandler(configurator.getLong("compress"), configurator.getLong("threshold"));
     }
 
@@ -29,7 +29,7 @@ public class HandlerBuilder {
         if(configurator == null){
             throw new RuntimeException("configurator is null");
         }
-        TagHandler.refresh(buildTagConfigByConfigurator(configurator));
+        ExtractHandler.refresh(buildTagConfigByConfigurator(configurator));
     }
 
 

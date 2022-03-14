@@ -106,8 +106,5 @@ public class TracerClientStarter {
         LOGGER.info("从主配置获取的tagConfig:{}", JSON.toJSONString(tagConfig));
         Configurator configurator = ConfiguratorFactory.getInstance();
         HandlerBuilder.buildHandler(tagConfig, configurator);
-        configurator.addConfigListener("/application.properties");
-      //  configurator.addConfigListener("/application.yml");
-
     }
 }

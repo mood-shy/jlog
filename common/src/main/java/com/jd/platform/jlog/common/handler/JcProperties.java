@@ -1,4 +1,4 @@
-package com.jd.platform.jlog.core;
+package com.jd.platform.jlog.common.handler;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.platform.jlog.common.utils.ConfigUtil;
@@ -8,7 +8,10 @@ import com.jd.platform.jlog.common.utils.StringUtil;
 import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 import static com.jd.platform.jlog.common.utils.ConfigUtil.lowerFirst;
 

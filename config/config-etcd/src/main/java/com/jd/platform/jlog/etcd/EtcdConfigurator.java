@@ -40,17 +40,15 @@ public class EtcdConfigurator implements Configurator {
 
     private static final Configurator FILE_CONFIG = ConfiguratorFactory.base;
 
+    public static final String ROOT = "/jLog";
 
     private static final String PROPERTIES_PATH = "/jLog/jLog.properties";
 
     private static Properties PROPERTIES = new Properties();
 
-    private volatile static EtcdListener LISTENER = null;
-
-
     private EtcdConfigurator() {
-        LOGGER.info("开始构建etcd客户端, serverAddr:{}",FILE_CONFIG.getConfig(SERVER_ADDR_KEY));
-        client = EtcdClient.forEndpoints(FILE_CONFIG.getConfig(SERVER_ADDR_KEY,2000L)).withPlainText().build();
+        LOGGER.info("开始构建etcd客户端, serverAddr:{}",FILE_CONFIG.getString(SERVER_ADDR_KEY));
+        client = EtcdClient.forEndpoints(FILE_CONFIG.getString(SERVER_ADDR_KEY)).withPlainText().build();
         RangeResponse rangeResponse = client.getKvClient().get(ByteString.copyFromUtf8(PROPERTIES_PATH)).sync();
         List<KeyValue> keyValues = rangeResponse.getKvsList();
         if (CollectionUtil.isEmpty(keyValues)) {
@@ -64,6 +62,8 @@ public class EtcdConfigurator implements Configurator {
                 e.printStackTrace();
             }
         }
+
+        new EtcdListener().onProcessEvent(new ConfigChangeEvent());
     }
 
 
@@ -100,20 +100,6 @@ public class EtcdConfigurator implements Configurator {
     }
 
     @Override
-    public String getConfig(String key) {
-        Object val = PROPERTIES.get(key);
-        if(val != null){
-            return String.valueOf(val);
-        }
-        return null;
-    }
-
-    @Override
-    public String getConfig(String key, long timeoutMills) {
-        return getConfig(key);
-    }
-
-    @Override
     public boolean putConfig(String key, String content) {
         return putConfig(key, content, DEFAULT_TIMEOUT);
     }
@@ -128,48 +114,10 @@ public class EtcdConfigurator implements Configurator {
         return true;
     }
 
-    @Override
-    public boolean removeConfig(String key) {
-        return removeConfig(key, DEFAULT_TIMEOUT);
-    }
-
-
-    @Override
-    public boolean removeConfig(String key, long timeoutMills) {
-        PROPERTIES.remove(key);
-        client.getKvClient().put(ByteString.copyFromUtf8(PROPERTIES_PATH), ByteString.copyFromUtf8(formatConfigStr(PROPERTIES))).sync();
-        return true;
-    }
-
-    @Override
-    public void addConfigListener(String node) {
-        System.out.println("添加etcd监听器"+node);
-        LISTENER = new EtcdListener(node);
-        LISTENER.onProcessEvent(new ConfigChangeEvent());
-    }
-
-    @Override
-    public void removeConfigListener(String node) {
-        System.out.println("移除etcd监听器"+node);
-        LISTENER.onShutDown();
-        LISTENER = null;
-    }
 
     @Override
     public String getType() {
         return "etcd";
-    }
-
-
-    @Override
-    public List getConfigByPrefix(String prefix) {
-        RangeResponse rangeResponse = client.getKvClient().get(ByteString.copyFromUtf8(prefix)).asPrefix().sync();
-        List<KeyValue> keyValues = rangeResponse.getKvsList();
-        List list = new ArrayList<>();
-        for (KeyValue kv : keyValues) {
-            list.add(kv.getValue().toStringUtf8());
-        }
-        return list;
     }
 
 }

@@ -19,6 +19,9 @@ import static com.jd.platform.jlog.nacos.NacosConfigurator.*;
 import static com.jd.platform.jlog.nacos.NacosConstant.DEFAULT_DATA_ID;
 
 
+/**
+ * @author tangbohu
+ */
 public class NacosListener extends AbstractSharedListener implements ConfigChangeListener, EventListener {
 
 

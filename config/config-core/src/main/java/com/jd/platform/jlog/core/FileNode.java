@@ -2,6 +2,7 @@ package com.jd.platform.jlog.core;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.platform.jlog.common.handler.CollectMode;
+import com.jd.platform.jlog.common.handler.JcProperties;
 import com.jd.platform.jlog.common.handler.TagConfig;
 import com.jd.platform.jlog.common.utils.ZstdUtils;
 

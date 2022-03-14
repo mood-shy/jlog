@@ -1,8 +1,11 @@
 package com.jd.platform.jlog.common.handler;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.platform.jlog.common.utils.ZstdUtils;
+import com.sun.istack.internal.NotNull;
 
 import java.util.Base64;
+import java.util.Map;
 
 import static com.jd.platform.jlog.common.constant.Constant.MIN;
 import static com.jd.platform.jlog.common.constant.Constant.THRESHOLD;
@@ -46,12 +49,18 @@ public class CompressHandler {
         instance = new CompressHandler(compress, threshold);
     }
 
-    public static byte[] compressReq(byte[] contentBytes){
-        if(instance == null || !isMatched(instance.compress, E_REQ)){ return contentBytes; }
-        return doCompress(contentBytes);
+    public static Map<String, Object> compressReq(Map<String, Object> map){
+        if(instance == null || !isMatched(instance.compress, E_REQ)){
+            return  map;
+        }
+
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            map.put(entry.getKey(), doCompress(entry.getValue().toString().getBytes()));
+        }
+        return map;
     }
 
-    public static byte[] compressLog(byte[] contentBytes){
+    public static Map<String, Object> compressLog(byte[] contentBytes){
         if(instance == null || !isMatched(instance.compress, E_LOG)){ return contentBytes; }
         return doCompress(contentBytes);
     }

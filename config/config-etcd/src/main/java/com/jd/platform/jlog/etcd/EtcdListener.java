@@ -16,6 +16,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import static com.jd.platform.jlog.etcd.EtcdConfigurator.ROOT;
+
 /**
  * @author tangbohu
  * @version 1.0.0
@@ -29,11 +31,9 @@ public class EtcdListener implements ConfigChangeListener {
             TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(),
             new DefaultThreadFactory("etcdListener", 1));
 
-    public EtcdListener(String node) {
+    public EtcdListener() {
 
-        iterator = EtcdConfigurator.client.getKvClient().watch(ByteString.copyFromUtf8(node)).asPrefix().start();
-        System.out.println("构造器EtcdListener"+node);
-
+        iterator = EtcdConfigurator.client.getKvClient().watch(ByteString.copyFromUtf8(ROOT)).asPrefix().start();
         getExecutorService().submit(() -> {
             while (iterator.hasNext()){
                 try {
@@ -43,7 +43,7 @@ public class EtcdListener implements ConfigChangeListener {
                     Event.EventType eveType = eve.getType();
                     ConfigChangeType changeType = eveType.equals(Event.EventType.DELETE) ? ConfigChangeType.MODIFY : ConfigChangeType.DELETE;
                     ConfigChangeEvent event = new ConfigChangeEvent();
-                    event.setKey(node).setNewValue(kv.getValue().toStringUtf8()).setChangeType(changeType);
+                    event.setKey(kv.getKey().toStringUtf8()).setNewValue(kv.getValue().toStringUtf8()).setChangeType(changeType);
                     onChangeEvent(event);
                 }catch (RuntimeException e){
                     e.printStackTrace();

@@ -57,7 +57,7 @@ public class ZkConfigurator implements Configurator {
                 zkClient.create().withMode(CreateMode.EPHEMERAL).forPath(DEFAULT_WORKER_PATH);
             }
             loadZkData();
-            addConfigListener(DEFAULT_CONFIG_PATH);
+            new ZkListener(DEFAULT_CONFIG_PATH);
             LOGGER.info("初始化ZK,载入ZK数据完成 props:{}", JSON.toJSONString(PROPERTIES));
         }
     }
@@ -104,64 +104,6 @@ public class ZkConfigurator implements Configurator {
         return true;
     }
 
-
-
-    @Override
-    public boolean removeConfig(String key) {
-        return removeConfig(key, DEFAULT_TIMEOUT);
-    }
-
-
-
-    @Override
-    public boolean removeConfig(String key, long timeoutMills) {
-        PROPERTIES.remove(key);
-        try {
-            zkClient.setData().forPath(DEFAULT_CONFIG_PATH, formatConfigByte(PROPERTIES));
-        } catch (Exception e) {
-            return false;
-        }
-        return true;
-    }
-
-
-
-
-    @Override
-    public void addConfigListener(String node) {
-        if(!DEFAULT_CONFIG_PATH.equals(node)){
-            throw new RuntimeException("no support");
-        }
-        LOGGER.info("ZK添加监听器, node:{}", node);
-        if(ZKLISTENER == null){
-            synchronized (ZkConfigurator.class){
-                ZKLISTENER = new ZkListener(node);
-            }
-        }
-    }
-
-
-    @Override
-    public void removeConfigListener(String node) {
-        if(!DEFAULT_CONFIG_PATH.equals(node)){
-            throw new RuntimeException("no support");
-        }
-        LOGGER.info("ZK删除监听器, node:{}", node);
-        ZKLISTENER.onShutDown();
-        ZKLISTENER = null;
-    }
-
-
-    @Override
-    public List<String> getConfigByPrefix(String prefix) {
-        try {
-            String val = getString(prefix);
-            return FastJsonUtils.toList(val,String.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
 
     @Override
