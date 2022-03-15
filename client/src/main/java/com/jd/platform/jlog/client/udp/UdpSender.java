@@ -1,12 +1,11 @@
 package com.jd.platform.jlog.client.udp;
 
-import cn.hutool.core.collection.CollectionUtil;
-import com.google.common.collect.Queues;
 import com.jd.platform.jlog.client.Context;
 import com.jd.platform.jlog.common.model.RunLogMessage;
 import com.jd.platform.jlog.common.model.TracerBean;
 import com.jd.platform.jlog.common.model.TracerData;
 import com.jd.platform.jlog.common.utils.AsyncPool;
+import com.jd.platform.jlog.common.utils.AsyncWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,8 +112,8 @@ public class UdpSender {
                 try {
                     //要么key达到500个，要么达到1秒，就汇总上报给worker一次
                     List<RunLogMessage> tempLogs = new ArrayList<>();
-                    Queues.drain(logBeanQueue, tempLogs, 500, 1, TimeUnit.SECONDS);
-                    if (CollectionUtil.isEmpty(tempLogs)) {
+                    AsyncWorker.drain(logBeanQueue, tempLogs, 500, 1, TimeUnit.SECONDS);
+                    if (tempLogs.size() == 0) {
                         continue;
                     }
 

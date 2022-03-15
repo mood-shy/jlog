@@ -1,5 +1,0 @@
-#etcd的地址，如有多个用逗号分隔
-config:
-  server: ${etcdServer:http://127.0.0.1:2379} #etcd的地址，重要！！！
-server:
-  port: 8081

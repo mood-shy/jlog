@@ -60,7 +60,7 @@ public class UdpClient {
                 });
         //4.bind并返回一个channel
         try {
-            Channel channel = bootstrap.bind(8888).sync().channel();
+            Channel channel = bootstrap.bind(8887).sync().channel();
             Context.CHANNEL = channel;
 
             //6.等待channel的close
@@ -68,6 +68,8 @@ public class UdpClient {
             //7.关闭group
             group.shutdownGracefully();
         } catch (InterruptedException e) {
+            System.out.println("NioEventLoopGroup ==>  "+e.toString());
+
             e.printStackTrace();
         }
     }

@@ -1,11 +1,16 @@
 package com.jd.platform.jlog.client;
 
-import com.jd.platform.jlog.client.etcd.EtcdConfigFactory;
-import com.jd.platform.jlog.client.etcd.EtcdStarter;
+
+import com.alibaba.fastjson.JSON;
 import com.jd.platform.jlog.client.mdc.Mdc;
-import com.jd.platform.jlog.client.udp.HttpSender;
-import com.jd.platform.jlog.client.udp.UdpClient;
-import com.jd.platform.jlog.client.udp.UdpSender;
+import com.jd.platform.jlog.client.task.Monitor;
+import com.jd.platform.jlog.common.handler.TagConfig;
+import com.jd.platform.jlog.core.ClientHandlerBuilder;
+import com.jd.platform.jlog.core.Configurator;
+import com.jd.platform.jlog.core.ConfiguratorFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * TracerClientStarter
@@ -14,14 +19,21 @@ import com.jd.platform.jlog.client.udp.UdpSender;
  * @date 2021-08-13
  */
 public class TracerClientStarter {
-    /**
-     * etcd地址
-     */
-    private String etcdServer;
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(TracerClientStarter.class);
+
+
     /**
      * 机房
      */
     private Mdc mdc;
+
+    /**
+     * 如果直接配置在app.properties/yaml等主配置文件
+     * 可以用ConfigurationProperties直接获取有值对象
+     */
+    private TagConfig tagConfig;
+
 
     /**
      * TracerClientStarter
@@ -35,8 +47,8 @@ public class TracerClientStarter {
 
     public static class Builder {
         private String appName;
-        private String etcdServer;
         private Mdc mdc;
+        private TagConfig tagConfig;
 
         public Builder() {
         }
@@ -51,40 +63,48 @@ public class TracerClientStarter {
             return this;
         }
 
-        public Builder setEtcdServer(String etcdServer) {
-            this.etcdServer = etcdServer;
+        public Builder setTagConfig(TagConfig tagConfig) {
+            this.tagConfig = tagConfig;
             return this;
         }
 
         public TracerClientStarter build() {
             TracerClientStarter tracerClientStarter = new TracerClientStarter(appName);
-            tracerClientStarter.etcdServer = etcdServer;
+            tracerClientStarter.tagConfig = tagConfig;
             tracerClientStarter.mdc = mdc;
-
             return tracerClientStarter;
         }
     }
 
     /**
-     * 启动监听etcd
+     * 启动监听
      */
     public void startPipeline() {
-        //设置ConfigCenter
-        EtcdConfigFactory.buildConfigCenter(etcdServer);
+        // 初始化配置
+        initJLogConfig();
 
         Context.MDC = mdc;
 
-        EtcdStarter starter = new EtcdStarter();
-        //与etcd相关的监听都开启
+        Monitor starter = new Monitor();
         starter.start();
 
-        UdpClient udpClient = new UdpClient();
+     /* UdpClient udpClient = new UdpClient();
         udpClient.start();
 
         //开启发送
         UdpSender.uploadToWorker();
 
         //开启大对象http发送
-        HttpSender.uploadToWorker();
+        HttpSender.uploadToWorker();*/
+    }
+
+
+    /**
+     * 如果未赋值，从配置器获取，底层是Properties
+     */
+    private void initJLogConfig(){
+        LOGGER.info("从主配置获取的tagConfig:{}", JSON.toJSONString(tagConfig));
+        Configurator configurator = ConfiguratorFactory.getInstance();
+        ClientHandlerBuilder.buildHandler(tagConfig, configurator);
     }
 }

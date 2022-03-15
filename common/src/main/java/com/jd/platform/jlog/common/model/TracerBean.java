@@ -25,7 +25,7 @@ public class TracerBean implements Serializable {
     private String tracerId;
     /**
      * tracer对象，里面放的是List<Map<String, Object>>
-     * 第一个元素是request对象，key为request，value为完整request入参，从中可找到pin、uuid
+     * 第一个元素是request对象，key为request，value为完整request入参，从中可找到uuid
      * 最后一个元素是response响应，key为response，value为响应值byte[]，可转为String入库
      */
     private List<Map<String, Object>> tracerObject;

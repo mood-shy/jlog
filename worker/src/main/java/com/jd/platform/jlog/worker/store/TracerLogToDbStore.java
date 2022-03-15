@@ -1,8 +1,8 @@
 package com.jd.platform.jlog.worker.store;
 
-import cn.hutool.core.collection.CollectionUtil;
-import com.google.common.collect.Queues;
+
 import com.jd.platform.jlog.common.utils.AsyncPool;
+import com.jd.platform.jlog.common.utils.AsyncWorker;
 import com.jd.platform.jlog.worker.db.Db;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,8 +94,8 @@ public class TracerLogToDbStore {
                     try {
                         List<Map<String, Object>> tempModels = new ArrayList<>();
                         //每1s入库一次
-                        Queues.drain(logQueue, tempModels, Integer.valueOf(batchSize), interval, TimeUnit.SECONDS);
-                        if (CollectionUtil.isEmpty(tempModels)) {
+                        AsyncWorker.drain(logQueue, tempModels, Integer.valueOf(batchSize), interval, TimeUnit.SECONDS);
+                        if (tempModels.size() == 0) {
                             continue;
                         }
 

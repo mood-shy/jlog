@@ -1,5 +1,7 @@
 package com.jd.platform.jlog.common.model;
 
+import java.util.Map;
+
 /**
  * className：RunLogMessage
  * description：
@@ -36,6 +38,11 @@ public class RunLogMessage {
      * 线程名
      */
     private String threadName;
+
+    /**
+     * 标签map
+     */
+    private Map<String,Object> tagMap;
 
     public long getTracerId() {
         return tracerId;
@@ -91,5 +98,13 @@ public class RunLogMessage {
 
     public void setThreadName(String threadName) {
         this.threadName = threadName;
+    }
+
+    public Map<String, Object> getTagMap() {
+        return tagMap;
+    }
+
+    public void setTagMap(Map<String, Object> tagMap) {
+        this.tagMap = tagMap;
     }
 }
