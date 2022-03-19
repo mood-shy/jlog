@@ -1,10 +1,12 @@
 package com.jd.platform.jlog.worker.db;
 
+import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -12,6 +14,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static java.nio.charset.StandardCharsets.*;
 
 /**
  * https://blog.csdn.net/linglongxin24/article/details/53769957
@@ -81,7 +85,11 @@ public class Db {
 //            logger.info(sql.toString());
             for (Map<String, Object> data : datas) {
                 for (int k = 0; k < keys.length; k++) {
-                    preparedStatement.setObject(k + 1, data.get(keys[k]));
+                    Object val = data.get(keys[k]);
+                    if(val instanceof byte[]){
+                        val = new String((byte[]) val, ISO_8859_1);
+                    }
+                    preparedStatement.setObject(k + 1, val);
                 }
                 preparedStatement.addBatch();
             }

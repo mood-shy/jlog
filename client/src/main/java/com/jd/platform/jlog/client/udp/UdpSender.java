@@ -119,7 +119,7 @@ public class UdpSender {
 
                     List<TracerBean> tempTracers = new ArrayList<>();
                     TracerBean tracerBean = new TracerBean();
-                    tracerBean.setTracerId("-99999");
+                    tracerBean.setTracerId("-1");
                     List<Map<String, Object>> tracerObject = new ArrayList<>();
 
                     Map<String, Object> map = new HashMap<>();
