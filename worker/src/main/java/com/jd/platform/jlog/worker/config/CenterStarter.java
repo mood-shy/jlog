@@ -24,22 +24,6 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 public class CenterStarter {
-    /**
-     * 该worker为哪个app服务
-     */
-    @Value("${config.workerPath}")
-    private String workerPath;
-    /**
-     * 配置中心地址
-     */
-    @Value("${config.server}")
-    private String configServer;
-    /**
-     * 机房
-     */
-    @Value("${config.mdc}")
-    private String mdc;
-
 
     /**
      * 上报自己的ip到配置中心
@@ -68,8 +52,7 @@ public class CenterStarter {
      * 在配置中心存放的key
      */
     private String buildKey() {
-        String hostName = IpUtils.getHostName();
-        return Constant.WORKER_PATH + workerPath + "/" + hostName;
+        return IpUtils.getHostName();
     }
 
     /**

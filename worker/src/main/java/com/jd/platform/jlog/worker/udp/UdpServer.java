@@ -12,6 +12,7 @@ import io.netty.handler.codec.MessageToMessageDecoder;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -76,8 +77,6 @@ public class UdpServer {
 
             byte[] body = new byte[buf.readableBytes()];
             buf.readBytes(body);
-
-//            tracerBeanStore.offer(body);
             producer.sendData(body);
         }
     }

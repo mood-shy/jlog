@@ -4,6 +4,9 @@ package com.jd.platform.jlog.client;
 import com.alibaba.fastjson.JSON;
 import com.jd.platform.jlog.client.mdc.Mdc;
 import com.jd.platform.jlog.client.task.Monitor;
+import com.jd.platform.jlog.client.udp.HttpSender;
+import com.jd.platform.jlog.client.udp.UdpClient;
+import com.jd.platform.jlog.client.udp.UdpSender;
 import com.jd.platform.jlog.common.handler.TagConfig;
 import com.jd.platform.jlog.core.ClientHandlerBuilder;
 import com.jd.platform.jlog.core.Configurator;
@@ -88,14 +91,14 @@ public class TracerClientStarter {
         Monitor starter = new Monitor();
         starter.start();
 
-     /* UdpClient udpClient = new UdpClient();
+        UdpClient udpClient = new UdpClient();
         udpClient.start();
 
         //开启发送
         UdpSender.uploadToWorker();
 
         //开启大对象http发送
-        HttpSender.uploadToWorker();*/
+        HttpSender.uploadToWorker();
     }
 
 
