@@ -1,10 +1,8 @@
 package com.jd.platform.jlog.common.handler;
 
 import com.alibaba.fastjson.JSON;
-import com.jd.platform.jlog.common.utils.CollectionUtil;
 import com.jd.platform.jlog.common.utils.ConfigUtil;
 import com.jd.platform.jlog.common.utils.StringUtil;
-import com.sun.istack.internal.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,18 +85,13 @@ public class ExtractHandler {
     public static Map<String, Object> extractReqTag(Map<String, Object> reqMap) {
 
         if(instance == null || !isMatched(instance.extract, E_REQ)){ return null; }
-
-        System.out.println("### REQ INSTANCE :"+instance.toString());
-
         Map<String, Object> tagMap = new HashMap<>(instance.reqTags.size());
         for (String tag : instance.reqTags) {
             Object val = reqMap.get(tag);
             if(val != null){
                 tagMap.put(tag, val);
             }
-        }
-        System.out.println("提取到了请求入参日志标签："+JSON.toJSONString(tagMap));
-        return tagMap;
+        }return tagMap;
     }
 
 
@@ -129,7 +122,6 @@ public class ExtractHandler {
                 }
             }
         }
-        System.out.println("提取到了请求log日志标签："+JSON.toJSONString(tagMap));
         return tagMap;
     }
 
@@ -150,7 +142,6 @@ public class ExtractHandler {
                 requestMap.put(tag, val);
             }
         }
-        System.out.println("提取到了请求出参日志标签："+JSON.toJSONString(requestMap));
         return requestMap;
     }
 

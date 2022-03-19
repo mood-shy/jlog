@@ -1,5 +1,6 @@
 package com.jd.platform.jlog.worker.disruptor;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.platform.jlog.common.model.RunLogMessage;
 import com.jd.platform.jlog.common.model.TracerBean;
 import com.jd.platform.jlog.common.model.TracerData;
@@ -13,10 +14,11 @@ import io.netty.util.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.concurrent.atomic.LongAdder;
 
 /**
@@ -44,6 +46,9 @@ public class TracerConsumer implements WorkHandler<OneTracer> {
      */
     private TracerLogToDbStore tracerLogToDbStore;
 
+    private static final DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+
     public TracerConsumer(TracerModelToDbStore tracerModelToDbStore, TracerLogToDbStore tracerLogToDbStore) {
         this.tracerModelToDbStore = tracerModelToDbStore;
         this.tracerLogToDbStore = tracerLogToDbStore;
@@ -59,6 +64,9 @@ public class TracerConsumer implements WorkHandler<OneTracer> {
             byte[] decompressBytes = ZstdUtils.decompressBytes(oneTracer.getBytes());
 
             TracerData tracerData = ProtostuffUtils.deserialize(decompressBytes, TracerData.class);
+
+            System.out.println("从事件中获取并解压的数据="+ JSON.toJSONString(tracerData));
+
             //包含了多个tracer对象
             List<TracerBean> tracerBeanList = tracerData.getTracerBeanList();
             buildTracerModel(tracerBeanList);
@@ -78,9 +86,8 @@ public class TracerConsumer implements WorkHandler<OneTracer> {
         //遍历传过来的
         for (TracerBean tracerBean : tracerBeanList) {
             //普通日志
-            if ("-99999".equals(tracerBean.getTracerId())) {
+            if ("-1".equals(tracerBean.getTracerId())) {
                 dealTracerLog(tracerBean);
-
             } else {
                 dealFilterModel(tracerBean);
             }
@@ -121,7 +128,7 @@ public class TracerConsumer implements WorkHandler<OneTracer> {
 
         Map<String, Object> map = new HashMap<>(requestMap);
 
-        long tracerId = requestMap.get("tracerId") == null ? 0 : Long.valueOf(requestMap.get("tracerId").toString());
+        long tracerId = Long.parseLong(tracerBean.getTracerId());
         //filter的出入参
         Map<String, Object> responseMap = mapList.get(mapList.size() - 1);
 
@@ -129,13 +136,17 @@ public class TracerConsumer implements WorkHandler<OneTracer> {
         if (responseMap.get("response") != null) {
             responseBytes = (byte[]) responseMap.get("response");
         }
-
         map.put("responseContent", responseBytes);
         map.put("costTime", tracerBean.getCostTime());
         map.put("tracerId", tracerId);
+        map.put("createTime", formatLongTime(tracerBean.getCreateTime()));
         responseMap.remove("response");
         map.putAll(responseMap);
         tracerModelToDbStore.offer(map);
+    }
+
+    private static String formatLongTime(long time) {
+        return DEFAULT_FORMATTER.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(time),ZoneId.systemDefault()));
     }
 
 }

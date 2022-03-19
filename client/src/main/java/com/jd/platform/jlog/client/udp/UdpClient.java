@@ -68,8 +68,6 @@ public class UdpClient {
             //7.关闭group
             group.shutdownGracefully();
         } catch (InterruptedException e) {
-            System.out.println("NioEventLoopGroup ==>  "+e.toString());
-
             e.printStackTrace();
         }
     }
