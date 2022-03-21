@@ -1,5 +1,6 @@
 package com.jd.platform.jlog.common.handler;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.platform.jlog.common.utils.CollectionUtil;
 import com.jd.platform.jlog.common.utils.ZstdUtils;
 
@@ -14,7 +15,6 @@ import static com.jd.platform.jlog.common.handler.CollectMode.*;
  * @author tangbohu
  * @version 1.0.0
  * @ClassName CompressHandler.java
- * @Description TODO
  * @createTime 2022年03月10日 20:52:00
  */
 public class CompressHandler {
@@ -59,21 +59,12 @@ public class CompressHandler {
         if(instance == null || CollectionUtil.isEmpty(map) || !isMatched(instance.compress, C_REQ)){
             return new Outcome(map);
         }
-
-        for (Map.Entry<String, Object> entry : map.entrySet()) {
-            String val = entry.getValue().toString();
-            if(val.length() > instance.threshold){
-                val = new String(ZstdUtils.compress(val.getBytes()), StandardCharsets.ISO_8859_1);
-            }
-            map.put(entry.getKey(), val);
-        }
-        return new Outcome(map);
+        return new Outcome(map, ZstdUtils.compress(JSON.toJSONBytes(map)));
     }
 
+
     /**
-     * 压缩 log
-     * @param content log 内容
-     * @return Outcome
+     * 暂不开启普通log压缩
      */
     public static Outcome compressLog(String content){
         if(instance == null || !isMatched(instance.compress, C_LOG)){ return new Outcome(content); }
@@ -83,19 +74,15 @@ public class CompressHandler {
         return new Outcome(ZstdUtils.compress(content.getBytes()));
     }
 
+
     /**
      * 压缩 resp
-     * @param content content
      * @param cntByte bt
      * @return Outcome
      */
-    public static Outcome compressResp(String content, byte[] cntByte){
+    public static Outcome compressResp(byte[] cntByte){
         if(instance == null || !isMatched(instance.compress, C_RESP)){
-            return new Outcome(content);
-        }
-
-        if(content.length() < instance.threshold){
-            return new Outcome(content);
+            return new Outcome(cntByte);
         }
         return new Outcome(ZstdUtils.compress(cntByte));
     }
@@ -141,10 +128,43 @@ public class CompressHandler {
             this.tagMap = tagMap;
         }
 
+        public Outcome(Map<String, Object> tagMap, byte[] content) {
+            this.tagMap = tagMap;
+            this.content = content;
+        }
+
         public Outcome(Object content) {
             this.content = content;
         }
 
     }
+
+
+     /*
+      public static Outcome compressReq(Map<String, Object> map){
+        if(instance == null || CollectionUtil.isEmpty(map) || !isMatched(instance.compress, C_REQ)){
+            return new Outcome(map);
+        }
+
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            String val = entry.getValue().toString();
+            if(val.length() > instance.threshold){
+                val = new String(ZstdUtils.compress(val.getBytes()), StandardCharsets.ISO_8859_1);
+            }
+            map.put(entry.getKey(), val);
+        }
+        return new Outcome(map);
+      }
+
+      public static Outcome compressResp(String content, byte[] cntByte){
+        if(instance == null || !isMatched(instance.compress, C_RESP)){
+            return new Outcome(content);
+        }
+
+        if(content.length() < instance.threshold){
+            return new Outcome(content);
+        }
+        return new Outcome(ZstdUtils.compress(cntByte));
+    }*/
 
 }

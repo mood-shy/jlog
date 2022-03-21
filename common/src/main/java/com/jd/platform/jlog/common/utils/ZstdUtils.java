@@ -46,17 +46,6 @@ public class ZstdUtils {
     }
 
 
-    /**
-     * 解压
-     */
-    public static byte[] decompressBytes2(byte[] bytes) {
-        int size = (int) Zstd.decompressedSize(bytes);
-        System.out.println("size-> "+size);
-        byte[] ob = new byte[size];
-        Zstd.decompress(ob, bytes);
-
-        return ob;
-    }
 
     public static void main(String[] args) throws InterruptedException, ClassNotFoundException, IllegalAccessException, InstantiationException {
 

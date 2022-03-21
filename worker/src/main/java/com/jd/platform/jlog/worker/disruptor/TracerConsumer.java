@@ -21,6 +21,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.LongAdder;
 
+import static com.jd.platform.jlog.common.constant.Constant.DEFAULT_BYTE;
+import static com.jd.platform.jlog.common.constant.Constant.REQ;
+import static com.jd.platform.jlog.common.constant.Constant.RESP;
+
 /**
  * TracerConsumer
  *
@@ -64,8 +68,6 @@ public class TracerConsumer implements WorkHandler<OneTracer> {
             byte[] decompressBytes = ZstdUtils.decompressBytes(oneTracer.getBytes());
 
             TracerData tracerData = ProtostuffUtils.deserialize(decompressBytes, TracerData.class);
-
-            System.out.println("从事件中获取并解压的数据="+ JSON.toJSONString(tracerData));
 
             //包含了多个tracer对象
             List<TracerBean> tracerBeanList = tracerData.getTracerBeanList();
@@ -127,16 +129,23 @@ public class TracerConsumer implements WorkHandler<OneTracer> {
         List<Map<String, Object>> mapList = tracerBean.getTracerObject();
         Map<String, Object> requestMap = mapList.get(0);
 
-        Map<String, Object> map = new HashMap<>(requestMap);
+        Object req = requestMap.get(REQ);
+        if(req == null){
+            req = DEFAULT_BYTE;
+        }
+        requestMap.remove(REQ);
 
+        Map<String, Object> map = new HashMap<>(requestMap);
         long tracerId = Long.parseLong(tracerBean.getTracerId());
         //filter的出入参
         Map<String, Object> responseMap = mapList.get(mapList.size() - 1);
 
-        Object resp = responseMap.get("response");
+        Object resp = responseMap.get(RESP);
         if(resp == null){
-            resp = "default";
+            resp = DEFAULT_BYTE;
         }
+
+        map.put("requestContent", req);
         map.put("responseContent", resp);
         map.put("costTime", tracerBean.getCostTime());
         map.put("tracerId", tracerId);

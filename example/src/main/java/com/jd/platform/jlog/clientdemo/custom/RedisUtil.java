@@ -1,4 +1,4 @@
-package com.jd.platform.jlog.clientdemo.config;
+package com.jd.platform.jlog.clientdemo.custom;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -17,8 +17,7 @@ import java.util.Set;
 /**
  * @author tangbohu
  * @version 1.0.0
- * @ClassName RedisConfig.java
- * @Description TODO
+ * @ClassName RedisUtil.java
  * @createTime 2022年03月21日 11:48:00
  */
 @Component

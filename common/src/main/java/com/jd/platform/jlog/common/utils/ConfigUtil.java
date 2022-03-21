@@ -17,7 +17,6 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author tangbohu
  * @version 1.0.0
  * @ClassName ConfigUtil.java
- * @Description TODO
  * @createTime 2022年02月13日 21:40:00
  */
 public class ConfigUtil {

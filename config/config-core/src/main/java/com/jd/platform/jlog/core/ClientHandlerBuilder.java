@@ -4,14 +4,10 @@ import com.jd.platform.jlog.common.handler.CompressHandler;
 import com.jd.platform.jlog.common.handler.ExtractHandler;
 import com.jd.platform.jlog.common.handler.TagConfig;
 
-import static com.jd.platform.jlog.common.constant.Constant.THRESHOLD;
-import static com.jd.platform.jlog.common.handler.CollectMode.COMPRESS_LOG_RESP;
-
 /**
  * @author tangbohu
  * @version 1.0.0
  * @ClassName ClientHandlerBuilder.java
- * @Description TODO
  * @createTime 2022年03月05日 22:07:00
  */
 public class ClientHandlerBuilder {

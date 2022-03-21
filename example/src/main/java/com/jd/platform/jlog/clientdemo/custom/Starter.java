@@ -1,4 +1,4 @@
-package com.jd.platform.jlog.clientdemo.config;
+package com.jd.platform.jlog.clientdemo.custom;
 
 import com.jd.platform.jlog.client.TracerClientStarter;
 import com.jd.platform.jlog.client.filter.HttpFilter;

@@ -29,6 +29,14 @@ public class Constant {
     public static String DEFAULT_DELETE_VALUE = "#[DELETE]#";
 
 
+    public static byte[] DEFAULT_BYTE = "default".getBytes();
+
+
+    public static final String REQ = "request";
+
+    public static final String RESP = "response";
+
+
     /**
      * 普通tag最大长度 超过则不会单独存储，不超过则会存入tag：{"normal" : "logContent"}
      */

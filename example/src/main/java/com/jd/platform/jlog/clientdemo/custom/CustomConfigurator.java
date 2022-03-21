@@ -1,6 +1,5 @@
-package com.jd.platform.jlog.clientdemo.config;
+package com.jd.platform.jlog.clientdemo.custom;
 
-import com.jd.platform.jlog.core.ConfiguratorFactory;
 import com.jd.platform.jlog.core.FileConfigurator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

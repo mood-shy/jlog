@@ -7,7 +7,6 @@ import java.util.Set;
  * @author tangbohu
  * @version 1.0.0
  * @ClassName Constant.java
- * @Description TODO
  * @createTime 2022年02月26日 10:19:00
  */
 public class Constant {

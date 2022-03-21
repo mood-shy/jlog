@@ -1,26 +1,18 @@
 package com.jd.platform.jlog.common.handler;
 
 import com.alibaba.fastjson.JSON;
-import com.jd.platform.jlog.common.utils.ConfigUtil;
 import com.jd.platform.jlog.common.utils.FastJsonUtils;
 import com.jd.platform.jlog.common.utils.StringUtil;
 
-import java.lang.reflect.Field;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
 import static com.jd.platform.jlog.common.utils.ConfigUtil.invoke;
-import static com.jd.platform.jlog.common.utils.ConfigUtil.lowerFirst;
 
 /**
  * @author tangbohu
  * @version 1.0.0
  * @ClassName JcProperties.java
- * @Description TODO
  * @createTime 2022年03月07日 12:43:00
  */
 public class JcProperties extends Properties {

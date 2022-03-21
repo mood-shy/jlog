@@ -23,15 +23,13 @@ public class ClientHandler {
 
     public static Outcome processLog(String content){
         Map<String, Object> tagMap = ExtractHandler.extractLogTag(content);
-        Outcome out = CompressHandler.compressLog(content);
-        out.setMap(tagMap);
-        return out;
+        return new Outcome(tagMap);
     }
 
 
-    public static Outcome processResp(String content, byte[] resp, Map<String, Object> respMap){
+    public static Outcome processResp(byte[] resp, Map<String, Object> respMap){
         Map<String, Object> tagMap = ExtractHandler.extractRespTag(respMap);
-        Outcome outcome = CompressHandler.compressResp(content, resp);
+        Outcome outcome = CompressHandler.compressResp(resp);
         outcome.setMap(tagMap);
         return outcome;
     }

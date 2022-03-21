@@ -1,6 +1,7 @@
 package com.jd.platform.jlog.client.filter;
 
 import com.jd.platform.jlog.client.Context;
+import com.jd.platform.jlog.client.cache.ExtParamFactory;
 import com.jd.platform.jlog.client.percent.DefaultTracerPercentImpl;
 import com.jd.platform.jlog.client.percent.ITracerPercent;
 import com.jd.platform.jlog.client.tracerholder.TracerHolder;
@@ -20,6 +21,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
+
+import static com.jd.platform.jlog.common.constant.Constant.REQ;
+import static com.jd.platform.jlog.common.constant.Constant.RESP;
+
 
 /**
  * HttpFilter
@@ -119,10 +124,10 @@ public class HttpFilter implements Filter {
         byte[] contentBytes = mResp.getContent();
         String content = new String(contentBytes);
         Map<String, Object> responseMap = new HashMap<>(8);
-        Map<String, Object> map = new HashMap<>(1);
-        map.put("errno", 200);
-        Outcome outcome = ClientHandler.processResp(content, contentBytes, map);
-        responseMap.put("response", outcome.getContent());
+
+        Map<String, Object> map = ExtParamFactory.getRespMap(content);
+        Outcome outcome = ClientHandler.processResp(contentBytes, map);
+        responseMap.put(RESP, outcome.getContent());
         if(CollectionUtil.isNotEmpty(outcome.getTagMap())){
             responseMap.putAll(outcome.getTagMap());
         }
@@ -140,7 +145,7 @@ public class HttpFilter implements Filter {
      * 处理入参相关信息
      */
     private void dealRequestMap(ServletRequest servletRequest, List<Map<String, Object>> tracerObject,
-                                long tracerId, String uri) {
+                                long tracerId, String uri) throws IllegalAccessException, InstantiationException {
         //request的各个入参
         Map<String, String[]> params = servletRequest.getParameterMap();
         Map<String, Object> requestMap = new HashMap<>(params.size());
@@ -151,7 +156,11 @@ public class HttpFilter implements Filter {
         requestMap.put("serverIp", IpUtils.getIp());
         requestMap.put("tracerId", tracerId);
         requestMap.put("uri", uri);
+        // 自定义的其他的参数对
+        requestMap.putAll(ExtParamFactory.getReqMap(servletRequest));
+
         Outcome out = ClientHandler.processReq(requestMap);
+        requestMap.put(REQ, out.getContent());
         if(CollectionUtil.isNotEmpty(out.getTagMap())){
             tracerObject.add(out.getTagMap());
         }

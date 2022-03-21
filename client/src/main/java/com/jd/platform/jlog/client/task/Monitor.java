@@ -1,7 +1,6 @@
 package com.jd.platform.jlog.client.task;
 
 
-import com.jd.platform.jlog.client.mdc.Mdc;
 import com.jd.platform.jlog.client.worker.WorkerInfoHolder;
 import com.jd.platform.jlog.core.Configurator;
 import com.jd.platform.jlog.core.ConfiguratorFactory;
@@ -28,7 +27,7 @@ public class Monitor {
      * 监听workerIp地址变化
      */
     public void start() {
-        //fetchWorkerInfo();
+        fetchWorkerInfo();
     }
 
     /**
@@ -38,7 +37,7 @@ public class Monitor {
         ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         //开启拉取etcd的worker信息，如果拉取失败，则定时继续拉取
         scheduledExecutorService.scheduleAtFixedRate(() -> {
-            LOGGER.info("trying to connect to etcd and fetch worker info");
+            LOGGER.info("trying to connect to config center and fetch worker info");
             try {
                 fetch();
             } catch (Exception e) {
@@ -54,7 +53,7 @@ public class Monitor {
     private void fetch() throws Exception {
         Configurator configurator = ConfiguratorFactory.getInstance();
         //获取所有worker的ip
-        List addresses;
+        List<String> addresses;
         try {
             //如果设置了机房属性，则拉取同机房的worker。如果同机房没worker，则拉取所有
             addresses = configurator.getList("workers");
@@ -71,26 +70,4 @@ public class Monitor {
 
     }
 
-    /**
-     * 解析mdc机房字符串
-     */
-    private String parseMdc(Mdc mdc) {
-        switch (mdc) {
-            case HT:
-                return "ht";
-            case LF:
-                return "lf";
-            case ZYX:
-                return "zyx";
-            case GZ:
-                return "gz";
-            case SH:
-                return "sh";
-            case SQ:
-                return "sq";
-            default:
-                return null;
-        }
-
-    }
 }

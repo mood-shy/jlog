@@ -4,7 +4,6 @@ package com.jd.platform.jlog.common.utils;
  * @author tangbohu
  * @version 1.0.0
  * @ClassName StringUtil.java
- * @Description TODO
  * @createTime 2022年02月21日 17:13:00
  */
 public class StringUtil {

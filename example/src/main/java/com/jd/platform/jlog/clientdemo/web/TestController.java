@@ -70,7 +70,7 @@ public class TestController {
         if(newKey == 1){
             return 1;
         }
-        return "滴滴员工tangbohu的终身代号是什么？？？是9527";
+        return new Response("滴滴员工tangbohu的终身代号是什么？？？是9527");
     }
 
 
