@@ -46,8 +46,8 @@ public class Producer {
             logger.info("生产消费队列，已接收：" + totalReceive);
         }
         try {
-            OneTracer OneTracer = ringBuffer.get(sequence);
-            OneTracer.setBytes(bytes);
+            OneTracer oneTracer = ringBuffer.get(sequence);
+            oneTracer.setBytes(bytes);
         } finally {
             ringBuffer.publish(sequence);
         }

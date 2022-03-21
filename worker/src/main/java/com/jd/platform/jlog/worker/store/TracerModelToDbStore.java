@@ -1,7 +1,7 @@
 package com.jd.platform.jlog.worker.store;
 
-import com.google.common.collect.Queues;
 import com.jd.platform.jlog.common.utils.AsyncPool;
+import com.jd.platform.jlog.common.utils.AsyncWorker;
 import com.jd.platform.jlog.common.utils.CollectionUtil;
 import com.jd.platform.jlog.worker.db.Db;
 import org.slf4j.Logger;
@@ -93,7 +93,7 @@ public class TracerModelToDbStore {
                     try {
                         List<Map<String, Object>> tempModels = new ArrayList<>();
                         //每1s入库一次
-                        Queues.drain(modelQueue, tempModels, Integer.valueOf(batchSize), interval, TimeUnit.SECONDS);
+                        AsyncWorker.drain(modelQueue, tempModels, Integer.valueOf(batchSize), interval, TimeUnit.SECONDS);
                         if (CollectionUtil.isEmpty(tempModels)) {
                             continue;
                         }

@@ -66,11 +66,11 @@ public class TestController {
 
     @PostMapping(value = "/test", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Object test(@RequestParam Integer uid, @RequestParam Integer newKey,@RequestBody TestReq req) {
-        String config = ConfiguratorFactory.getInstance().getString("reqTags");
-      //  System.out.println("tagConfig ===> " + tagConfig.toString());
         RequestLog.info("|errno=val3||node=val4||这是随便的log|");
-
-        return 1;
+        if(newKey == 1){
+            return 1;
+        }
+        return "滴滴员工tangbohu的终身代号是什么？？？是9527";
     }
 
 

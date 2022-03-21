@@ -1,10 +1,6 @@
 package com.jd.platform.jlog.common.handler;
 
-import com.alibaba.fastjson.JSON;
 import com.jd.platform.jlog.common.utils.ZstdUtils;
-import com.sun.istack.internal.NotNull;
-
-import java.util.Base64;
 import java.util.Map;
 
 import static com.jd.platform.jlog.common.constant.Constant.MIN;
@@ -56,7 +52,7 @@ public class CompressHandler {
     }
 
     public static Map<String, Object> compressReq(Map<String, Object> map){
-        if(instance == null || !isMatched(instance.compress, E_REQ)){
+        if(instance == null || !isMatched(instance.compress, C_REQ)){
             return  map;
         }
 
@@ -67,12 +63,12 @@ public class CompressHandler {
     }
 
     public static byte[] compressLog(byte[] contentBytes){
-        if(instance == null || !isMatched(instance.compress, E_LOG)){ return contentBytes; }
+        if(instance == null || !isMatched(instance.compress, C_LOG)){ return contentBytes; }
         return doCompress(contentBytes);
     }
 
     public static byte[] compressResp(byte[] contentBytes){
-        if(instance == null || !isMatched(instance.compress, E_RESP)){ return contentBytes; }
+        if(instance == null || !isMatched(instance.compress, C_RESP)){ return contentBytes; }
         return doCompress(contentBytes);
     }
 
@@ -80,9 +76,7 @@ public class CompressHandler {
         if(contentBytes.length < instance.threshold){
             return contentBytes;
         }
-        //最终的要发往worker的response，经历了base64压缩
-        byte[] bytes = ZstdUtils.compress(contentBytes);
-        return Base64.getEncoder().encode(bytes);
+        return ZstdUtils.compress(contentBytes);
     }
 
 
