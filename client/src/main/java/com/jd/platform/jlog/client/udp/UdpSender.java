@@ -96,7 +96,6 @@ public class UdpSender {
             while (true) {
                 try {
                     List<TracerBean> tempTracers = new ArrayList<>();
-                    //购物车包比较大，一个就发，不用攒多个了
                     TracerBean tracerBean = tracerBeanQueue.take();
                     tempTracers.add(tracerBean);
 

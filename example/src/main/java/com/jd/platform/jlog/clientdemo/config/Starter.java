@@ -12,15 +12,14 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 
 /**
- * 配置信息
- *
+ * 启动器 获取配置完成装配和client启动
  * @author shenkaiwen5
  * @version 1.0
  * @date 2021-12-27
  */
 @Component
 @ConfigurationProperties()
-public class DemoConfig {
+public class Starter {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -36,13 +35,14 @@ public class DemoConfig {
 
     @PostConstruct
     public void begin() throws Exception {
-
         TracerClientStarter tracerClientStarter = new TracerClientStarter.Builder()
                 .setAppName("demo")
                 .setTagConfig(tagConfig)
                 .build();
         logger.info("初始化tagConfig: {}",tagConfig);
         tracerClientStarter.startPipeline();
+
+
     }
 
     @Bean

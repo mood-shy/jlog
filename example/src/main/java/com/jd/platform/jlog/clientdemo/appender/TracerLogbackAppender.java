@@ -11,6 +11,8 @@ import com.jd.platform.jlog.common.model.RunLogMessage;
 import com.jd.platform.jlog.core.ClientHandler;
 import org.slf4j.helpers.MessageFormatter;
 
+import static com.jd.platform.jlog.common.handler.CompressHandler.*;
+
 
 /**
  * className：TracerLog4JAppender
@@ -58,9 +60,11 @@ public class TracerLogbackAppender extends AppenderBase<ILoggingEvent> {
         logMessage.setCreateTime(loggingEvent.getTimeStamp());
 
         String formattedMessage = getMessage(loggingEvent);
-        logMessage.setContent(formattedMessage);
-        ClientHandler.Outcome out = ClientHandler.processLog(formattedMessage);
-        logMessage.setTagMap(out.getMap());
+        Outcome out = ClientHandler.processLog(formattedMessage);
+        // 放入标签
+        logMessage.setTagMap(out.getTagMap());
+        // 放入内容 可能已经被压缩了
+        logMessage.setContent(out.getContent());
         return logMessage;
     }
 

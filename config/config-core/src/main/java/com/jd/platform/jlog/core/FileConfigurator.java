@@ -15,7 +15,6 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.jd.platform.jlog.core.ConfigChangeListener.EXECUTOR_SERVICE;
 import static com.jd.platform.jlog.core.ConfiguratorFactory.useFileConfig;
 import static com.jd.platform.jlog.core.Constant.*;
 
@@ -39,7 +38,7 @@ public class FileConfigurator implements Configurator {
     private final Map<String, FileWrapper> FILE_MODIFY_MAP = new ConcurrentHashMap<>();
 
 
-    FileConfigurator() throws IOException{
+    public FileConfigurator() throws IOException{
 
         String env = System.getenv(ENV);
 
@@ -58,10 +57,10 @@ public class FileConfigurator implements Configurator {
                 }
                 FILE_MODIFY_MAP.put(fileName, new FileWrapper(new File(url.getFile()).lastModified(), props));
                 PROPERTIES.putAll(props);
-                LOGGER.info("{}配置文件配置:{}", file, props.toString());
+                LOGGER.debug("{}配置文件配置:{}", file, props.toString());
             }
         }
-        LOGGER.info("合并后的配置:{}",PROPERTIES.toString());
+        LOGGER.debug("合并后的配置:{}",PROPERTIES.toString());
         for (String file : CONFIG_FILES) {
             file = StringUtil.isEmpty(env) ? file : file + "_" + env;
             LISTENED_FILES.add(file);

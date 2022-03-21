@@ -1,6 +1,9 @@
 package com.jd.platform.jlog.common.handler;
 
+import com.jd.platform.jlog.common.utils.CollectionUtil;
 import com.jd.platform.jlog.common.utils.ZstdUtils;
+
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import static com.jd.platform.jlog.common.constant.Constant.MIN;
@@ -46,39 +49,63 @@ public class CompressHandler {
         instance = new CompressHandler(compress, threshold);
     }
 
-    public static void refresh(Long compress, Long threshold){
-        instance = null;
-        buildCompressHandler(compress, threshold);
-    }
 
-    public static Map<String, Object> compressReq(Map<String, Object> map){
-        if(instance == null || !isMatched(instance.compress, C_REQ)){
-            return  map;
+    /**
+     * req一般无需压缩 除非图片base64等触发压缩
+     * @param map tagMap
+     * @return Outcome
+     */
+    public static Outcome compressReq(Map<String, Object> map){
+        if(instance == null || CollectionUtil.isEmpty(map) || !isMatched(instance.compress, C_REQ)){
+            return new Outcome(map);
         }
 
         for (Map.Entry<String, Object> entry : map.entrySet()) {
-            map.put(entry.getKey(), doCompress(entry.getValue().toString().getBytes()));
+            String val = entry.getValue().toString();
+            if(val.length() > instance.threshold){
+                val = new String(ZstdUtils.compress(val.getBytes()), StandardCharsets.ISO_8859_1);
+            }
+            map.put(entry.getKey(), val);
         }
-        return map;
+        return new Outcome(map);
     }
 
-    public static byte[] compressLog(byte[] contentBytes){
-        if(instance == null || !isMatched(instance.compress, C_LOG)){ return contentBytes; }
-        return doCompress(contentBytes);
-    }
-
-    public static byte[] compressResp(byte[] contentBytes){
-        if(instance == null || !isMatched(instance.compress, C_RESP)){ return contentBytes; }
-        return doCompress(contentBytes);
-    }
-
-    private static byte[] doCompress(byte[] contentBytes){
-        if(contentBytes.length < instance.threshold){
-            return contentBytes;
+    /**
+     * 压缩 log
+     * @param content log 内容
+     * @return Outcome
+     */
+    public static Outcome compressLog(String content){
+        if(instance == null || !isMatched(instance.compress, C_LOG)){ return new Outcome(content); }
+        if(content.length() < instance.threshold){
+            new Outcome(content);
         }
-        return ZstdUtils.compress(contentBytes);
+        return new Outcome(ZstdUtils.compress(content.getBytes()));
     }
 
+    /**
+     * 压缩 resp
+     * @param content content
+     * @param cntByte bt
+     * @return Outcome
+     */
+    public static Outcome compressResp(String content, byte[] cntByte){
+        if(instance == null || !isMatched(instance.compress, C_RESP)){
+            return new Outcome(content);
+        }
+
+        if(content.length() < instance.threshold){
+            return new Outcome(content);
+        }
+        return new Outcome(ZstdUtils.compress(cntByte));
+    }
+
+
+
+    public static synchronized void refresh(Long compress, Long threshold){
+        instance = null;
+        buildCompressHandler(compress, threshold);
+    }
 
     public long getCompress() {
         return compress;
@@ -86,6 +113,38 @@ public class CompressHandler {
 
     public void setCompress(long compress) {
         this.compress = compress;
+    }
+
+
+    public static class Outcome{
+
+        Map<String, Object> tagMap;
+        Object content;
+
+        public Map<String, Object> getTagMap() {
+            return tagMap;
+        }
+
+        public void setMap(Map<String, Object> tagMap) {
+            this.tagMap = tagMap;
+        }
+
+        public Object getContent() {
+            return content;
+        }
+
+        public void setContent(Object content) {
+            this.content = content;
+        }
+
+        public Outcome(Map<String, Object> tagMap) {
+            this.tagMap = tagMap;
+        }
+
+        public Outcome(Object content) {
+            this.content = content;
+        }
+
     }
 
 }

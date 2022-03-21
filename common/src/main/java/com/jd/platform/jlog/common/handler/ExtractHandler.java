@@ -1,6 +1,7 @@
 package com.jd.platform.jlog.common.handler;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.platform.jlog.common.utils.CollectionUtil;
 import com.jd.platform.jlog.common.utils.ConfigUtil;
 import com.jd.platform.jlog.common.utils.StringUtil;
 import org.slf4j.Logger;
@@ -84,7 +85,9 @@ public class ExtractHandler {
      */
     public static Map<String, Object> extractReqTag(Map<String, Object> reqMap) {
 
-        if(instance == null || !isMatched(instance.extract, E_REQ)){ return null; }
+        if(instance == null || !isMatched(instance.extract, E_REQ) || CollectionUtil.isEmpty(reqMap)){
+            return null;
+        }
         Map<String, Object> tagMap = new HashMap<>(instance.reqTags.size());
         for (String tag : instance.reqTags) {
             Object val = reqMap.get(tag);
@@ -133,7 +136,7 @@ public class ExtractHandler {
      */
     public static Map<String, Object> extractRespTag(Map<String, Object> resp) {
 
-        if(instance == null || !isMatched(instance.extract, E_REQ)){ return null; }
+        if(instance == null || !isMatched(instance.extract, E_REQ) || CollectionUtil.isEmpty(resp)){ return null; }
 
         Map<String, Object> requestMap = new HashMap<>(instance.respTags.size());
         for (String tag : instance.respTags) {

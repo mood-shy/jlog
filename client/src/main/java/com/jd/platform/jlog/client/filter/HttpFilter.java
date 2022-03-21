@@ -5,7 +5,9 @@ import com.jd.platform.jlog.client.percent.DefaultTracerPercentImpl;
 import com.jd.platform.jlog.client.percent.ITracerPercent;
 import com.jd.platform.jlog.client.tracerholder.TracerHolder;
 import com.jd.platform.jlog.client.udp.UdpSender;
+import com.jd.platform.jlog.common.handler.CompressHandler.Outcome;
 import com.jd.platform.jlog.common.model.TracerBean;
+import com.jd.platform.jlog.common.utils.CollectionUtil;
 import com.jd.platform.jlog.common.utils.IdWorker;
 import com.jd.platform.jlog.common.utils.IpUtils;
 import com.jd.platform.jlog.core.ClientHandler;
@@ -101,17 +103,6 @@ public class HttpFilter implements Filter {
 
             //udp发送
             UdpSender.offerBean(tracerBean);
-        } catch (IOException e) {
-            HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
-            String uri = httpRequest.getRequestURI().replace("/", "");
-            //request的各个入参
-            Map<String, String[]> params = servletRequest.getParameterMap();
-            try {
-                //doNothing
-                logger.error("pin=" + params.get("pin")[0] + "  ,uri = " + uri);
-            } catch (Exception ex) {
-                filterChain.doFilter(servletRequest, servletResponse);
-            }
         } catch (Exception e) {
             filterChain.doFilter(servletRequest, servletResponse);
         }
@@ -130,10 +121,10 @@ public class HttpFilter implements Filter {
         Map<String, Object> responseMap = new HashMap<>(8);
         Map<String, Object> map = new HashMap<>(1);
         map.put("errno", 200);
-        ClientHandler.Outcome outcome = ClientHandler.processResp(contentBytes, map);
+        Outcome outcome = ClientHandler.processResp(content, contentBytes, map);
         responseMap.put("response", outcome.getContent());
-        if(!outcome.getMap().isEmpty()){
-            responseMap.putAll(outcome.getMap());
+        if(CollectionUtil.isNotEmpty(outcome.getTagMap())){
+            responseMap.putAll(outcome.getTagMap());
         }
         tracerObject.add(responseMap);
 
@@ -160,7 +151,10 @@ public class HttpFilter implements Filter {
         requestMap.put("serverIp", IpUtils.getIp());
         requestMap.put("tracerId", tracerId);
         requestMap.put("uri", uri);
-        tracerObject.add(ClientHandler.processReq(requestMap));
+        Outcome out = ClientHandler.processReq(requestMap);
+        if(CollectionUtil.isNotEmpty(out.getTagMap())){
+            tracerObject.add(out.getTagMap());
+        }
     }
 
     @Override

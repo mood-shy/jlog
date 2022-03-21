@@ -21,7 +21,7 @@ public class RunLogMessage {
     /**
      * 日志内容
      */
-    private String content;
+    private Object content;
     /**
      * info、error
      */
@@ -60,11 +60,11 @@ public class RunLogMessage {
         this.createTime = createTime;
     }
 
-    public String getContent() {
+    public Object getContent() {
         return content;
     }
 
-    public void setContent(String content) {
+    public void setContent(Object content) {
         this.content = content;
     }
 

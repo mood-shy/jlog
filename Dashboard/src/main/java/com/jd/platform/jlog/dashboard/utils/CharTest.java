@@ -275,7 +275,7 @@ public class CharTest {
          pstmt.executeBatch();
     }
 
-    //[40, -75, 47, -3, 32,
+    //[40, -75, 47, -3, 32
     private static void testChar() throws UnsupportedEncodingException {
         for (int i = 0; i < 10; i++) {
             String str =String.valueOf(getRandomChar())+ String.valueOf(getRandomChar()) +i;
@@ -284,10 +284,12 @@ public class CharTest {
             System.out.println("@@@ => "+ Arrays.toString(zipStr.getBytes("ISO8859-1")));
         }
 
-      /*  String str = "滴滴员工tangbohu的终身代号是什么？？？是9527";
+        String str = "滴滴员工tangbohu的终身代号是什么？？？是9527";
         byte[] initBs = ZstdUtils.compress(str.getBytes());
         String zipStr = new String(initBs, "ISO8859-1");
+        // [40, -75, 47, -3, 32,
         System.out.println("@@@ => "+ Arrays.toString(zipStr.getBytes("ISO8859-1")));
- */
+        System.out.println("### "+ ZstdUtils.decompress(zipStr.getBytes("ISO8859-1")));
+
     }
 }

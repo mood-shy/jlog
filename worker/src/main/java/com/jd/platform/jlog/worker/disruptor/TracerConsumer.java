@@ -103,7 +103,7 @@ public class TracerConsumer implements WorkHandler<OneTracer> {
         Map<String, Object> objectMap = mapList.get(0);
         //遍历value集合，里面每个都是一个RunLogMessage对象
         for (Object object :objectMap.values()) {
-            Map<String, Object> map = new HashMap<>();
+            Map<String, Object> map = new HashMap<>(12);
 
             RunLogMessage runLogMessage = (RunLogMessage) object;
             map.put("tracerId", runLogMessage.getTracerId());
@@ -111,6 +111,7 @@ public class TracerConsumer implements WorkHandler<OneTracer> {
             map.put("threadName", runLogMessage.getThreadName());
             map.put("methodName", runLogMessage.getMethodName());
             map.put("logLevel", runLogMessage.getLogLevel());
+            map.put("createTime",  formatLongTime(runLogMessage.getCreateTime()));
             map.put("content", runLogMessage.getContent());
             map.putAll(runLogMessage.getTagMap());
             tracerLogToDbStore.offer(map);
@@ -132,11 +133,11 @@ public class TracerConsumer implements WorkHandler<OneTracer> {
         //filter的出入参
         Map<String, Object> responseMap = mapList.get(mapList.size() - 1);
 
-        byte[] responseBytes = "default".getBytes();
-        if (responseMap.get("response") != null) {
-            responseBytes = (byte[]) responseMap.get("response");
+        Object resp = responseMap.get("response");
+        if(resp == null){
+            resp = "default";
         }
-        map.put("responseContent", responseBytes);
+        map.put("responseContent", resp);
         map.put("costTime", tracerBean.getCostTime());
         map.put("tracerId", tracerId);
         map.put("createTime", formatLongTime(tracerBean.getCreateTime()));

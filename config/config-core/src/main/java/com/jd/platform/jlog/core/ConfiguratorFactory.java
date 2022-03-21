@@ -27,7 +27,7 @@ public class ConfiguratorFactory {
     public static volatile Configurator base = null;
 
 
-    public static AtomicBoolean useFileConfig = new AtomicBoolean(true);
+    static AtomicBoolean useFileConfig = new AtomicBoolean(true);
 
 
 
@@ -37,7 +37,6 @@ public class ConfiguratorFactory {
                 if (instance == null) {
                     instance = buildConfiguration();
                     LOGGER.info("构建总配置器单例完成 instance 获取类型结果:{}", instance.getType());
-                    LOGGER.info("构建总配置器单例完成 Base 获取serverAddr结果:{}", base.getString("serverAddr"));
                 }
             }
         }
@@ -73,5 +72,16 @@ public class ConfiguratorFactory {
         }
         return base;
     }
+
+
+    /**
+     * 自定义配置器覆盖文件配置器
+     * @param configurator 配置器
+     */
+    public static synchronized void cover(FileConfigurator configurator){
+        instance = configurator;
+        LOGGER.info("自定义配置器类型:{}", instance.getType());
+    }
+
 
 }
