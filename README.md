@@ -16,8 +16,8 @@
 查询界面由于目前前端做的不太好，大概放个图大家了解意思就行，就是查用户跟踪的。
 可以查询出入参，及请求整个链路的日志情况。
 ![输入图片说明](tracer.png)
-![输入图片说明](image.png)
 ![输入图片说明](image12.png)
+![输入图片说明](image4.png)
 
 # 使用说明
 [使用说明](https://gitee.com/jd-platform-opensource/jlog/blob/master/%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md)
@@ -42,7 +42,7 @@
 这里只放两张图基本能说明原理。
 ![输入图片说明](image1.png)
 
-![输入图片说明](image.png)
+![输入图片说明](image65.png)
 
 ![输入图片说明](image2.png)
 
