@@ -988,7 +988,7 @@ var table = {
             	    $.modal.open("修改" + table.options.modalName, $.operate.editUrl(id));
             	}
             },
-			edit2: function(id, pin, uuid, createTime) {
+			edit2: function(id, uid, createTime) {
 				table.set();
 				if($.common.isEmpty(id) && table.options.type == table_type.bootstrapTreeTable) {
 					var row = $("#" + table.options.id).bootstrapTreeTable('getSelections')[0];
@@ -999,7 +999,7 @@ var table = {
 					var url = table.options.updateUrl.replace("{id}", row[table.options.uniqueId]);
 					$.modal.open("修改" + table.options.modalName, url);
 				} else {
-					$.modal.open("修改" + table.options.modalName, $.operate.editUrl2(id, pin, uuid, createTime));
+					$.modal.open("修改" + table.options.modalName, $.operate.editUrl2(id, uid, createTime));
 				}
 			},
 			edit3: function(id, createTime) {
@@ -1048,10 +1048,10 @@ var table = {
             	}
                 return url;
             },
-			editUrl2: function(id, pin, uuid, createTime) {
+			editUrl2: function(id, uid, createTime) {
 				var url = "/404.html";
 				if ($.common.isNotEmpty(id)) {
-					url = table.options.updateUrl.replace("{id}", id).replace("{pin}", pin).replace("{uuid}", uuid).replace("{createTime}", createTime);
+					url = table.options.updateUrl.replace("{id}", id).replace("{uid}", uid).replace("{createTime}", createTime);
 				} else {
 					var id = $.common.isEmpty(table.options.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns(table.options.uniqueId);
 					if (id.length == 0) {

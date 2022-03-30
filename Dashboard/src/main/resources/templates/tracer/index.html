@@ -11,30 +11,10 @@
                 <div class="select-list">
                     <ul>
                         <li>
-                            用户pin：<input type="text" name="pin"/>
+                            用户uid：<input type="text" name="uid"/>
                         </li>
                         <li>
                             接口：<input type="text" name="uri"/>
-                        </li>
-                        <li>
-                            uuid：<input type="text" name="uuid"/>
-                        </li>
-                        <li>
-                            客户端：
-                            <select name="clientType">
-                                <option value ="1">android</option>
-                                <option value ="2">apple</option>
-                                <option value ="3" selected="selected">所有</option>
-                            </select>
-                        </li>
-                        <li>
-                            客户端版本：<input type="text" name="clientVersion"/>
-                        </li>
-                        <li>
-                            服务器IP：<input type="text" name="serverIp"/>
-                        </li>
-                        <li>
-                            用户IP：<input type="text" name="userIp"/>
                         </li>
                         <li>
                             追踪id：<input type="text" name="tracerId"/>
@@ -159,14 +139,14 @@
         return y + '-' + m + '-' + d+' '+'23'+':'+'59'+':'+ '59';
     };
 
-    var prefix = ctx + "tracer/cart";
+    var prefix = ctx + "tracer/index";
 
     $(function() {
         var options = {
             url: prefix + "/list",
             createUrl: prefix + "/add",
-            updateUrl: prefix + "/detail?id={id}&pin={pin}&uuid={uuid}&createTime={createTime}",
-            linkUrl: prefix + "/link?id={id}&createTime={createTime}",
+            updateUrl: prefix + "/detail?id={id}&uid={uid}&createTime={createTime}",
+            linkUrl:   prefix + "/link?id={id}&createTime={createTime}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
             sortName: "createTime",
@@ -176,12 +156,12 @@
                 checkbox: true
             },
                 {
-                    field: 'pin',
-                    title: 'pin'
+                    field: 'uid',
+                    title: 'uid'
                 },
                 {
                     field: 'uri',
-                    title: '    uri  (接口)  ',
+                    title: '  uri  (接口)  ',
                     align: 'center',
                     formatter: function(value, row, index) {
                         return $.table.tooltip(value, 20, "open");
@@ -194,10 +174,7 @@
                         return value + "";
                     }
                 },
-                {
-                    field: 'uuid',
-                    title: 'uuid'
-                },
+
                 {
                     field: 'costTime',
                     title: '耗时',
@@ -209,30 +186,14 @@
                         }
                     }
                 },
-                {
-                    field: 'clientType',
-                    title: '客户端',
-                    formatter: function(value, row, index) {
-                        if (value !== null && (value === 1 || value == "1")) {
-                            return 'android';
-                        } else if (value !== null && (value === 2 || value == "2")) {
-                            return 'apple';
-                        } else {
-                            return '其他';
-                        }
-                    }
+
+                 {
+                    field: 'errno',
+                    title: '错误码'
                 },
                 {
-                    field: 'clientVersion',
-                    title: '客户端版本'
-                },
-                {
-                    field: 'userIp',
-                    title: '用户ip'
-                },
-                {
-                    field: 'serverIp',
-                    title: '服务ip'
+                    field: 'errmsg',
+                    title: '错误信息'
                 },
                 {
                     field: 'createTime',
@@ -243,7 +204,7 @@
                     align: 'center',
                     formatter: function(value, row, index) {
                         var actions = [];
-                        actions.push('<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="$.operate.edit2(\'' + row.tracerId  + '\', \'' + row.pin  + '\', \'' + row.uuid  + '\', \'' + row.createTime  + '\')"><i class="fa fa-edit"></i>查看详情</a> ');
+                        actions.push('<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="$.operate.edit2(\'' + row.tracerId  + '\', \'' + row.uid  + '\', \'' + row.createTime  + '\')"><i class="fa fa-edit"></i>查看详情</a> ');
                         actions.push('<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="$.operate.edit3(\'' + row.tracerId  + '\', \'' + row.createTime  + '\')"><i class="fa fa-edit"></i>查看链路</a> ');
                         return actions.join('');
                     }

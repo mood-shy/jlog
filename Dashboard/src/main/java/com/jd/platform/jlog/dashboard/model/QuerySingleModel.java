@@ -15,7 +15,7 @@ public class QuerySingleModel {
      */
     private Long tracerId;
     /**
-     * 用户pin
+     * 用户uid
      */
-    private String pin;
+    private String uid;
 }

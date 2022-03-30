@@ -17,15 +17,12 @@ public class QueryListModel {
     /**
      * 用户pin
      */
-    private String pin;
+    private String uid;
     /**
      * 接入应用名
      */
-    private String appName;
-    /**
-     * uuid
-     */
-    private String uuid;
+    private String app;
+
     /**
      * 开始时间
      */
@@ -34,14 +31,7 @@ public class QueryListModel {
      * 结束时间
      */
     private String endTime;
-    /**
-     * 客户端种类 1：安卓 2：苹果 0：其他
-     */
-    private String clientType;
-    /**
-     * 客户端版本号
-     */
-    private String clientVersion;
+
     /**
      * 页码
      */
@@ -50,12 +40,8 @@ public class QueryListModel {
      * 接口名
      */
     private String uri;
-    /**
-     * serverIp
-     */
-    private String serverIp;
-    /**
-     * userIp
-     */
-    private String userIp;
+
+    private String errno;
+
+    private String errmsg;
 }

@@ -24,14 +24,14 @@ public class DbUtils {
      */
     public static List<WhereCause> convertTracerToCause(QueryListModel queryListModel) {
         List<WhereCause> res = new ArrayList<>(16);
-        if (!StringUtils.isEmpty(queryListModel.getPin())) {
-            addEqualWhereCause(res, "pin", queryListModel.getPin());
+        if (!StringUtils.isEmpty(queryListModel.getUid())) {
+            addEqualWhereCause(res, "uid", queryListModel.getUid());
         }
         if (!StringUtils.isEmpty(queryListModel.getBeginTime())) {
             addGeWhereCause(res, "createTime", queryListModel.getBeginTime());
         } else {
             //pin和uuid都空，只查30秒
-            if (StringUtils.isEmpty(queryListModel.getPin()) && StringUtils.isEmpty(queryListModel.getUuid())) {
+            if (StringUtils.isEmpty(queryListModel.getUid())) {
                 //如果没传开始时间，则默认是30秒
                 addGeWhereCause(res, "createTime",  formatDatetime(System.currentTimeMillis() - 30 * 1000L));
             } else {
@@ -49,33 +49,18 @@ public class DbUtils {
         if (!StringUtils.isEmpty(queryListModel.getTracerId())) {
             addEqualWhereCause(res, "tracerId", queryListModel.getTracerId());
         }
-        if (!StringUtils.isEmpty(queryListModel.getUuid())) {
-            addEqualWhereCause(res, "uuid", queryListModel.getUuid());
-        }
-
-        if (!StringUtils.isEmpty(queryListModel.getClientVersion())) {
-            addEqualWhereCause(res, "clientVersion", queryListModel.getClientVersion());
+        if (!StringUtils.isEmpty(queryListModel.getUid())) {
+            addEqualWhereCause(res, "uid", queryListModel.getUid());
         }
         if (!StringUtils.isEmpty(queryListModel.getUri())) {
             addEqualWhereCause(res, "uri", queryListModel.getUri());
         }
-        if (!StringUtils.isEmpty(queryListModel.getServerIp())) {
-            addEqualWhereCause(res, "serverIp", queryListModel.getServerIp());
+        if (!StringUtils.isEmpty(queryListModel.getErrno())) {
+            addEqualWhereCause(res, "errno", queryListModel.getErrno());
         }
-        if (!StringUtils.isEmpty(queryListModel.getUserIp())) {
-            addEqualWhereCause(res, "userIp", queryListModel.getUserIp());
+        if (!StringUtils.isEmpty(queryListModel.getErrmsg())) {
+            addEqualWhereCause(res, "errmsg", queryListModel.getErrmsg());
         }
-        //可能传过来是1/2，也可能是安卓/苹果
-        if (!"0".equals(queryListModel.getClientType())) {
-            if ("1".equals(queryListModel.getClientType()) || "安卓".equals(queryListModel.getClientType())
-                    || "android".equals(queryListModel.getClientType())) {
-                addEqualWhereCause(res, "clientType", 1);
-            } else if ("2".equals(queryListModel.getClientType()) || "苹果".equals(queryListModel.getClientType())
-                    || "apple".equals(queryListModel.getClientType())) {
-                addEqualWhereCause(res, "clientType", 2);
-            }
-        }
-
         return res;
     }
 

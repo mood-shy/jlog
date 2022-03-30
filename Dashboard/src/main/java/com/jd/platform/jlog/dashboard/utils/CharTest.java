@@ -17,6 +17,66 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Deprecated
 public class CharTest {
+
+    public static void main(String[] args) throws SQLException, UnsupportedEncodingException {
+      //  insertModel();
+        insertLog();
+    }
+
+    private static void insertModel() throws SQLException, UnsupportedEncodingException {
+        String str = "滴滴员工tangbohu的终身代号是什么？？？是9527";
+        byte[] bt = ZstdUtils.compress(str.getBytes());
+        String cnt = new String(bt, "ISO8859-1");
+        PreparedStatement pstmt = getConn().prepareStatement("insert into tracer_model (tracerId, requestContent, responseContent," +
+                "costTime, uid, errno, errmsg, app, uri, createTime) values(?,?,?,?,?,?,?,?,?,?)");
+        for (int i = 0; i < 10; i++) {
+            // tracerId
+            pstmt.setLong(1, i);
+            pstmt.setString(2, cnt);
+            pstmt.setString(3, cnt);
+            // costTime
+            pstmt.setString(4,new Random().nextInt(100) + "");
+            // uid
+            pstmt.setString(5, i > 5 ? "狼骑兵":"唐伯虎");
+            // errno
+            pstmt.setString(6, i > 7 ? "0" : "999");
+            // errmsg
+            pstmt.setString(7, i > 7 ? "" : "网络异常，请稍后重试");
+            pstmt.setString(8, i > 5 ? "购物车":"订单");
+            pstmt.setString(9, i > 5 ? "cart":"order");
+            pstmt.setString(10, DateUtils.formatNow());
+            pstmt.addBatch();
+        }
+        pstmt.executeBatch();
+    }
+
+    private static void insertLog() throws SQLException, UnsupportedEncodingException {
+
+        PreparedStatement pstmt = getConn().prepareStatement("insert into tracer_log " +
+                "(tracerId, className, threadName," +
+                "methodName, logLevel, content, node, normal, tag1, createTime) values(?,?,?,?,?,?,?,?,?,?)");
+
+        for (int i = 0; i < 10; i++) {
+            // tracerId
+            pstmt.setLong(1, i);
+            pstmt.setString(2, "Test.class");
+            pstmt.setString(3, "Thread-"+i);
+            pstmt.setString(4, "getBizType");
+            // logLevel
+            pstmt.setString(5,"1");
+            // content
+            pstmt.setString(6,"特普伊是个小可爱");
+            // node
+            pstmt.setString(7, "价格计算");
+            // normal
+            pstmt.setString(8,"this is normal log");
+            pstmt.setString(9, "tag1.val");
+            pstmt.setString(10, DateUtils.formatNow());
+            pstmt.addBatch();
+        }
+        pstmt.executeBatch();
+    }
+
     public static void main2(String[] args) throws SQLException, UnsupportedEncodingException, InterruptedException {
 
         List<Map<String, Object>> list = new ArrayList<>();
@@ -31,12 +91,8 @@ public class CharTest {
             byte[] bt = ZstdUtils.compress(str.getBytes());
 
             PreparedStatement pstmt = connection.prepareStatement("insert into test values(?, ?)");
-            for (int i = 0; i < 1; i++) {
-                pstmt.setInt(1, id);
-                pstmt.setString(2, new String(bt,"ISO8859-1"));
-                pstmt.addBatch();
-            }
-           // pstmt.executeBatch();
+
+            pstmt.executeBatch();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -74,31 +130,6 @@ public class CharTest {
 
     }
 
-    public static Connection getConn() {
-
-        String username = "default";
-      //  String password = "123456";
-        String address = "jdbc:clickhouse://101.42.242.201:8123";
-        String db = "default";
-        int socketTimeout = 600000;
-
-        ClickHouseProperties properties = new ClickHouseProperties();
-        properties.setUser(username);
-      //  properties.setPassword(password);
-        properties.setDatabase(db);
-        properties.setSocketTimeout(socketTimeout);
-        ClickHouseDataSource clickHouseDataSource = new ClickHouseDataSource(address, properties);
-
-        ClickHouseConnection conn = null;
-        try {
-            conn = clickHouseDataSource.getConnection();
-            return conn;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
 
     private static byte[] format(String dbStr){
         String[] arr0 = dbStr.split(",");
@@ -198,7 +229,7 @@ public class CharTest {
     }
 
 
-    public static void main(String[] args) throws UnsupportedEncodingException, InterruptedException, SQLException {
+    public static void main3(String[] args) throws UnsupportedEncodingException, InterruptedException, SQLException {
         testChar();
 
 
@@ -262,18 +293,7 @@ public class CharTest {
         return bs[0] == 40 && bs[1] == -62 && bs[2] == -75 && bs[3] == 47 && bs[4] == -61 && bs[5] == -67 && bs[6] == 32;
     }
 
-    private static void insert() throws SQLException, UnsupportedEncodingException {
-        int id = new Random().nextInt(10000);
-        String str = "滴滴员工tangbohu的终身代号是什么？？？是9527";
-        byte[] bt = ZstdUtils.compress(str.getBytes());
 
-        PreparedStatement pstmt = getConn().prepareStatement("insert into tracer_model (responseContent) values(?)");
-        for (int i = 0; i < 1; i++) {
-            pstmt.setString(1, new String(bt,"ISO8859-1"));
-            pstmt.addBatch();
-        }
-         pstmt.executeBatch();
-    }
 
     //[40, -75, 47, -3, 32
     private static void testChar() throws UnsupportedEncodingException {
@@ -290,6 +310,31 @@ public class CharTest {
         // [40, -75, 47, -3, 32,
         System.out.println("@@@ => "+ Arrays.toString(zipStr.getBytes("ISO8859-1")));
         System.out.println("### "+ ZstdUtils.decompress(zipStr.getBytes("ISO8859-1")));
+    }
 
+
+
+    private static Connection getConn() {
+
+        String username = "default";
+        String address = "jdbc:clickhouse://127.0.0.1:8123";
+        String db = "default";
+        int socketTimeout = 600000;
+
+        ClickHouseProperties properties = new ClickHouseProperties();
+        properties.setUser(username);
+        properties.setDatabase(db);
+        properties.setSocketTimeout(socketTimeout);
+        ClickHouseDataSource clickHouseDataSource = new ClickHouseDataSource(address, properties);
+
+        ClickHouseConnection conn;
+        try {
+            conn = clickHouseDataSource.getConnection();
+            return conn;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

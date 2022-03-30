@@ -26,6 +26,13 @@ public class DateUtils {
         } catch (ParseException e) {
             return null;
         }
+    }
 
+
+    public static String formatNow() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date after = new Date();
+        //返回
+        return sdf.format(after);
     }
 }

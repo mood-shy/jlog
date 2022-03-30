@@ -12,7 +12,7 @@ public class TracerVO {
     /**
      * 用户pin
      */
-    private String pin;
+    private String uid;
     /**
      * 请求正文
      */

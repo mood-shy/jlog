@@ -9,6 +9,7 @@ import com.jd.platform.jlog.dashboard.utils.DbUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
@@ -49,16 +50,18 @@ public class TracerService {
 
         List<WhereCause> causes = DbUtils.convertTracerToCause(queryListModel);
 
-        String[] columns = {"uri", "tracerId", "pin", "uuid", "createTime",
-                "costTime", "clientType", "clientVersion", "userIp", "serverIp"};
+        String[] columns = {"tracerId", "uid", "createTime", "costTime", "errno", "errmsg", "app", "uri"};
 
         try {
             List<Map<String, Object>> list = db.count(MODEL_TABLE_NAME, causes);
+            if(CollectionUtils.isEmpty(list)){
+                return null;
+            }
             Map<String, Object> map = list.get(0);
             //总条数
             long count = 0;
             for (String key : map.keySet()) {
-                count = Long.valueOf(map.get(key).toString());
+                count = Long.parseLong(map.get(key).toString());
                 break;
             }
             tracerListVO.setTotal(count);
@@ -85,12 +88,10 @@ public class TracerService {
      * <p>
      * 理论只有一条
      */
-    public Map<String, Object> findOne(String tracerId, String pin, String uuid, String beginTime, String endTime) {
+    public Map<String, Object> findOne(String tracerId, String uid, String beginTime, String endTime) {
         List<WhereCause> causes = new ArrayList<>(1);
-        if (!StringUtils.isEmpty(pin)) {
-            DbUtils.addEqualWhereCause(causes, "pin", pin);
-        } else if (!StringUtils.isEmpty(uuid)) {
-            DbUtils.addEqualWhereCause(causes, "uuid", uuid);
+        if (!StringUtils.isEmpty(uid)) {
+            DbUtils.addEqualWhereCause(causes, "uid", uid);
         }
         //查单条也要带着时间
         if (!StringUtils.isEmpty(beginTime)) {
@@ -102,7 +103,7 @@ public class TracerService {
 
         DbUtils.addEqualWhereCause(causes, "tracerId", tracerId);
 
-        String[] columns = {"pin", "requestContent", "responseContent"};
+        String[] columns = {"uid", "requestContent", "responseContent"};
 
         try {
             List<Map<String, Object>> list = db.queryOne(MODEL_TABLE_NAME, columns, causes, 1);

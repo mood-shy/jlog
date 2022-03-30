@@ -206,7 +206,7 @@ public class Db {
         if (orderBy) {
             orderByStr = "createTime desc ";
         }
-        return query(tableName + "_dis", false, columns, twoTuple.getFirst(), twoTuple.getSecond(), null, null, orderByStr, limit);
+        return query(tableName, false, columns, twoTuple.getFirst(), twoTuple.getSecond(), null, null, orderByStr, limit);
     }
 
     /**
@@ -227,7 +227,7 @@ public class Db {
         }
         String limit = 20 * (pageNum - 1) + ", 20";
 
-        return query(tableName + "_dis", false, columns, twoTuple.getFirst(), twoTuple.getSecond(), null, null, null, limit);
+        return query(tableName, false, columns, twoTuple.getFirst(), twoTuple.getSecond(), null, null, null, limit);
     }
 
     /**
@@ -242,7 +242,7 @@ public class Db {
      */
     public List<Map<String, Object>> count(String tableName, List<WhereCause> causeList) throws Exception {
         TwoTuple<String, Object[]> twoTuple = buildWhereArgs(causeList);
-        return query(tableName + "_dis", false, new String[]{"count(*)"}, twoTuple.getFirst(), twoTuple.getSecond(), null, null, null, null);
+        return query(tableName, false, new String[]{"count(*)"}, twoTuple.getFirst(), twoTuple.getSecond(), null, null, null, null);
     }
 
     private TwoTuple<String, Object[]> buildWhereArgs(List<WhereCause> causeList) {
@@ -415,7 +415,7 @@ public class Db {
             }
             datas.add(rowMap);
         }
-        logger.info("成功查询到了" + datas.size() + "行数据");
+        logger.info("成功查询到了" + (datas.size() == 1 ? 0 : datas.size()) + "行数据");
 //        for (int i = 0; i < datas.size(); i++) {
 //            Map<String, Object> map = datas.get(i);
 //            logger.info("第" + (i + 1) + "行：" + map);
