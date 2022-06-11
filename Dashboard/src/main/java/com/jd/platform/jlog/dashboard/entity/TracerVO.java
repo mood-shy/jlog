@@ -7,7 +7,7 @@ import lombok.Data;
  * @version 1.0
  * @date 2021-09-02
  */
-@Data
+
 public class TracerVO {
     /**
      * 用户pin
@@ -21,4 +21,28 @@ public class TracerVO {
      * 相应正文
      */
     private Object responseContent;
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public String getRequestContent() {
+        return requestContent;
+    }
+
+    public void setRequestContent(String requestContent) {
+        this.requestContent = requestContent;
+    }
+
+    public Object getResponseContent() {
+        return responseContent;
+    }
+
+    public void setResponseContent(Object responseContent) {
+        this.responseContent = responseContent;
+    }
 }

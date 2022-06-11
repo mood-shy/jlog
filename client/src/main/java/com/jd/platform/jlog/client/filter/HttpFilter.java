@@ -161,9 +161,7 @@ public class HttpFilter implements Filter {
 
         Outcome out = ClientHandler.processReq(requestMap);
         requestMap.put(REQ, out.getContent());
-        if(CollectionUtil.isNotEmpty(out.getTagMap())){
-            tracerObject.add(out.getTagMap());
-        }
+        tracerObject.add(out.getTagMap());
     }
 
     @Override

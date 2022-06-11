@@ -314,7 +314,7 @@ public class CharTest {
 
 
 
-    private static Connection getConn() {
+    public static Connection getConn() {
 
         String username = "default";
         String address = "jdbc:clickhouse://127.0.0.1:8123";

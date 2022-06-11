@@ -17,10 +17,10 @@ spring:
 #  batchSize: ${BATCH_SIZE:2000}
 #  poolSize: ${POOL_SIZE:5}
 clickhouse:
-  url: jdbc:clickhouse://${MYSQL_HOST:ckpub52.olap.jd.com}:${MYSQL_PORT:2000}
-  db: ${DB_NAME:cart_fangzhou}
-  username: ${MYSQL_USER:cart_fangzhou}
-  password: ${MYSQL_PASS:3V16Ap6Qc9q0LzsSKNjm}
+  url: jdbc:clickhouse://127.0.0.1:8123
+  db: default
+  username: default
+  password:
   batchSize: ${BATCH_SIZE:5000}
   poolSize: ${POOL_SIZE:5}
   insertInterval: ${INSERT_INTERVAL:5}
