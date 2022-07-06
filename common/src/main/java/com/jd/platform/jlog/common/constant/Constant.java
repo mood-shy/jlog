@@ -1,5 +1,7 @@
 package com.jd.platform.jlog.common.constant;
 
+import com.jd.platform.jlog.common.utils.ZstdUtils;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,7 +31,7 @@ public class Constant {
     public static String DEFAULT_DELETE_VALUE = "#[DELETE]#";
 
 
-    public static byte[] DEFAULT_BYTE = "default".getBytes();
+    public static byte[] DEFAULT_BYTE = ZstdUtils.compress("default".getBytes());
 
 
     public static final String REQ = "request";
