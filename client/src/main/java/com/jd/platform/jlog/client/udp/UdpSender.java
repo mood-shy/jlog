@@ -39,7 +39,7 @@ public class UdpSender {
      */
     private static AtomicLong SUCCESS_LOGGER_OFFER_COUNT = new AtomicLong();
     /**
-     * 出入参集中营，最多积压5万个
+     * 出入参集中营，最多积压5万条
      */
     private static LinkedBlockingQueue<TracerBean> tracerBeanQueue = new LinkedBlockingQueue<>(50000);
     /**
@@ -88,7 +88,7 @@ public class UdpSender {
 
 
     /**
-     * 定时往worker发烧
+     * 定时向worker发送
      */
     public static void uploadToWorker() {
         //filter拦截到的出入参
