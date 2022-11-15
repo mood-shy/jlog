@@ -1,6 +1,6 @@
 package com.jd.platform.jlog.client.worker;
 
-
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -33,12 +33,12 @@ public class WorkerInfoHolder {
         if (size == 0) {
             return workerIp;
         }
+
         //按本机ip对worker数量进行hash
 //        int index = Math.abs(IpUtils.getIp().hashCode() % size);
         if (index >= WORKER_HOLDER.size()) {
             index = 0;
         }
-
         try {
             workerIp = WORKER_HOLDER.get(index);
         } catch (Exception e) {
@@ -49,7 +49,15 @@ public class WorkerInfoHolder {
 
         return workerIp;
     }
-
+    //多播模式 返回所有注册在注册中心为Work的地址
+    public static List<String> selectWorkers(){
+        List<String>defaultIps=new ArrayList<>();
+        defaultIps.add("127.0.0.1:9999");
+        if(WORKER_HOLDER.size()==0){
+            return defaultIps;
+        }
+        return WORKER_HOLDER;
+    }
     /**
      * 监听到worker信息变化后
      * 将新的worker信息和当前的进行合并，并且连接新的address
