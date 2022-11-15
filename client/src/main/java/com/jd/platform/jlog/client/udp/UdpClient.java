@@ -1,6 +1,7 @@
 package com.jd.platform.jlog.client.udp;
 
 import com.jd.platform.jlog.client.Context;
+import com.jd.platform.jlog.client.modeholder.ModeHolder;
 import com.jd.platform.jlog.client.worker.WorkerInfoHolder;
 import com.jd.platform.jlog.common.constant.Constant;
 import com.jd.platform.jlog.common.model.TracerData;
@@ -91,15 +92,19 @@ public class UdpClient {
 
             ByteBuf buf = channelHandlerContext.alloc().buffer(compressBytes.length);
             buf.writeBytes(compressBytes);
-
-            //挑一个worker
-            String workerIpPort = WorkerInfoHolder.chooseWorker();
-            if (workerIpPort == null) {
-                return;
+            InetSocketAddress remoteAddress=null;
+            if(ModeHolder.getSendMode().getUnicast()){
+                //挑选worker
+                String workerIpPort =  WorkerInfoHolder.chooseWorker();
+                if (workerIpPort == null) {
+                    return;
+                }
+                String[] ipPort = workerIpPort.split(Constant.SPLITER);
+                //发往worker的ip
+                remoteAddress= new InetSocketAddress(ipPort[0], Integer.valueOf(ipPort[1]));
+            }else{
+                remoteAddress=tracerData.getAddress();
             }
-            String[] ipPort = workerIpPort.split(Constant.SPLITER);
-            //发往worker的ip
-            InetSocketAddress remoteAddress = new InetSocketAddress(ipPort[0], Integer.valueOf(ipPort[1]));
             DatagramPacket packet = new DatagramPacket(buf, remoteAddress);
             list.add(packet);
         }

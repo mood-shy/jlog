@@ -1,6 +1,7 @@
 package com.jd.platform.jlog.common.model;
 
 import java.io.Serializable;
+import java.net.InetSocketAddress;
 import java.util.List;
 
 /**
@@ -15,12 +16,17 @@ public class TracerData implements Serializable {
      */
     private List<TracerBean> tracerBeanList;
 
-    @Override
+    private transient InetSocketAddress address;
+    /*@Override
     public String toString() {
         return "TracerData{" +
                 "tracerBeanList=" + tracerBeanList +
                 '}';
-    }
+    }*/
+
+    public InetSocketAddress getAddress() { return address; }
+
+    public void setAddress(InetSocketAddress address) { this.address = address; }
 
     public List<TracerBean> getTracerBeanList() {
         return tracerBeanList;
