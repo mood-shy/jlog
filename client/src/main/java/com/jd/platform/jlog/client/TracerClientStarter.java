@@ -3,10 +3,12 @@ package com.jd.platform.jlog.client;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.platform.jlog.client.mdc.Mdc;
+import com.jd.platform.jlog.client.modeholder.ModeHolder;
 import com.jd.platform.jlog.client.task.Monitor;
 import com.jd.platform.jlog.client.udp.HttpSender;
 import com.jd.platform.jlog.client.udp.UdpClient;
 import com.jd.platform.jlog.client.udp.UdpSender;
+import com.jd.platform.jlog.common.constant.SendMode;
 import com.jd.platform.jlog.common.handler.TagConfig;
 import com.jd.platform.jlog.core.ClientHandlerBuilder;
 import com.jd.platform.jlog.core.Configurator;
@@ -37,7 +39,7 @@ public class TracerClientStarter {
      */
     private TagConfig tagConfig;
 
-
+    private SendMode sendMode;
     /**
      * TracerClientStarter
      */
@@ -52,6 +54,7 @@ public class TracerClientStarter {
         private String appName;
         private Mdc mdc;
         private TagConfig tagConfig;
+        private SendMode sendMode;
 
         public Builder() {
         }
@@ -66,6 +69,11 @@ public class TracerClientStarter {
             return this;
         }
 
+        public Builder setSendMode(SendMode sendMode) {
+            this.sendMode = sendMode;
+            return this;
+        }
+
         public Builder setTagConfig(TagConfig tagConfig) {
             this.tagConfig = tagConfig;
             return this;
@@ -75,6 +83,7 @@ public class TracerClientStarter {
             TracerClientStarter tracerClientStarter = new TracerClientStarter(appName);
             tracerClientStarter.tagConfig = tagConfig;
             tracerClientStarter.mdc = mdc;
+            tracerClientStarter.sendMode=sendMode;
             return tracerClientStarter;
         }
     }
@@ -87,6 +96,8 @@ public class TracerClientStarter {
         initJLogConfig();
 
         Context.MDC = mdc;
+
+        ModeHolder.setSendMode(this.sendMode);
 
         Monitor starter = new Monitor();
         starter.start();

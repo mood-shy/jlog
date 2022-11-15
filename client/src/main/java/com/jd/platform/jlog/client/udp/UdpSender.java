@@ -1,14 +1,20 @@
 package com.jd.platform.jlog.client.udp;
 
 import com.jd.platform.jlog.client.Context;
+import com.jd.platform.jlog.client.modeholder.ModeHolder;
+import com.jd.platform.jlog.client.worker.WorkerInfoHolder;
+import com.jd.platform.jlog.common.constant.Constant;
 import com.jd.platform.jlog.common.model.RunLogMessage;
 import com.jd.platform.jlog.common.model.TracerBean;
 import com.jd.platform.jlog.common.model.TracerData;
 import com.jd.platform.jlog.common.utils.AsyncPool;
 import com.jd.platform.jlog.common.utils.AsyncWorker;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.socket.DatagramPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -140,9 +146,23 @@ public class UdpSender {
     /**
      * 往worker发traceBean
      */
-    private static void send(List<TracerBean> tracerBeans) {
+    private static void send(List<TracerBean> tracerBeans) throws InterruptedException {
         TracerData tracerData = new TracerData();
         tracerData.setTracerBeanList(tracerBeans);
-        Context.CHANNEL.writeAndFlush(tracerData);
+        if(!ModeHolder.getSendMode().getUnicast()){
+            List<String>ips= WorkerInfoHolder.selectWorkers();
+            for(String ip:ips){
+                String[] ipPort = ip.split(Constant.SPLITER);
+                //发往worker的ip
+                InetSocketAddress remoteAddress = new InetSocketAddress(ipPort[0], Integer.valueOf(ipPort[1]));
+                tracerData.setAddress(remoteAddress);
+                ChannelFuture future = Context.CHANNEL.writeAndFlush(tracerData);
+                //同步操作，否则会出现bug
+                future.sync();
+            }
+            return;
+        }else {
+            Context.CHANNEL.writeAndFlush(tracerData);
+        }
     }
 }
