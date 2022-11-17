@@ -86,7 +86,7 @@ public class UdpClient {
             //判断压缩完是否过大，过大走http接口请求worker
             if (compressBytes.length >= COMPRESS_BYTES_LEN) {
                 //放入发okhttp的队列
-                HttpSender.offerBean(compressBytes);
+                HttpSender.offerBean(compressBytes,tracerData.getAddress());
                 return;
             }
 

@@ -16,13 +16,8 @@ public class TracerData implements Serializable {
      */
     private List<TracerBean> tracerBeanList;
 
+    //发送地址（仅多播时候使用）
     private transient InetSocketAddress address;
-    /*@Override
-    public String toString() {
-        return "TracerData{" +
-                "tracerBeanList=" + tracerBeanList +
-                '}';
-    }*/
 
     public InetSocketAddress getAddress() { return address; }
 
@@ -34,5 +29,13 @@ public class TracerData implements Serializable {
 
     public void setTracerBeanList(List<TracerBean> tracerBeanList) {
         this.tracerBeanList = tracerBeanList;
+    }
+
+    @Override
+    public String toString() {
+        return "TracerData{" +
+                "tracerBeanList=" + tracerBeanList +
+                ", address=" + address +
+                '}';
     }
 }
