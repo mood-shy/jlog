@@ -1,5 +1,6 @@
 package com.jd.platform.jlog.client.udp;
 
+import com.jd.platform.jlog.client.modeholder.ModeHolder;
 import com.jd.platform.jlog.client.worker.WorkerInfoHolder;
 import com.jd.platform.jlog.common.utils.AsyncPool;
 import okhttp3.*;
@@ -7,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -42,10 +44,15 @@ public class HttpSender {
      */
     private static LinkedBlockingQueue<OneTracer> tracerDataQueue = new LinkedBlockingQueue<>(500);
 
+    //地址（仅多播时候使用）
+    private static InetSocketAddress address;
     /**
      * 写入队列
      */
-    public static void offerBean(byte[] compressBytes) {
+    public static void offerBean(byte[] compressBytes, InetSocketAddress address) {
+        if(address!=null){
+            HttpSender.address=address;
+        }
         OneTracer oneTracer = new OneTracer();
         oneTracer.setBytes(compressBytes);
         //容量是否已满
@@ -64,7 +71,7 @@ public class HttpSender {
     }
 
     /**
-     * 定时往worker发烧
+     * 定时往worker发送
      */
     public static void uploadToWorker() {
         //filter拦截到的出入参
@@ -112,9 +119,18 @@ public class HttpSender {
                 .addFormDataPart("data", "data", requestBody)
                 .build();
 
-        //挑一个worker
-        String rawIpPort = WorkerInfoHolder.chooseWorker();
-        String ipPort = rawIpPort.substring(0, rawIpPort.lastIndexOf(":")) + ":8080";
+        String rawIpPort;
+        String ipPort;
+        if(ModeHolder.getSendMode().getUnicast()){
+              //挑一个worker
+              rawIpPort = WorkerInfoHolder.chooseWorker();
+              ipPort = rawIpPort.substring(0, rawIpPort.lastIndexOf(":")) + ":8080";
+        }else{
+                //直接从TracerData中获取地址
+               rawIpPort=HttpSender.address.getHostName();
+               ipPort=rawIpPort+":8080";
+        }
+
         String url = "http://" + ipPort + "/big/receive";
 
         Request request = new Request.Builder()
