@@ -1,6 +1,5 @@
 package com.jd.platform.jlog.dashboard.entity;
 
-import lombok.Data;
 
 /**
  * @author shenkaiwen5
