@@ -90,16 +90,16 @@ public class TracerService {
      */
     public Map<String, Object> findOne(String tracerId, String uid, String beginTime, String endTime) {
         List<WhereCause> causes = new ArrayList<>(1);
-//        if (!StringUtils.isEmpty(uid)) {
-//            DbUtils.addEqualWhereCause(causes, "uid", uid);
-//        }
-//        //查单条也要带着时间
-//        if (!StringUtils.isEmpty(beginTime)) {
-//            DbUtils.addGeWhereCause(causes, "createTime", beginTime);
-//        }
-//        if (!StringUtils.isEmpty(endTime)) {
-//            DbUtils.addLeWhereCause(causes, "createTime", endTime);
-//        }
+        if (!StringUtils.isEmpty(uid)) {
+            DbUtils.addEqualWhereCause(causes, "uid", uid);
+        }
+        //查单条也要带着时间
+        if (!StringUtils.isEmpty(beginTime)) {
+            DbUtils.addGeWhereCause(causes, "createTime", beginTime);
+        }
+        if (!StringUtils.isEmpty(endTime)) {
+            DbUtils.addLeWhereCause(causes, "createTime", endTime);
+        }
 
         DbUtils.addEqualWhereCause(causes, "tracerId", tracerId);
 
@@ -123,13 +123,13 @@ public class TracerService {
         TracerListVO tracerListVO = new TracerListVO();
 
         List<WhereCause> causes = new ArrayList<>(1);
-//        if (!StringUtils.isEmpty(createTime)) {
-//            String beginTime = DateUtils.addAndSubtractTime(createTime, -5000L);
-//            String endTime = DateUtils.addAndSubtractTime(createTime, 5000L);
-//            //查单条也要带着时间
-//            DbUtils.addGeWhereCause(causes, "createTime", beginTime);
-//            DbUtils.addLeWhereCause(causes, "createTime", endTime);
-//        }
+        if (!StringUtils.isEmpty(createTime)) {
+            String beginTime = DateUtils.addAndSubtractTime(createTime, -5000L);
+            String endTime = DateUtils.addAndSubtractTime(createTime, 5000L);
+            //查单条也要带着时间
+            DbUtils.addGeWhereCause(causes, "createTime", beginTime);
+            DbUtils.addLeWhereCause(causes, "createTime", endTime);
+        }
         DbUtils.addEqualWhereCause(causes, "tracerId", tracerId);
         try {
             List<Map<String, Object>> list = db.queryOne(LOG_TABLE_NAME, null, causes, pageNum);
