@@ -41,7 +41,7 @@ public class TestController {
     @RequestMapping("/index")
     public Object index()  {
         TracerBean tracerBean = new TracerBean();
-        tracerBean.setTracerId("11111");
+        tracerBean.setTracerId(11111L);
 
         Configurator configurator = ConfiguratorFactory.getInstance();
         try{
