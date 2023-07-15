@@ -2,6 +2,7 @@ package com.jd.platform.jlog.client.filter;
 
 import com.jd.platform.jlog.client.Context;
 import com.jd.platform.jlog.client.cache.ExtParamFactory;
+import com.jd.platform.jlog.client.log.LogExceptionStackTrace;
 import com.jd.platform.jlog.client.percent.DefaultTracerPercentImpl;
 import com.jd.platform.jlog.client.percent.ITracerPercent;
 import com.jd.platform.jlog.client.tracerholder.TracerHolder;
@@ -10,7 +11,6 @@ import com.jd.platform.jlog.common.model.TracerBean;
 import com.jd.platform.jlog.common.handler.CompressHandler.Outcome;
 import com.jd.platform.jlog.common.utils.IdWorker;
 import com.jd.platform.jlog.common.utils.IpUtils;
-import com.jd.platform.jlog.common.utils.StringUtils;
 import com.jd.platform.jlog.core.ClientHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +97,7 @@ public class HttpFilter implements Filter {
                     resp, filterChain));
         } catch (Exception e) {
             //异常信息
-            tracerBean.setErrmsg(StringUtils.errorInfoToString(e));
+            tracerBean.setErrmsg(LogExceptionStackTrace.erroStackTrace(e).toString());
             filterChain.doFilter(requestWrapper, servletResponse);
         }finally {
             //设置耗时

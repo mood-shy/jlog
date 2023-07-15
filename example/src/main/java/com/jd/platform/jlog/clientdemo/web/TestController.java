@@ -70,6 +70,9 @@ public class TestController {
         if(newKey == 1){
             return 1;
         }
+        if(uid!=null && 3==uid){
+            throw new RuntimeException("发生异常了");
+        }
         return new Response("滴滴员工tangbohu的终身代号是什么？？？是9527");
     }
 
