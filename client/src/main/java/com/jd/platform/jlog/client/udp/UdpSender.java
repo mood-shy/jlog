@@ -4,13 +4,13 @@ import com.jd.platform.jlog.client.Context;
 import com.jd.platform.jlog.client.modeholder.ModeHolder;
 import com.jd.platform.jlog.client.worker.WorkerInfoHolder;
 import com.jd.platform.jlog.common.constant.Constant;
-import com.jd.platform.jlog.common.model.RunLogMessage;
+import com.jd.platform.jlog.common.constant.LogTypeEnum;
 import com.jd.platform.jlog.common.model.TracerBean;
+import com.jd.platform.jlog.common.model.RunLogMessage;
 import com.jd.platform.jlog.common.model.TracerData;
 import com.jd.platform.jlog.common.utils.AsyncPool;
 import com.jd.platform.jlog.common.utils.AsyncWorker;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.socket.DatagramPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,9 +57,9 @@ public class UdpSender {
     /**
      * 写入队列
      */
-    public static void offerBean(TracerBean tracerBean) {
+    public static void offerBean(TracerBean tracerModel) {
         //容量是否已满
-        boolean success = tracerBeanQueue.offer(tracerBean);
+        boolean success = tracerBeanQueue.offer(tracerModel);
         if (!success) {
             long failCount = FAIL_OFFER_COUNT.incrementAndGet();
             if (failCount % 10 == 0) {
@@ -105,7 +105,10 @@ public class UdpSender {
                     TracerBean tracerBean = tracerBeanQueue.take();
                     tempTracers.add(tracerBean);
 
-                    send(tempTracers);
+                    TracerData tracerData = new TracerData();
+                    tracerData.setTracerBeanList(tempTracers);
+                    tracerData.setType(LogTypeEnum.SPAN);
+                    send(tracerData);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -121,21 +124,10 @@ public class UdpSender {
                     if (tempLogs.size() == 0) {
                         continue;
                     }
-
-                    List<TracerBean> tempTracers = new ArrayList<>();
-                    TracerBean tracerBean = new TracerBean();
-                    tracerBean.setTracerId("-1");
-                    List<Map<String, Object>> tracerObject = new ArrayList<>();
-
-                    Map<String, Object> map = new HashMap<>();
-                    for (RunLogMessage runLogMessage : tempLogs) {
-                        map.put(UUID.randomUUID().toString(), runLogMessage);
-                    }
-                    tracerObject.add(map);
-                    tracerBean.setTracerObject(tracerObject);
-                    tempTracers.add(tracerBean);
-
-                    send(tempTracers);
+                    TracerData tracerData = new TracerData();
+                    tracerData.setTempLogs(tempLogs);
+                    tracerData.setType(LogTypeEnum.TRADE);
+                    send(tracerData);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -146,9 +138,7 @@ public class UdpSender {
     /**
      * 往worker发traceBean
      */
-    private static void send(List<TracerBean> tracerBeans) throws InterruptedException {
-        TracerData tracerData = new TracerData();
-        tracerData.setTracerBeanList(tracerBeans);
+    private static void send(TracerData tracerData) throws InterruptedException {
         if(!ModeHolder.getSendMode().getUnicast()){
             List<String>ips= WorkerInfoHolder.selectWorkers();
             for(String ip:ips){
