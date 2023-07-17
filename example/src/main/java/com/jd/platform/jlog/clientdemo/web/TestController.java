@@ -41,7 +41,7 @@ public class TestController {
     @RequestMapping("/index")
     public Object index()  {
         TracerBean tracerBean = new TracerBean();
-        tracerBean.setTracerId("11111");
+        tracerBean.setTracerId(11111L);
 
         Configurator configurator = ConfiguratorFactory.getInstance();
         try{
@@ -69,6 +69,9 @@ public class TestController {
         RequestLog.info("|errno=val3||node=val4||这是随便的log|");
         if(newKey == 1){
             return 1;
+        }
+        if(uid!=null && 3==uid){
+            throw new RuntimeException("发生异常了");
         }
         return new Response("滴滴员工tangbohu的终身代号是什么？？？是9527");
     }
