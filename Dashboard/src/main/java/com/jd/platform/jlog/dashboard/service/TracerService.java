@@ -107,7 +107,7 @@ public class TracerService {
 
         try {
             List<Map<String, Object>> list = db.queryOne(MODEL_TABLE_NAME, columns, causes, 1);
-            return list.get(0);
+            return list.size() > 0 ? list.get(0) : null;
         } catch (Exception e) {
             logger.error("TracerService.findOne [error]", e);
             e.printStackTrace();
