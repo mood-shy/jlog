@@ -1,6 +1,5 @@
 package com.jd.platform.jlog.dashboard.model;
 
-import lombok.Data;
 
 /**
  * 查询条件对象

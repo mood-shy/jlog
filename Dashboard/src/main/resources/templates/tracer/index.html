@@ -193,7 +193,10 @@
                 },
                 {
                     field: 'errmsg',
-                    title: '错误信息'
+                    title: '错误信息',
+                    formatter: function(value, row, index) {
+                        return $.table.tooltip(value, 100, "open");
+                    }
                 },
                 {
                     field: 'createTime',

@@ -1,75 +1,130 @@
 package com.jd.platform.jlog.common.model;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
+import java.util.Arrays;
 
 /**
- * 承载传输信息的对象
- * @author wuweifeng
- * @version 1.0
- * @date 2021-08-12
+ * @author xiaochangbai
+ * @date 2023-07-15 11:25
  */
 public class TracerBean implements Serializable {
-    /**
-     * 时间戳
-     */
-    private long createTime;
-    /**
-     * 耗时（毫秒）
-     */
-    private int costTime;
-    /**
-     * 唯一id，代表一条链路
-     */
-    private String tracerId;
-    /**
-     * tracer对象，里面放的是List<Map<String, Object>>
-     * 第一个元素是request对象，key为request，value为完整request入参，从中可找到uuid
-     * 最后一个元素是response响应，key为response，value为响应值byte[]，可转为String入库
-     */
-    private List<Map<String, Object>> tracerObject;
+
+    private Long tracerId;
+    private byte[] requestContent;
+    private byte[] responseContent;
+    private Long costTime;
+    private String uid;
+    private String errno;
+    private String errmsg;
+    private String app;
+    private String uri;
+    private String createTime;
+
+    private Long createTimeLong;
 
 
-    @Override
-    public String toString() {
-        return "TracerBean{" +
-                "createTime=" + createTime +
-                ", costTime=" + costTime +
-                ", tracerId='" + tracerId + '\'' +
-                ", tracerObject=" + tracerObject +
-                '}';
-    }
-
-    public String getTracerId() {
+    public Long getTracerId() {
         return tracerId;
     }
 
-    public void setTracerId(String tracerId) {
+    public void setTracerId(Long tracerId) {
         this.tracerId = tracerId;
     }
 
-    public int getCostTime() {
+    public byte[] getRequestContent() {
+        return requestContent;
+    }
+
+    public void setRequestContent(byte[] requestContent) {
+        this.requestContent = requestContent;
+    }
+
+    public byte[] getResponseContent() {
+        return responseContent;
+    }
+
+    public void setResponseContent(byte[] responseContent) {
+        this.responseContent = responseContent;
+    }
+
+    public Long getCostTime() {
         return costTime;
     }
 
-    public void setCostTime(int costTime) {
+    public void setCostTime(Long costTime) {
         this.costTime = costTime;
     }
 
-    public long getCreateTime() {
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public String getErrno() {
+        return errno;
+    }
+
+    public void setErrno(String errno) {
+        this.errno = errno;
+    }
+
+    public String getErrmsg() {
+        return errmsg;
+    }
+
+    public void setErrmsg(String errmsg) {
+        this.errmsg = errmsg;
+    }
+
+    public String getApp() {
+        return app;
+    }
+
+    public void setApp(String app) {
+        this.app = app;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
+    public String getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(long createTime) {
+    public void setCreateTime(String createTime) {
         this.createTime = createTime;
     }
 
-    public List<Map<String, Object>> getTracerObject() {
-        return tracerObject;
+    public Long getCreateTimeLong() {
+        return createTimeLong;
     }
 
-    public void setTracerObject(List<Map<String, Object>> tracerObject) {
-        this.tracerObject = tracerObject;
+    public void setCreateTimeLong(Long createTimeLong) {
+        this.createTimeLong = createTimeLong;
+    }
+
+    @Override
+    public String toString() {
+        return "TracerModel{" +
+                "tracerId=" + tracerId +
+                ", requestContent=" + Arrays.toString(requestContent) +
+                ", responseContent=" + Arrays.toString(responseContent) +
+                ", costTime=" + costTime +
+                ", uid='" + uid + '\'' +
+                ", errno='" + errno + '\'' +
+                ", errmsg='" + errmsg + '\'' +
+                ", app='" + app + '\'' +
+                ", uri='" + uri + '\'' +
+                ", createTime=" + createTime +
+                ", createTimeLong=" + createTimeLong +
+                '}';
     }
 }

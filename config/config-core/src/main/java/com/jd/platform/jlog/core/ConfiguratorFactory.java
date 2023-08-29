@@ -78,7 +78,7 @@ public class ConfiguratorFactory {
      * 自定义配置器覆盖文件配置器
      * @param configurator 配置器
      */
-    public static synchronized void cover(FileConfigurator configurator){
+    public static synchronized void cover(Configurator configurator){
         instance = configurator;
         LOGGER.info("自定义配置器类型:{}", instance.getType());
     }

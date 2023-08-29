@@ -107,4 +107,19 @@ public class RunLogMessage {
     public void setTagMap(Map<String, Object> tagMap) {
         this.tagMap = tagMap;
     }
+
+
+    @Override
+    public String toString() {
+        return "RunLogMessage{" +
+                "tracerId=" + tracerId +
+                ", createTime=" + createTime +
+                ", content=" + content +
+                ", logLevel='" + logLevel + '\'' +
+                ", className='" + className + '\'' +
+                ", methodName='" + methodName + '\'' +
+                ", threadName='" + threadName + '\'' +
+                ", tagMap=" + tagMap +
+                '}';
+    }
 }

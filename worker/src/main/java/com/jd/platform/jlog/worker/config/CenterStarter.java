@@ -25,6 +25,8 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class CenterStarter {
 
+    private final static String configKeyName = "workers";
+
     /**
      * 上报自己的ip到配置中心
      */
@@ -35,10 +37,11 @@ public class CenterStarter {
         scheduledExecutorService.scheduleAtFixedRate(() -> {
 
             try {
-                List<String> list = config.getList("workers");
-                if(!list.contains(buildKey())){
-                    list.add(buildValue());
-                    config.putConfig("workers", JSON.toJSONString(list));
+                List<String> list = config.getList(configKeyName);
+                String value = buildValue();
+                if(!list.contains(value)){
+                    list.add(value);
+                    config.putConfig(configKeyName, JSON.toJSONString(list));
                 }
             } catch (Exception e) {
                 //do nothing
@@ -46,6 +49,15 @@ public class CenterStarter {
             }
 
         }, 0, 5, TimeUnit.SECONDS);
+
+
+        //注册注销事件
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            List<String> configList = config.getList(configKeyName);
+            if(configList.remove(buildValue())){
+                config.putConfig(configKeyName, JSON.toJSONString(configList));
+            }
+        }));
     }
 
     /**
