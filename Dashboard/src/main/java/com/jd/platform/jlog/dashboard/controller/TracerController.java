@@ -1,7 +1,5 @@
 package com.jd.platform.jlog.dashboard.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.jd.platform.jlog.dashboard.entity.TracerListVO;
 import com.jd.platform.jlog.dashboard.entity.TracerVO;
 import com.jd.platform.jlog.dashboard.model.QueryListModel;
@@ -14,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,8 +20,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author shenkaiwen5
@@ -69,27 +70,29 @@ public class TracerController {
         //查询数据
         Map<String, Object> map = tracerService.findOne(traceId, uid, beginTime, endTime);
 
+        TracerVO tracerVO = new TracerVO();
         //转化其中被压缩的response
-        String response = map.get("responseContent").toString();
-        String resp = ZstdUtils.decompress(response.getBytes(StandardCharsets.ISO_8859_1));
-        map.put("responseContent", resp);
-
+        if (Objects.isNull(map)) {
+            map = new HashMap<>();
+            map.put("responseContent", "");
+            map.put("requestContent", "");
+        }
+        map.put("responseContent", StringUtils.hasLength(map.get("responseContent").toString()) ? ZstdUtils.decompress(map.get("responseContent").toString().getBytes(StandardCharsets.ISO_8859_1)) : "");
         //转化其中被压缩的body
         try {
             String req = map.get("requestContent").toString();
-            String re = ZstdUtils.decompress(req.getBytes(StandardCharsets.ISO_8859_1));
+            String re = StringUtils.hasLength(req) ? ZstdUtils.decompress(req.getBytes(StandardCharsets.ISO_8859_1)) : "";
             map.put("requestContent", re);
         } catch (Exception e) {
             logger.info("TracerController.detail", e);
         }
-
         //转为结果类
-        TracerVO tracerVO = new TracerVO();
         BeanUtils.populate(tracerVO, map);
         //存入返回模板值
         mmap.put("tracerVO", tracerVO);
         //logger.info(new String(zstd));
 
+        mmap.put("tracerVO", tracerVO);
         return "tracer/detail";
     }
 
