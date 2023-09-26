@@ -1,22 +1,21 @@
-package com.jd.platform.jlog.common.handler;
+package com.jd.platform.jlog.core;
 
-import com.alibaba.fastjson.JSON;
+import com.jd.platform.jlog.common.handler.TagConfig;
 import com.jd.platform.jlog.common.utils.CollectionUtil;
 import com.jd.platform.jlog.common.utils.ConfigUtil;
 import com.jd.platform.jlog.common.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.jd.platform.jlog.common.constant.Constant.EXTRACT_MIN_LEN;
-import static com.jd.platform.jlog.common.constant.Constant.TAG_NORMAL_KEY;
-import static com.jd.platform.jlog.common.constant.Constant.TAG_NORMAL_KEY_MAX_LEN;
+import static com.jd.platform.jlog.common.constant.Constant.*;
 import static com.jd.platform.jlog.common.handler.CollectMode.*;
-import static com.jd.platform.jlog.common.handler.CollectMode.E_LOG;
-import static com.jd.platform.jlog.common.handler.CollectMode.E_REQ;
 import static com.jd.platform.jlog.common.utils.ConfigUtil.RANDOM;
 
 /**
@@ -204,16 +203,4 @@ public class ExtractHandler {
     static String str3 = "||a=1||eee||b=2";
     static String str4 = "||a=1||eee||b=2||";
 
-
-    public static void main(String[] args) {
-
-
-        //### INSTANCE:TagHandler{reqTags=[uid, url], logTags=[node, bizType],
-        // delimiter='|', delimiterLen=1, join='"="', pattern="", extract=41}
-        //### .content:|errno=val3||node=val4||这是随便的log|
-       System.out.println("msgByRegular1==> "+JSON.toJSONString(extractTest(str1)));
-      /*  System.out.println("msgByRegular2==> "+JSON.toJSONString(extractTest(str2)));
-        System.out.println("msgByRegular3==> "+JSON.toJSONString(extractTest(str3)));
-        System.out.println("msgByRegular4==> "+JSON.toJSONString(extractTest(str4)));*/
-    }
 }

@@ -2,7 +2,6 @@ package com.jd.platform.jlog.core;
 
 import com.jd.platform.jlog.common.handler.CompressHandler;
 import com.jd.platform.jlog.common.handler.CompressHandler.Outcome;
-import com.jd.platform.jlog.common.handler.ExtractHandler;
 
 import java.util.Map;
 
