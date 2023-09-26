@@ -93,17 +93,17 @@ public class TracerConsumer implements WorkHandler<OneTracer> {
      * 处理中途日志
      */
     private void dealTracerLog(List<RunLogMessage> tempLogs) {
-        if(tempLogs==null){
+        if (tempLogs == null) {
             return;
         }
-        for (RunLogMessage runLogMessage :tempLogs) {
+        for (RunLogMessage runLogMessage : tempLogs) {
             Map<String, Object> map = new HashMap<>(12);
             map.put("tracerId", runLogMessage.getTracerId());
             map.put("className", runLogMessage.getClassName());
             map.put("threadName", runLogMessage.getThreadName());
             map.put("methodName", runLogMessage.getMethodName());
             map.put("logLevel", runLogMessage.getLogLevel());
-            map.put("createTime",  formatLongTime(runLogMessage.getCreateTime()));
+            map.put("createTime", formatLongTime(runLogMessage.getCreateTime()));
             map.put("content", runLogMessage.getContent());
             map.putAll(runLogMessage.getTagMap());
             tracerLogToDbStore.offer(map);
@@ -114,11 +114,11 @@ public class TracerConsumer implements WorkHandler<OneTracer> {
      * 处理filter里处理的出入参
      */
     private void dealFilterModel(List<TracerBean> tracerList) {
-        if(tracerList==null){
+        if (tracerList == null) {
             return;
         }
-        for(TracerBean tracerModel:tracerList){
-            if(tracerModel.getResponseContent()==null){
+        for (TracerBean tracerModel : tracerList) {
+            if (tracerModel.getResponseContent() == null) {
                 tracerModel.setResponseContent(DEFAULT_BYTE);
             }
             tracerModel.setCreateTime(formatLongTime(tracerModel.getCreateTimeLong()));
@@ -130,7 +130,7 @@ public class TracerConsumer implements WorkHandler<OneTracer> {
     }
 
     private static String formatLongTime(long time) {
-        return DEFAULT_FORMATTER.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(time),ZoneId.systemDefault()));
+        return DEFAULT_FORMATTER.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault()));
     }
 
 }

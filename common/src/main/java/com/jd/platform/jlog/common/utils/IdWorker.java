@@ -1,7 +1,5 @@
 package com.jd.platform.jlog.common.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -18,8 +16,6 @@ import java.util.Enumeration;
  * @date 2021-08-23
  */
 public class IdWorker {
-    private static final Logger log = LoggerFactory.getLogger(IdWorker.class);
-
     private static final long EPOCH;
 
     private static final long SEQUENCE_BITS = 6L;
@@ -73,7 +69,6 @@ public class IdWorker {
                 }
             }
         } catch (Exception e) {
-            log.debug("Error when getting host ip address: <{}>.", e.getMessage());
             throw new IllegalStateException("Cannot get LocalHost InetAddress, please check your network!");
         }
         return null;
@@ -85,9 +80,9 @@ public class IdWorker {
      * @param workerId 工作进程Id
      */
     private static void setWorkerId(final Long workerId) {
-        if(workerId >= 0L && workerId < WORKER_ID_MAX_VALUE){
+        if (workerId >= 0L && workerId < WORKER_ID_MAX_VALUE) {
             IdWorker.workerId = workerId;
-        }else{
+        } else {
             throw new RuntimeException("workerId is illegal");
         }
     }
@@ -95,8 +90,8 @@ public class IdWorker {
     //下一个ID生成算法
     public static long nextId() {
         long time = System.currentTimeMillis();
-        if(lastTime > time){
-            throw new RuntimeException("Clock is moving backwards, last time is %d milliseconds, current time is %d milliseconds"+lastTime);
+        if (lastTime > time) {
+            throw new RuntimeException("Clock is moving backwards, last time is %d milliseconds, current time is %d milliseconds" + lastTime);
         }
         if (lastTime == time) {
             if (0L == (sequence = ++sequence & SEQUENCE_MASK)) {
@@ -106,9 +101,6 @@ public class IdWorker {
             sequence = 0;
         }
         lastTime = time;
-        if (log.isDebugEnabled()) {
-            log.debug("{}-{}-{}", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date(lastTime)), workerId, sequence);
-        }
         return ((time - EPOCH) << TIMESTAMP_LEFT_SHIFT_BITS) | (workerId << WORKER_ID_LEFT_SHIFT_BITS) | sequence;
     }
 

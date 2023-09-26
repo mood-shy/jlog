@@ -1,7 +1,6 @@
 package com.jd.platform.jlog.worker.udp;
 
 import com.jd.platform.jlog.worker.disruptor.Producer;
-import com.jd.platform.jlog.worker.store.TracerBeanStore;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
@@ -12,7 +11,6 @@ import io.netty.handler.codec.MessageToMessageDecoder;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -25,11 +23,6 @@ import java.util.List;
  */
 @Component
 public class UdpServer {
-    /**
-     * 信息存储器
-     */
-    @Resource
-    private TracerBeanStore tracerBeanStore;
     /**
      * producer
      */

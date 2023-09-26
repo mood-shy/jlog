@@ -30,8 +30,7 @@ public class ConfigUtil {
 
 
     public static String escapeExprSpecialWord(String str) {
-
-        if (str != null && str.length() > 0) {
+        if (str != null && !str.isEmpty()) {
             for (String s : Constant.SPECIAL_CHAR) {
                 if (str.contains(s)) {
                     str = str.replace(s, "\\" + s);
@@ -123,8 +122,6 @@ public class ConfigUtil {
     }
 
 
-
-
     public static String camelToMidline(String param) {
         if (param == null || "".equals(param.trim())) {
             return "";
@@ -143,7 +140,7 @@ public class ConfigUtil {
         return sb.toString();
     }
 
-    public static String lowerFirst(String fromStr){
+    public static String lowerFirst(String fromStr) {
         char[] chars = fromStr.toCharArray();
         chars[0] += 32;
         return String.valueOf(chars);
@@ -152,9 +149,10 @@ public class ConfigUtil {
 
     /**
      * 只支持简单的对象形配置
-     * @param model bean
+     *
+     * @param model      bean
      * @param properties 配置
-     * @param prefix 前缀
+     * @param prefix     前缀
      */
     @Deprecated
     public static void invoke(Object model, JcProperties properties, String prefix) throws
@@ -169,11 +167,11 @@ public class ConfigUtil {
             String curObjName = ConfigUtil.camelToMidline(lowerFirst(clz.getSimpleName()));
 
             prefix = StringUtil.isEmpty(prefix) ? curObjName : prefix;
-            String fillName = !curObjName.equals(prefix) ? prefix +"."+ curObjName + "." + field.getName() : curObjName + "." + field.getName();
+            String fillName = !curObjName.equals(prefix) ? prefix + "." + curObjName + "." + field.getName() : curObjName + "." + field.getName();
 
-            switch (type){
+            switch (type) {
                 case "class java.lang.String":
-                    field.set(model, properties.getString(fillName)) ;
+                    field.set(model, properties.getString(fillName));
                     break;
                 case "byte":
                     field.setByte(model, Byte.valueOf(properties.getString(fillName)));
@@ -182,7 +180,7 @@ public class ConfigUtil {
                     field.setShort(model, Short.valueOf(properties.getString(fillName)));
                     break;
                 case "int":
-                    field.setInt(model, Integer.parseInt(properties.getString(fillName))) ;
+                    field.setInt(model, Integer.parseInt(properties.getString(fillName)));
                     break;
                 case "long":
                     field.setLong(model, properties.getLong(fillName));
@@ -198,34 +196,34 @@ public class ConfigUtil {
                     break;
                 case "class java.util.Date":
                     Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(properties.getString(fillName));
-                    field.set(model,date) ;
+                    field.set(model, date);
                     break;
                 default:
                     String tn = field.getType().getTypeName();
-                    if("java.util.List".equals(tn)){
+                    if ("java.util.List".equals(tn)) {
                         String[] arr = fillName.split("\\[");
                         int index = 0;
                         String suffix;
                         String fastSuffix;
                         List<String> list = new ArrayList<>();
-                        do{
-                            suffix = "["+index+"]";
-                            fastSuffix = "["+(index+1)+"]";
-                            list.add(properties.getString(arr[0]+suffix));
-                            index ++;
-                        }while (properties.getString(arr[0]+fastSuffix) != null);
+                        do {
+                            suffix = "[" + index + "]";
+                            fastSuffix = "[" + (index + 1) + "]";
+                            list.add(properties.getString(arr[0] + suffix));
+                            index++;
+                        } while (properties.getString(arr[0] + fastSuffix) != null);
                         field.set(model, list);
-                    }else if("java.util.Map".equals(tn)){
+                    } else if ("java.util.Map".equals(tn)) {
                         String val = properties.getString(fillName);
-                        field.set(model,FastJsonUtils.toMap(val));
-                    }else if(field.getType().isArray()){
+                        field.set(model, FastJsonUtils.toMap(val));
+                    } else if (field.getType().isArray()) {
                         String val = properties.getString(fillName);
-                        field.set(model,FastJsonUtils.toArray(val));
-                    }else{
+                        field.set(model, FastJsonUtils.toArray(val));
+                    } else {
                         String[] ar = type.split(" ");
                         Object tinyObj = Class.forName(ar[1]).newInstance();
                         invoke(tinyObj, properties, prefix);
-                        field.set(model,tinyObj);
+                        field.set(model, tinyObj);
                     }
             }
         }
