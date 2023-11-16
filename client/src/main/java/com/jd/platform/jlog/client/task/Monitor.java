@@ -6,6 +6,7 @@ import com.jd.platform.jlog.core.Configurator;
 import com.jd.platform.jlog.core.ConfiguratorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -15,7 +16,6 @@ import java.util.concurrent.TimeUnit;
  * @author tangbohu
  * @version 1.0.0
  * @ClassName Watchdog.java
- * @Description TODO
  * @createTime 2022年02月12日 10:20:00
  */
 public class Monitor {
@@ -58,7 +58,7 @@ public class Monitor {
             //如果设置了机房属性，则拉取同机房的worker。如果同机房没worker，则拉取所有
             addresses = configurator.getList("workers");
             //全是空，给个警告
-            if (addresses == null || addresses.size() == 0) {
+            if (addresses == null || addresses.isEmpty()) {
                 LOGGER.warn("very important warn !!! workers ip info is null!!!");
                 return;
             }

@@ -41,14 +41,13 @@ public class EtcdConfigurator implements Configurator {
 
     private static final Configurator FILE_CONFIG = ConfiguratorFactory.base;
 
-    static final String ROOT = "/jLog";
 
     static final String PROPERTIES_PATH = "/jLog/jLog.properties";
 
     static JcProperties PROPERTIES = new JcProperties();
 
     private EtcdConfigurator() {
-        LOGGER.info("开始构建etcd客户端, serverAddr:{}",FILE_CONFIG.getString(SERVER_ADDR_KEY));
+        LOGGER.info("开始构建etcd客户端, serverAddr:{}", FILE_CONFIG.getString(SERVER_ADDR_KEY));
         client = EtcdClient.forEndpoints(FILE_CONFIG.getString(SERVER_ADDR_KEY)).withPlainText().build();
         RangeResponse rangeResponse = client.getKvClient().get(ByteString.copyFromUtf8(PROPERTIES_PATH)).sync();
         List<KeyValue> keyValues = rangeResponse.getKvsList();
@@ -56,7 +55,7 @@ public class EtcdConfigurator implements Configurator {
             return;
         }
         String val = keyValues.get(0).getValue().toStringUtf8();
-        if(StringUtil.isNotBlank(val)){
+        if (StringUtil.isNotBlank(val)) {
             try {
                 PROPERTIES.load(new StringReader(val));
             } catch (IOException e) {
@@ -81,7 +80,7 @@ public class EtcdConfigurator implements Configurator {
 
     @Override
     public String getString(String key) {
-        return  PROPERTIES.getString(key);
+        return PROPERTIES.getString(key);
     }
 
     @Override
@@ -106,7 +105,7 @@ public class EtcdConfigurator implements Configurator {
 
     @Override
     public boolean putConfig(String key, String content, long timeoutMills) {
-        if(StringUtil.isEmpty(key) || StringUtil.isEmpty(content)){
+        if (StringUtil.isEmpty(key) || StringUtil.isEmpty(content)) {
             return false;
         }
         PROPERTIES.setProperty(key, content);
