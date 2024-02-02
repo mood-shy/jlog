@@ -7,9 +7,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 存储该客户端支持的worker列表
+ *
  * @author wuweifeng
- * @date  2020-01-13
  * @version 1.0
+ * @date 2020-01-13
  */
 public class WorkerInfoHolder {
 
@@ -49,22 +50,24 @@ public class WorkerInfoHolder {
 
         return workerIp;
     }
+
     //多播模式 返回所有注册在注册中心为Work的地址
-    public static List<String> selectWorkers(){
-        List<String>defaultIps=new ArrayList<>();
+    public static List<String> selectWorkers() {
+        List<String> defaultIps = new ArrayList<>();
         defaultIps.add("127.0.0.1:9999");
-        if(WORKER_HOLDER.size()==0){
+        if (WORKER_HOLDER.isEmpty()) {
             return defaultIps;
         }
         return WORKER_HOLDER;
     }
+
     /**
      * 监听到worker信息变化后
      * 将新的worker信息和当前的进行合并，并且连接新的address
      * address例子：10.12.139.152:11111
      */
     public static void mergeAndConnectNew(List<String> allAddresses) {
-        if (allAddresses.size() == 0) {
+        if (allAddresses.isEmpty()) {
             WORKER_HOLDER.clear();
             return;
         }

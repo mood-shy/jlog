@@ -81,7 +81,7 @@ public class TracerLogToDbStore {
         logger.info("logQueue init success");
         //初始化队列长度
         logQueue = new LinkedBlockingQueue<>(preDbSize);
-        int pool = Integer.valueOf(poolSize);
+        int pool = Integer.parseInt(poolSize);
 
         for (int i = 0; i < pool; i++) {
             AsyncPool.asyncDo(() -> {

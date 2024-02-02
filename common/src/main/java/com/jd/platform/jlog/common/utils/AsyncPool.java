@@ -1,10 +1,7 @@
 package com.jd.platform.jlog.common.utils;
 
-import java.util.Collection;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 异步线程池AsyncPool

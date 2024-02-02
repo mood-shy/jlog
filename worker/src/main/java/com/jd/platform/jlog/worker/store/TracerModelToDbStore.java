@@ -80,7 +80,7 @@ public class TracerModelToDbStore {
     public void beginIntoDb() {
         //初始化队列长度
         modelQueue = new LinkedBlockingQueue<>(preDbSize);
-        int pool = Integer.valueOf(poolSize);
+        int pool = Integer.parseInt(poolSize);
 
         for (int i = 0; i < pool; i++) {
             AsyncPool.asyncDo(() -> {
@@ -93,7 +93,7 @@ public class TracerModelToDbStore {
                     try {
                         List<Map<String, Object>> tempModels = new ArrayList<>();
                         //每1s入库一次
-                        AsyncWorker.drain(modelQueue, tempModels, Integer.valueOf(batchSize), interval, TimeUnit.SECONDS);
+                        AsyncWorker.drain(modelQueue, tempModels, Integer.parseInt(batchSize), interval, TimeUnit.SECONDS);
                         if (CollectionUtil.isEmpty(tempModels)) {
                             continue;
                         }
