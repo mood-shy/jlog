@@ -1,7 +1,6 @@
 package com.jd.platform.jlog.client.filter;
 
 import com.jd.platform.jlog.client.Context;
-import com.jd.platform.jlog.client.cache.ExtParamFactory;
 import com.jd.platform.jlog.client.log.LogExceptionStackTrace;
 import com.jd.platform.jlog.client.percent.DefaultTracerPercentImpl;
 import com.jd.platform.jlog.client.percent.ITracerPercent;
@@ -9,8 +8,9 @@ import com.jd.platform.jlog.client.tracerholder.TracerHolder;
 import com.jd.platform.jlog.client.udp.UdpSender;
 import com.jd.platform.jlog.common.model.TracerBean;
 import com.jd.platform.jlog.common.handler.CompressHandler.Outcome;
+import com.jd.platform.jlog.common.utils.FastJsonUtils;
 import com.jd.platform.jlog.common.utils.IdWorker;
-import com.jd.platform.jlog.common.utils.IpUtils;
+import com.jd.platform.jlog.common.utils.StringUtil;
 import com.jd.platform.jlog.core.ClientHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
@@ -26,7 +25,7 @@ import java.util.*;
 
 /**
  * HttpFilter
- * http://blog.chinaunix.net/uid-20783755-id-4729930.html
+ * <a href="http://blog.chinaunix.net/uid-20783755-id-4729930.html">.参考.</a>
  *
  * @author wuweifeng
  * @version 1.0
@@ -99,7 +98,7 @@ public class HttpFilter implements Filter {
             //异常信息
             tracerBean.setErrmsg(LogExceptionStackTrace.erroStackTrace(e).toString());
             filterChain.doFilter(requestWrapper, servletResponse);
-        }finally {
+        } finally {
             //设置耗时
             tracerBean.setCostTime((System.currentTimeMillis() - tracerBean.getCreateTimeLong()));
             //udp发送
@@ -118,7 +117,8 @@ public class HttpFilter implements Filter {
         byte[] contentBytes = mResp.getContent();
         String content = new String(contentBytes);
 
-        Map<String, Object> map = ExtParamFactory.getRespMap(content);
+        Map<String, Object> map = FastJsonUtils.toMap(content);
+
         Outcome outcome = ClientHandler.processResp(contentBytes, map);
 
         //此处可以对content做处理,然后再把content写回到输出流中
@@ -134,7 +134,7 @@ public class HttpFilter implements Filter {
     /**
      * 处理入参相关信息
      */
-    private void parseRequestMap(RequestWrapper requestWrapper, TracerBean tracerBean)  {
+    private void parseRequestMap(RequestWrapper requestWrapper, TracerBean tracerBean) {
         //request的各个入参
         Map<String, String[]> params = requestWrapper.getParameterMap();
         Map<String, Object> requestMap = new HashMap<>(params.size());
@@ -142,8 +142,16 @@ public class HttpFilter implements Filter {
             requestMap.put(key, params.get(key)[0]);
         }
         tracerBean.setUid((String) requestMap.get("uid"));
-        // 自定义的其他的参数对
-        requestMap.putAll(ExtParamFactory.getReqMap(requestWrapper));
+
+        //对于@RequestBody类型的，可以通过该方法读取字符串。是个json串
+        String body = requestWrapper.getBody();
+        if (StringUtil.isNotBlank(body)) {
+            //将json转成map
+            Map<String, Object> jsonMap = FastJsonUtils.toMap(body);
+            // 自定义的其他的参数对
+            requestMap.putAll(jsonMap);
+        }
+
         Outcome out = ClientHandler.processReq(requestMap);
         tracerBean.setRequestContent((byte[]) out.getContent());
     }

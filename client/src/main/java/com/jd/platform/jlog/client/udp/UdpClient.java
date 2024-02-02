@@ -101,7 +101,7 @@ public class UdpClient {
                 }
                 String[] ipPort = workerIpPort.split(Constant.SPLITER);
                 //发往worker的ip
-                remoteAddress= new InetSocketAddress(ipPort[0], Integer.valueOf(ipPort[1]));
+                remoteAddress= new InetSocketAddress(ipPort[0], Integer.parseInt(ipPort[1]));
             }else{
                 remoteAddress=tracerData.getAddress();
             }

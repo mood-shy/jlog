@@ -35,23 +35,23 @@ public class UdpSender {
     /**
      * 本地队列满了后丢弃的数量
      */
-    private static AtomicLong FAIL_OFFER_COUNT = new AtomicLong();
+    private static final AtomicLong FAIL_OFFER_COUNT = new AtomicLong();
     /**
      * 本地队列，已写入的总数量
      */
-    private static AtomicLong SUCCESS_OFFER_COUNT = new AtomicLong();
+    private static final AtomicLong SUCCESS_OFFER_COUNT = new AtomicLong();
     /**
      * 本地logger日志队列，已写入的总数量
      */
-    private static AtomicLong SUCCESS_LOGGER_OFFER_COUNT = new AtomicLong();
+    private static final AtomicLong SUCCESS_LOGGER_OFFER_COUNT = new AtomicLong();
     /**
      * 出入参集中营，最多积压5万条
      */
-    private static LinkedBlockingQueue<TracerBean> tracerBeanQueue = new LinkedBlockingQueue<>(50000);
+    private static final LinkedBlockingQueue<TracerBean> tracerBeanQueue = new LinkedBlockingQueue<>(50000);
     /**
      * 日志集中营，最多积压5万条
      */
-    private static LinkedBlockingQueue<RunLogMessage> logBeanQueue = new LinkedBlockingQueue<>(50000);
+    private static final LinkedBlockingQueue<RunLogMessage> logBeanQueue = new LinkedBlockingQueue<>(50000);
 
 
     /**

@@ -4,7 +4,6 @@ import com.google.protobuf.ByteString;
 import com.ibm.etcd.api.Event;
 import com.ibm.etcd.api.KeyValue;
 import com.ibm.etcd.api.RangeResponse;
-import com.ibm.etcd.client.EtcdClient;
 import com.ibm.etcd.client.kv.KvClient;
 import com.ibm.etcd.client.kv.WatchUpdate;
 import com.jd.platform.jlog.common.handler.JcProperties;
@@ -14,20 +13,14 @@ import com.jd.platform.jlog.core.ClientHandlerBuilder;
 import com.jd.platform.jlog.core.ConfigChangeEvent;
 import com.jd.platform.jlog.core.ConfigChangeListener;
 import com.jd.platform.jlog.core.ConfigChangeType;
-import io.netty.util.concurrent.DefaultThreadFactory;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import static com.jd.platform.jlog.etcd.EtcdConfigurator.PROPERTIES;
 import static com.jd.platform.jlog.etcd.EtcdConfigurator.PROPERTIES_PATH;
-import static com.jd.platform.jlog.etcd.EtcdConfigurator.ROOT;
 
 /**
  * @author tangbohu
