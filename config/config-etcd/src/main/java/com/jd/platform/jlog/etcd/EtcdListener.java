@@ -34,7 +34,7 @@ public class EtcdListener implements ConfigChangeListener {
 
     public EtcdListener() {
 
-        iterator = EtcdConfigurator.client.getKvClient().watch(ByteString.copyFromUtf8(ROOT)).asPrefix().start();
+        iterator = EtcdConfigurator.client.getKvClient().watch(ByteString.copyFromUtf8("/etcd/workers")).asPrefix().start();
         getExecutorService().submit(() -> {
             while (iterator.hasNext()){
                 try {
