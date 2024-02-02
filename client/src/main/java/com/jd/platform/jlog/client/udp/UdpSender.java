@@ -87,7 +87,7 @@ public class UdpSender {
         } else {
             long successCount = SUCCESS_LOGGER_OFFER_COUNT.incrementAndGet();
             if (successCount % 10000 == 0) {
-                logger.info("用户Logger已产生数量：" + successCount + "，当前队列积压数量：" + tracerBeanQueue.size());
+                logger.info("用户Logger已产生数量：" + successCount + "，当前队列积压数量：" + logBeanQueue.size());
             }
         }
     }
