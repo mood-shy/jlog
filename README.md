@@ -21,16 +21,16 @@ clickhouse机器配置为16核64G内存，单机每秒可以稳定写入180M，�
 
 查询界面由于目前前端做的不太好，大概放个图大家了解意思就行，就是查用户跟踪的。
 可以查询出入参，及请求整个链路的日志情况。
-![输入图片说明](tracer.png)
-![输入图片说明](image12.png)
-![输入图片说明](image4.png)
+![输入图片说明](images/tracer.png)
+![输入图片说明](images/image12.png)
+![输入图片说明](images/image4.png)
 
 # 使用说明
 [使用说明](https://gitee.com/jd-platform-opensource/jlog/blob/master/%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md)
 
 
 群已满200人，可加我微信备注JLog，邀请入群
-![输入图片说明](imagewechat.png)
+![输入图片说明](images/imagewechat.png)
 
 # 背景
 京东App作为一个巨大量级的请求入口，涉及了诸多系统，为了保证系统的健壮性、和请求溯源，以及出现问题后的问题排查，通常我们保存了用户请求从出入参、系统中途关键节点日志（info、error）、链路日志等，并且会将日志保存一段时间。
@@ -46,11 +46,11 @@ clickhouse机器配置为16核64G内存，单机每秒可以稳定写入180M，�
 # 方案简介
 详细的可以看开头那篇文章。
 这里只放两张图基本能说明原理。
-![输入图片说明](image1.png)
+![输入图片说明](images/image1.png)
 
-![输入图片说明](image65.png)
+![输入图片说明](images/image65.png)
 
-![输入图片说明](image2.png)
+![输入图片说明](images/image2.png)
 
 基本流程为通过filter获取web请求出入参、自定义log4j、logback的appender搜集中途打印的日志，通过请求入口时生成的tracerId进行关联，写入本地内存（取代写磁盘），进行压缩（字符串空间占用减少80%以上），通过Udp发往worker端（取代mq），worker接收数据抽取索引字段，并入库clickhouse，除未来查询要用的索引字段外，其他内容全程压缩直至入库。
 
