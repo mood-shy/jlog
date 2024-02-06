@@ -61,7 +61,7 @@ public class DbConfig {
      */
     private String parseHostAddress() {
         //共多少个机器
-        int totalNodeNumber = Integer.valueOf(nodeNumber);
+        int totalNodeNumber = Integer.parseInt(nodeNumber);
 
         //lf06-clickhouse-000012-clickhouse-0-0.realtime-data-platform.svc.lf06.n.jd.local
         //在0-0，0-1，1-0，1-1.。。到14-1之间循环

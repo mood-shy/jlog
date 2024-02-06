@@ -94,8 +94,8 @@ public class TracerLogToDbStore {
                     try {
                         List<Map<String, Object>> tempModels = new ArrayList<>();
                         //每1s入库一次
-                        AsyncWorker.drain(logQueue, tempModels, Integer.valueOf(batchSize), interval, TimeUnit.SECONDS);
-                        if (tempModels.size() == 0) {
+                        AsyncWorker.drain(logQueue, tempModels, Integer.parseInt(batchSize), interval, TimeUnit.SECONDS);
+                        if (tempModels.isEmpty()) {
                             continue;
                         }
 
