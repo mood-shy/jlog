@@ -51,7 +51,7 @@ public class Monitor {
      * 从配置中心获取worker的ip集合
      */
     private void fetch() throws Exception {
-        Configurator configurator = ConfiguratorFactory.getInstance();
+        Configurator configurator = 哦 ConfiguratorFactory.getInstance();
         //获取所有worker的ip
         List<String> addresses;
         try {
